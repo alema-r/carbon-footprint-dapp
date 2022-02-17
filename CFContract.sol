@@ -24,16 +24,21 @@ contract CarbonFootprint is ERC721{
         string name;
         string rawMaterial;
         address currentOwner;
-        address[] owners;
-        uint[] cfs;
-        uint finalCF;
+        //address[] owners;
+        //uint[] cfs;
+        uint CF;
         bool ended;
     }
 
 
-    Product[] public allProducts;
+    Product[] private allProducts;
     mapping(string => bool) productExists;
     mapping(address => Role) allUsers;
+
+    event newCFAdded(address userAddress, uint cf, uint256 pId);
+
+    ///
+    //error userAlreadyExists(address senderAddress, Role currentRole);
 
     function createUser(uint role) public {
         require(allUsers[msg.sender] == Role.NonRegistrato, "L'utente ha gia' un ruolo");
@@ -64,17 +69,19 @@ contract CarbonFootprint is ERC721{
         return allProducts;
     }
  
-    function getMyProducts() public view returns (Product[] memory){
-        Product[] memory ownedProducts;
-        uint256 j = 0;
-        for(uint256 i=0; i<allProducts.length; i++) {
-            if(ownerOf(i) == msg.sender){
-                ownedProducts[j] = allProducts[i];
-                j++;
-            }
-        }
-        return ownedProducts;
-    }
+    // Gestire via Python
+
+    //function getMyProducts() public view returns (Product[] memory){
+    //    Product[] memory ownedProducts;
+    //    uint256 j = 0;
+    //    for(uint256 i=0; i<allProducts.length; i++) {
+    //        if(ownerOf(i) == msg.sender){
+    //            ownedProducts.push(allProducts[i]);
+    //            j++;
+    //        }
+    //    }
+    //    return ownedProducts;
+    //}
 
     // La variabile productId e' inizializzata a 0 e viene incrementata dopo aver inserito 
     // il prodotto nell'array. Quindi l'indice dell'array corrisponde al productId. 
@@ -82,43 +89,47 @@ contract CarbonFootprint is ERC721{
         return allProducts[pId];
     }
 
+    // Gestire via Python
+
     // Restituisce la lista di tutti i prodotti finiti
-    function getFinishedProducts() public view returns (Product[] memory){
-        Product[] memory finishedProducts;
-        uint256 j = 0;
-        for(uint256 i=0; i<allProducts.length; i++){
-            if (allProducts[i].ended == true){
-                finishedProducts[j] = allProducts[i];
-                j++;
-            }
-        }
-        return finishedProducts;
-    }
+    //function getFinishedProducts() public view returns (Product[] memory){
+    //    Product[] memory finishedProducts;
+    //    uint256 j = 0;
+    //    for(uint256 i=0; i<allProducts.length; i++){
+    //        if (allProducts[i].ended == true){
+    //            finishedProducts[j] = allProducts[i];
+    //            j++;
+    //        }
+    //    }
+    //    return finishedProducts;
+    //}
 
     function mintProduct(string calldata _productName, string calldata _rawMaterial, uint cf) public onlyFornitore {
         require(!productExists[_productName], "Il prodotto e' gia' presente.");
 
         _safeMint(msg.sender, productId);
 
-        address[] memory owners = new address[](1);
-        uint[] memory cfs = new uint[](1);
-        owners[0] = msg.sender;
-        cfs[0] = cf;
+        //address[] memory owners = new address[](1);
+        //uint[] memory cfs = new uint[](1);
+        //owners[0] = msg.sender;
+        //cfs[0] = cf;
+        //allProducts.push(Product(productId, _productName, _rawMaterial, msg.sender, owners, cfs, cf, false));
 
-        allProducts.push(Product(productId, _productName, _rawMaterial, msg.sender, owners, cfs, cf, false));
-
+        allProducts.push(Product(productId, _productName, _rawMaterial, msg.sender, cf, false));
         productExists[_productName] = true;
+        emit newCFAdded(msg.sender, cf, productId);
 
-        productId++;        
+        productId++;
     }
 
     function addCF(uint partialCF, uint256 pId, bool isEnded) public onlyTrasformatore {
         Product storage productToUpdate = allProducts[pId];
         require(productToUpdate.ended == false, "Il prodotto non e' piu' modificabile.");
         require(productToUpdate.currentOwner == msg.sender, "Per aggiungere una carbon footprint al prodotto devi esserne il proprietario.");
-        productToUpdate.owners.push(msg.sender);
-        productToUpdate.cfs.push(partialCF);
-        productToUpdate.finalCF += partialCF;
+        //productToUpdate.owners.push(msg.sender);
+        //productToUpdate.cfs.push(partialCF);
+        productToUpdate.CF += partialCF;
+        emit newCFAdded(msg.sender, partialCF, pId);
         if(isEnded){
             productToUpdate.ended = true;
         }
@@ -130,6 +141,7 @@ contract CarbonFootprint is ERC721{
         require(productToUpdate.ended == false, "Il prodotto non e' piu' modificabile.");
         require(getRole(toAddress) == Role.Trasformatore, "Il ruolo del destinatario deve essere: Trasformatore.");
         _safeTransfer(msg.sender, toAddress, pId, "");
+        // la validità dell'indirizzo `toAddress` viene controllata dalla funzione `_safeTransfer` 
         productToUpdate.currentOwner = toAddress; 
     }
 }
