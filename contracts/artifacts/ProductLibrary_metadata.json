@@ -1,0 +1,46 @@
+{
+	"compiler": {
+		"version": "0.8.7+commit.e28d00a7"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"title": "A library that contains a struct representing a product.",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"progetto/contracts/ProductLibrary.sol": "ProductLibrary"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"progetto/contracts/ProductLibrary.sol": {
+			"keccak256": "0xf64adea77154ca599c8653ec090a2836b8a57864e9098171246b11264d6124bb",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://4c4ee40911226b23b0739b45e37eb9d088d8a8fb9d4b1c148999036bb81ef361",
+				"dweb:/ipfs/QmbmnBgeADNBVAM7FGhJMawHzbienvdCs7mGnty1x5vzpz"
+			]
+		}
+	},
+	"version": 1
+}
