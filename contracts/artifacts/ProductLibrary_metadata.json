@@ -19,7 +19,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"progetto/contracts/ProductLibrary.sol": "ProductLibrary"
+			"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": "ProductLibrary"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -33,7 +33,7 @@
 		"remappings": []
 	},
 	"sources": {
-		"progetto/contracts/ProductLibrary.sol": {
+		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
 			"keccak256": "0xf64adea77154ca599c8653ec090a2836b8a57864e9098171246b11264d6124bb",
 			"license": "GPL-3.0",
 			"urls": [

@@ -577,7 +577,7 @@
 					"details": "See {IERC721-getApproved}."
 				},
 				"getProductById(uint256)": {
-					"details": "Since `productId` is initialized to 0 and it is incremented by 1  each time a new product is created, the id of a product corresponds  to the position in the `allProducts` array.",
+					"details": "Since `productId` is initialized to 0 and it is incremented by 1  each time a new product is created, the id of a product matches  the position in the `allProducts` array.",
 					"params": {
 						"pId": "The id of the product."
 					},
@@ -631,7 +631,7 @@
 					}
 				}
 			},
-			"title": "NFT contract to manage all products.",
+			"title": "ERC721 contract to manage all products.",
 			"version": 1
 		},
 		"userdoc": {
@@ -667,7 +667,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"progetto/contracts/CarbonFootprint.sol": "CarbonFootprint"
+			"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": "CarbonFootprint"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -753,15 +753,15 @@
 				"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"
 			]
 		},
-		"progetto/contracts/CarbonFootprint.sol": {
-			"keccak256": "0x542f5876f1e772c26fb298188730dfbf4240014e4715f30cbd1e7af0e0c99e1b",
+		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
+			"keccak256": "0x23049b4c414431faee7937c1942ef488acb61f68a748265a78405a90b0d4fac1",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://934435141ca1eec9a947d770ec6e638d2d0eeb0442c8534c1ee50dc4eb321530",
-				"dweb:/ipfs/QmbVc2eoTehEFWLtLhjvpoJsxUmsnUes1EpunWXHTnq2Gu"
+				"bzz-raw://43231dd8fb2a01a3d7067ade4cc246426ceb01c267cb391cc0f8d58a58547300",
+				"dweb:/ipfs/Qmc7RxirabgGYPhvFyr5QC8fe9UvtmvAuPNkTqTJP5EFfb"
 			]
 		},
-		"progetto/contracts/ProductLibrary.sol": {
+		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
 			"keccak256": "0xf64adea77154ca599c8653ec090a2836b8a57864e9098171246b11264d6124bb",
 			"license": "GPL-3.0",
 			"urls": [

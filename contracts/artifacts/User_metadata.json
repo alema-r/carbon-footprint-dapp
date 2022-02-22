@@ -268,7 +268,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"progetto/contracts/User.sol": "User"
+			"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": "User"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -354,15 +354,15 @@
 				"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"
 			]
 		},
-		"progetto/contracts/CarbonFootprint.sol": {
-			"keccak256": "0x861d9601656d2f3bbc7676cc0c4a8a508e2ff3e7f8bece8a9f6a70d541dbd655",
+		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
+			"keccak256": "0x51fa29734e5fd0dca5ab890c645b9173bdcb2390c1d607553d323f16cba1b616",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://c65cc835dcd10892d9bd67916c2e71d25b8ae0f8c99c5ca4fcbebad321a37aac",
-				"dweb:/ipfs/QmRKfC1BFqW7emVdrNQX5PDof4dZMMZuwMdGzAKRX7ZHP1"
+				"bzz-raw://d78e032c34831607632e080f6997761d0c17a9e4cf454b9987ff724c2142b78e",
+				"dweb:/ipfs/Qmb5Yu6i9nBcteo84gUCnfmyuzscWRNXYrWWsgqVyVqqMy"
 			]
 		},
-		"progetto/contracts/ProductLibrary.sol": {
+		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
 			"keccak256": "0xf64adea77154ca599c8653ec090a2836b8a57864e9098171246b11264d6124bb",
 			"license": "GPL-3.0",
 			"urls": [
@@ -370,12 +370,12 @@
 				"dweb:/ipfs/QmbmnBgeADNBVAM7FGhJMawHzbienvdCs7mGnty1x5vzpz"
 			]
 		},
-		"progetto/contracts/User.sol": {
-			"keccak256": "0x2c2ef27c44e299275043a06adb96aad12700cb091ab50b364ceadd6fd21ed6d0",
+		"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": {
+			"keccak256": "0x95ecbb67180a9bae4d4eaebbef69a7c48f2621cd691bba0d5622c1d0063aec10",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://d78949d601d17071c8d67f9e9f1e562730fc1876b1eb3d28d75af255efc2f1d2",
-				"dweb:/ipfs/QmcXpzrVwi9PNFj3aJ7PkUeFAQHG7jC32dR3f9nU9VL1Tc"
+				"bzz-raw://89f4c363596f3b47d359b056c93d090ece0e55fb1f6f38ca2546a7efad0992a9",
+				"dweb:/ipfs/QmWrFWpy7M54z1Ggk2EJh92wyq529mpFTb6Dr7g2r1Lk2e"
 			]
 		}
 	},

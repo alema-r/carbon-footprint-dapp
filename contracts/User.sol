@@ -36,6 +36,7 @@ contract User{
      */
     constructor(address defaultSupplier, address defaultTransformer){
         owner = msg.sender;
+        require(defaultSupplier != defaultTransformer);
         _users[defaultSupplier] = supplier;
         _users[defaultTransformer] = transformer;
     }
