@@ -30,6 +30,9 @@ contract User{
     // Address of the contract owner
 	address private owner;
 
+    //Evento che registra l'ingresso di un nuovo utente nella community
+    event newUser(address userAddress, Role role);
+
 	/**
      * @dev Initializes the contract by setting a default supplier and a default
      * transformer.	Also it sets the `owner` of the contract to `msg.sender`.
@@ -39,6 +42,8 @@ contract User{
         require(defaultSupplier != defaultTransformer);
         _users[defaultSupplier] = supplier;
         _users[defaultTransformer] = transformer;
+        emit newUser(defaultSupplier, supplier);
+        emit newUser(defaultTransformer, transformer);
     }
 
     /**
@@ -66,6 +71,7 @@ contract User{
 	function createUser(uint8 role) external {
         require(_users[msg.sender] == defaultChoice, "L'utente ha gia' un ruolo");
         _users[msg.sender] = Role(role);
+        emit newUser(msg.sender, _users[msg.sender]);
     }
 
     // Modificatori necessari per il controllo sulle funzioni
@@ -83,18 +89,20 @@ contract User{
      * @notice Creates a product with specified name, raw material and initial carbon footprint.
      * @dev Calls the function `mintProduct` from `CarbonFootprint` contract.
      * @param product_name The name to assign to the product.
-     * @param raw_material The raw material used to produce the product.
+     * @param raw_material The array of rawmaterials used to produce the product.
+     * @param lots The array of lots of rawmaterials
      * @param carbon_fp The carbon footprint relating to supplier actions.
      */ 
 	function createProduct(
-		string calldata product_name, 
-		string calldata raw_material, 
-		uint16 carbon_fp
+		string calldata product_name,
+		string[] calldata raw_material, 
+        uint256[] calldata lots,
+		uint256 carbon_fp
 	) 
 		external 
 		onlyFornitore
 	{
-        CFContract.mintProduct(product_name,raw_material,carbon_fp);
+        CFContract.mintProduct(product_name,raw_material, lots, carbon_fp);
     }
  
     /**

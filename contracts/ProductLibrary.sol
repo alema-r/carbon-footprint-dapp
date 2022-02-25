@@ -11,10 +11,15 @@ library ProductLibrary{
     struct Product {
         uint256 productId;
         string name;
-        string rawMaterial;
         address currentOwner;
         uint256 CF;
         bool ended;
+    }
+    // Struct that represent rawmaterial
+    struct RawMaterial {
+        string name;
+        uint256 lot;
+        uint256 RmId;
     }
 
 }

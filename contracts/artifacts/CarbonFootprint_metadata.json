@@ -111,6 +111,56 @@
 				"type": "event"
 			},
 			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "userAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "RmId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "pId",
+						"type": "uint256"
+					}
+				],
+				"name": "newRawMaterialLotAdded",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "userAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "pId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "cf",
+						"type": "uint256"
+					}
+				],
+				"name": "productIsFinished",
+				"type": "event"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -187,11 +237,6 @@
 								"type": "string"
 							},
 							{
-								"internalType": "string",
-								"name": "rawMaterial",
-								"type": "string"
-							},
-							{
 								"internalType": "address",
 								"name": "currentOwner",
 								"type": "address"
@@ -257,11 +302,6 @@
 								"type": "string"
 							},
 							{
-								"internalType": "string",
-								"name": "rawMaterial",
-								"type": "string"
-							},
-							{
 								"internalType": "address",
 								"name": "currentOwner",
 								"type": "address"
@@ -317,9 +357,14 @@
 						"type": "string"
 					},
 					{
-						"internalType": "string",
+						"internalType": "string[]",
 						"name": "_rawMaterial",
-						"type": "string"
+						"type": "string[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "_lots",
+						"type": "uint256[]"
 					},
 					{
 						"internalType": "uint256",
@@ -588,7 +633,7 @@
 				"isApprovedForAll(address,address)": {
 					"details": "See {IERC721-isApprovedForAll}."
 				},
-				"mintProduct(string,string,uint256)": {
+				"mintProduct(string,string[],uint256[],uint256)": {
 					"details": "See {ERC721-_safeMint}",
 					"params": {
 						"_productName": "The name of the product.",
@@ -654,7 +699,7 @@
 				"getProductById(uint256)": {
 					"notice": "Returns the product with the specified `pId` id."
 				},
-				"mintProduct(string,string,uint256)": {
+				"mintProduct(string,string[],uint256[],uint256)": {
 					"notice": "Creates a product with specified product name, raw material and initial carbon footprint. Then it adds it to `allProducts` and emits a `newCFAddded` event."
 				},
 				"transferProduct(address,uint256)": {
@@ -754,19 +799,19 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0x23049b4c414431faee7937c1942ef488acb61f68a748265a78405a90b0d4fac1",
+			"keccak256": "0xd759bf93d5b55d969f8ba4e9ee4b4eea1c06e99de88f76780d8e94f799e3d58d",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://43231dd8fb2a01a3d7067ade4cc246426ceb01c267cb391cc0f8d58a58547300",
-				"dweb:/ipfs/Qmc7RxirabgGYPhvFyr5QC8fe9UvtmvAuPNkTqTJP5EFfb"
+				"bzz-raw://9e874a98517db66301ccf2eb2b27544e913ef4bcaa3bc03c7caef0638a38f52d",
+				"dweb:/ipfs/Qma1rQkwDRGvLDh2uTitho6qAQktbxzSTi2tDDUc6qwMe1"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
-			"keccak256": "0xf64adea77154ca599c8653ec090a2836b8a57864e9098171246b11264d6124bb",
+			"keccak256": "0x71cc43cc8e786baf6f85e4769c08dd160729d25b0f79dab8ffe7435dba45db28",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://4c4ee40911226b23b0739b45e37eb9d088d8a8fb9d4b1c148999036bb81ef361",
-				"dweb:/ipfs/QmbmnBgeADNBVAM7FGhJMawHzbienvdCs7mGnty1x5vzpz"
+				"bzz-raw://be2b957e5845342e137aa3975af3eaf4a8ff708ae3ab49c180ee87a08aeb3d04",
+				"dweb:/ipfs/QmaGjibbsb9HgfqsPcg4E82cah6XMTbLK9v2X6GKM4KkeG"
 			]
 		}
 	},

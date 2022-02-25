@@ -22,6 +22,25 @@
 				"type": "constructor"
 			},
 			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "userAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum User.Role",
+						"name": "role",
+						"type": "uint8"
+					}
+				],
+				"name": "newUser",
+				"type": "event"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint16",
@@ -52,14 +71,19 @@
 						"type": "string"
 					},
 					{
-						"internalType": "string",
+						"internalType": "string[]",
 						"name": "raw_material",
-						"type": "string"
+						"type": "string[]"
 					},
 					{
-						"internalType": "uint16",
+						"internalType": "uint256[]",
+						"name": "lots",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256",
 						"name": "carbon_fp",
-						"type": "uint16"
+						"type": "uint256"
 					}
 				],
 				"name": "createProduct",
@@ -94,11 +118,6 @@
 							{
 								"internalType": "string",
 								"name": "name",
-								"type": "string"
-							},
-							{
-								"internalType": "string",
-								"name": "rawMaterial",
 								"type": "string"
 							},
 							{
@@ -191,12 +210,13 @@
 				"constructor": {
 					"details": "Initializes the contract by setting a default supplier and a default transformer.\tAlso it sets the `owner` of the contract to `msg.sender`."
 				},
-				"createProduct(string,string,uint16)": {
+				"createProduct(string,string[],uint256[],uint256)": {
 					"details": "Calls the function `mintProduct` from `CarbonFootprint` contract.",
 					"params": {
 						"carbon_fp": "The carbon footprint relating to supplier actions.",
+						"lots": "The array of lots of rawmaterials",
 						"product_name": "The name to assign to the product.",
-						"raw_material": "The raw material used to produce the product."
+						"raw_material": "The array of rawmaterials used to produce the product."
 					}
 				},
 				"createUser(uint8)": {
@@ -243,7 +263,7 @@
 				"addTransformation(uint16,uint256,bool)": {
 					"notice": "Add a carbon footprint relating to transformer actions."
 				},
-				"createProduct(string,string,uint16)": {
+				"createProduct(string,string[],uint256[],uint256)": {
 					"notice": "Creates a product with specified name, raw material and initial carbon footprint."
 				},
 				"createUser(uint8)": {
@@ -355,27 +375,27 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0x51fa29734e5fd0dca5ab890c645b9173bdcb2390c1d607553d323f16cba1b616",
+			"keccak256": "0xd759bf93d5b55d969f8ba4e9ee4b4eea1c06e99de88f76780d8e94f799e3d58d",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://d78e032c34831607632e080f6997761d0c17a9e4cf454b9987ff724c2142b78e",
-				"dweb:/ipfs/Qmb5Yu6i9nBcteo84gUCnfmyuzscWRNXYrWWsgqVyVqqMy"
+				"bzz-raw://9e874a98517db66301ccf2eb2b27544e913ef4bcaa3bc03c7caef0638a38f52d",
+				"dweb:/ipfs/Qma1rQkwDRGvLDh2uTitho6qAQktbxzSTi2tDDUc6qwMe1"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
-			"keccak256": "0xf64adea77154ca599c8653ec090a2836b8a57864e9098171246b11264d6124bb",
+			"keccak256": "0x71cc43cc8e786baf6f85e4769c08dd160729d25b0f79dab8ffe7435dba45db28",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://4c4ee40911226b23b0739b45e37eb9d088d8a8fb9d4b1c148999036bb81ef361",
-				"dweb:/ipfs/QmbmnBgeADNBVAM7FGhJMawHzbienvdCs7mGnty1x5vzpz"
+				"bzz-raw://be2b957e5845342e137aa3975af3eaf4a8ff708ae3ab49c180ee87a08aeb3d04",
+				"dweb:/ipfs/QmaGjibbsb9HgfqsPcg4E82cah6XMTbLK9v2X6GKM4KkeG"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": {
-			"keccak256": "0x95ecbb67180a9bae4d4eaebbef69a7c48f2621cd691bba0d5622c1d0063aec10",
+			"keccak256": "0xabf033ceee8d674250b8c729422dd3fc1a9d9c40c1bf9ef9b3217d4bb0a9361b",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://89f4c363596f3b47d359b056c93d090ece0e55fb1f6f38ca2546a7efad0992a9",
-				"dweb:/ipfs/QmWrFWpy7M54z1Ggk2EJh92wyq529mpFTb6Dr7g2r1Lk2e"
+				"bzz-raw://2947ef622645305ab519a493d55a009630ffc0b299329e34c38c5abbe679dab6",
+				"dweb:/ipfs/Qmf73UtDkiUR7qMG7EGpCiS66D8gpz6dvJCPe8tqhPiUH1"
 			]
 		}
 	},

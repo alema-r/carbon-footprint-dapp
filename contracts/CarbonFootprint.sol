@@ -18,11 +18,17 @@ contract CarbonFootprint is ERC721{
 	// Variable that represent the id of a product
     uint256 private productId = 0;
 
+    // Variable that represent the id of a rawmaterial
+    uint256 private RmId = 0;
+
     // Array that contains all products present in the contract.
     ProductLibrary.Product[] private allProducts;
 
+    // Array that contains all rawmaterials present in the contract.
+    ProductLibrary.RawMaterial[] private allRawMaterials;
+
     // Rivedere questo mapping nel caso in cui i prodotti possano avere lo stesso nome
-    mapping(string => bool) private productExists;
+    mapping(uint => uint) private RmToProduct;
 
     // Evento da emettere sulla blockchain quando viene aggiornata una carbon footprint
     /**
@@ -32,6 +38,8 @@ contract CarbonFootprint is ERC721{
      * @param pId The id of the updated product.
      */
 	event newCFAdded(address userAddress, uint256 cf, uint256 pId);
+    event newRawMaterialLotAdded(address userAddress, uint256 RmId, uint256 pId);
+    event productIsFinished(address userAddress, uint256 pId, uint256 cf);
 
     /**
      * @notice Initializes the contract and sets the `owner` to `msg.sender`.
@@ -41,11 +49,16 @@ contract CarbonFootprint is ERC721{
         owner = msg.sender;
     }
 
+    modifier onlyOwner{
+        require(msg.sender == owner, "Errore! Invocazione anomala");
+        _;
+    }
+
     /**
      * @notice Returns all the products present in `allProducts`.
      * @return An array of `ProductLibrary.Product`.
      */
-	function getAllProducts() public view returns (ProductLibrary.Product[] memory){
+	function getAllProducts() public onlyOwner view returns (ProductLibrary.Product[] memory){
         return allProducts;
     }
 
@@ -57,7 +70,7 @@ contract CarbonFootprint is ERC721{
      * @param pId The id of the product.
      * @return A `ProductLibrary.Product` object.
      */
-	function getProductById(uint256 pId) public view returns (ProductLibrary.Product memory){
+	function getProductById(uint256 pId) public onlyOwner view returns (ProductLibrary.Product memory){
         require(pId < productId, "Il prodotto non esiste");
         return allProducts[pId];
     }
@@ -71,19 +84,24 @@ contract CarbonFootprint is ERC721{
 	 * @param cf The initial carbon footprint.
      */
 	function mintProduct(
-		string calldata _productName, 
-		string calldata _rawMaterial, 
+        string calldata _productName,
+		string[] calldata _rawMaterial, 
+        uint256[] calldata _lots,
 		uint256 cf
 	) 
-		public 
+		public onlyOwner
 	{
-        require(bytes(_productName).length != 0, "Il nome del prodotto non e' valido.");
-        require(bytes(_rawMaterial).length != 0, "Il nome della materia prima non e' valido.");
-        require(!productExists[_productName], "Il prodotto e' gia' presente.");
-        assert(!(_exists(productId)));
+        require(_rawMaterial.length == _lots.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
+        for(uint256 i = 0; i < _rawMaterial.length; i++){
+            allRawMaterials.push(ProductLibrary.RawMaterial(_rawMaterial[i], _lots[i], RmId));
+            RmToProduct[RmId] = productId;
+            emit newRawMaterialLotAdded(tx.origin, RmId, productId);
+            RmId++;
+        }
+        //require(!productExists[_productName], "Il prodotto e' gia' presente.");
+        //assert(!(_exists(productId)));
         _safeMint(tx.origin, productId);
-        allProducts.push(ProductLibrary.Product(productId, _productName, _rawMaterial, tx.origin, cf, false));
-        productExists[_productName] = true;
+        allProducts.push(ProductLibrary.Product(productId, _productName, tx.origin, cf, false));
         emit newCFAdded(tx.origin, cf, productId);
         productId++;
     }
@@ -94,15 +112,17 @@ contract CarbonFootprint is ERC721{
      * @param pId The id of the product to be modified. 
      * @param isEnded Specify if this is the last transformation or not.
      */
-	function addCF(uint256 partialCF, uint256 pId, bool isEnded) public{
+	function addCF(uint256 partialCF, uint256 pId, bool isEnded) public onlyOwner{
         require(pId < productId, "Il prodotto non esiste");
         ProductLibrary.Product storage productToUpdate = allProducts[pId];
         require(productToUpdate.ended == false, "Il prodotto non e' piu' modificabile.");
         require(productToUpdate.currentOwner == tx.origin, "Per aggiungere una carbon footprint al prodotto devi esserne il proprietario.");
         productToUpdate.CF += partialCF;
+        assert(1 == 0);
         emit newCFAdded(tx.origin, partialCF, pId);
         if(isEnded){
             productToUpdate.ended = true;
+            emit productIsFinished(tx.origin, pId, productToUpdate.CF);
         }
     }
 
@@ -114,7 +134,7 @@ contract CarbonFootprint is ERC721{
      * @param recipient The address to transfer the product property to
      * @param pId The id of the product to be transferred.
      */ 
-	function transferProduct(address recipient, uint256 pId) public {
+	function transferProduct(address recipient, uint256 pId) public onlyOwner{
         require(pId < productId, "Il prodotto non esiste");
         ProductLibrary.Product storage productToUpdate = allProducts[pId];
         require(productToUpdate.ended == false, "Il prodotto non e' piu' modificabile.");
