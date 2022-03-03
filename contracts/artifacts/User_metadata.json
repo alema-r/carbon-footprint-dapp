@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.3+commit.8d00100c"
 	},
 	"language": "Solidity",
 	"output": {
@@ -290,7 +290,7 @@
 		"compilationTarget": {
 			"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": "User"
 		},
-		"evmVersion": "london",
+		"evmVersion": "istanbul",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -375,11 +375,11 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0xd759bf93d5b55d969f8ba4e9ee4b4eea1c06e99de88f76780d8e94f799e3d58d",
+			"keccak256": "0x9846858ad974100a770c33fa8aab411922e51f8c5447976cbd347ecbeca83008",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://9e874a98517db66301ccf2eb2b27544e913ef4bcaa3bc03c7caef0638a38f52d",
-				"dweb:/ipfs/Qma1rQkwDRGvLDh2uTitho6qAQktbxzSTi2tDDUc6qwMe1"
+				"bzz-raw://fa285e1213a405fc221d1b191018bd4c134cb127c4366721e35d6ee9f3a3b5eb",
+				"dweb:/ipfs/QmU6EkUb2wbq2MdYixRmVpPziJVVziSWiRS2RwXZUXgTjk"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
@@ -391,11 +391,11 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": {
-			"keccak256": "0xabf033ceee8d674250b8c729422dd3fc1a9d9c40c1bf9ef9b3217d4bb0a9361b",
+			"keccak256": "0x78c08cc19c38f7ea968ba9cd6cb22f835f7e1067849cdf40773c921acaa22263",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://2947ef622645305ab519a493d55a009630ffc0b299329e34c38c5abbe679dab6",
-				"dweb:/ipfs/Qmf73UtDkiUR7qMG7EGpCiS66D8gpz6dvJCPe8tqhPiUH1"
+				"bzz-raw://0de3ff9e1d8d30949332f73b09b0484a7f38df597f5b3b8a57611a55a9f7cefd",
+				"dweb:/ipfs/QmadGv3y61Dw9YZwkNdSEYxPDBiFCRqhAb2my9rqBL4gZa"
 			]
 		}
 	},

@@ -799,11 +799,11 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0xd759bf93d5b55d969f8ba4e9ee4b4eea1c06e99de88f76780d8e94f799e3d58d",
+			"keccak256": "0x58eadc04693409ea86408d099cfb0a8f9e6a16de23d0cf28e92a32b1a512ad8b",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://9e874a98517db66301ccf2eb2b27544e913ef4bcaa3bc03c7caef0638a38f52d",
-				"dweb:/ipfs/Qma1rQkwDRGvLDh2uTitho6qAQktbxzSTi2tDDUc6qwMe1"
+				"bzz-raw://e2f1953b13e5cfb9ee2d71236befb4f8e20c2dffefaa3071608b425078bab887",
+				"dweb:/ipfs/Qmb3FcM9eqko2EdxUQz91THks1jnCnvrf4fBBAeEdMtSm1"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
