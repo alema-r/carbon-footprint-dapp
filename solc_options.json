@@ -1,0 +1,45 @@
+{
+	"language": "Solidity",
+	"sources": {
+		"contracts/CarbonFootprint.sol": {
+			"urls": [
+				"contracts/CarbonFootprint.sol"
+			]
+		},
+        "contracts/User.sol": {
+			"urls": [
+				"contracts/User.sol"
+			]
+		}
+	},
+	"settings": {
+		"evmVersion": "byzantium",
+		"outputSelection": {
+			"contracts/CarbonFootprint.sol": {
+				"CarbonFootprint": [
+                    "abi",
+					"metadata",
+					"evm.bytecode"
+				]
+			},
+            "contracts/User.sol": {
+				"User": [
+                    "abi",
+					"metadata",
+					"evm.bytecode"
+				]
+			}
+		},
+		"modelChecker": {
+			"contracts": {
+				"contracts/CarbonFootprint.sol": [
+					"CarbonFootprint"
+				]
+			},
+            "showUnproved": true,
+            "solvers": ["smtlib2"],
+			"engine": "all",
+			"timeout": 0
+		}
+	}
+}
