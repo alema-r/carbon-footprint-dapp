@@ -97,6 +97,7 @@ contract CarbonFootprint is ERC721{
 	) 
 		public onlyOwner
 	{
+	require(_rawMaterial.length > 0, "Specifica almeno una materia prima.");
         require(_rawMaterial.length == _lots.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
         for(uint256 i = 0; i < _rawMaterial.length; i++){
             string memory RmId = string(bytes.concat(bytes(_rawMaterial[i]), "-", bytes(Strings.toString(_lots[i]))));
@@ -124,8 +125,8 @@ contract CarbonFootprint is ERC721{
         ProductLibrary.Product storage productToUpdate = allProducts[pId];
         require(productToUpdate.ended == false, "Il prodotto non e' piu' modificabile.");
         require(productToUpdate.currentOwner == tx.origin, "Per aggiungere una carbon footprint al prodotto devi esserne il proprietario.");
-        productToUpdate.CF += partialCF;
-        assert(1 == 0);
+        assert(productToUpdate.productId < productId);
+	productToUpdate.CF += partialCF;
         emit newCFAdded(tx.origin, partialCF, pId);
         if(isEnded){
             productToUpdate.ended = true;
