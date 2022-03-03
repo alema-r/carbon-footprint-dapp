@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity >=0.8.0 <0.9.0;
-pragma experimental SMTChecker;
+//pragma experimental SMTChecker;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./ProductLibrary.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 
 /**
@@ -17,10 +18,7 @@ contract CarbonFootprint is ERC721{
     address public owner;
 
 	// Variable that represent the id of a product
-    uint256 private productId = 0;
-
-    // Variable that represent the id of a rawmaterial
-    uint256 private RmId = 0;
+    uint256 private productId = 1;
 
     // Array that contains all products present in the contract.
     ProductLibrary.Product[] private allProducts;
@@ -29,7 +27,7 @@ contract CarbonFootprint is ERC721{
     ProductLibrary.RawMaterial[] private allRawMaterials;
 
     // Rivedere questo mapping nel caso in cui i prodotti possano avere lo stesso nome
-    mapping(uint => uint) private RmToProduct;
+    mapping(string => uint) private RmToProduct;
 
     // Evento da emettere sulla blockchain quando viene aggiornata una carbon footprint
     /**
@@ -39,7 +37,7 @@ contract CarbonFootprint is ERC721{
      * @param pId The id of the updated product.
      */
 	event newCFAdded(address userAddress, uint256 cf, uint256 pId);
-    event newRawMaterialLotAdded(address userAddress, uint256 RmId, uint256 pId);
+    event newRawMaterialLotAdded(address userAddress, string RmId, uint256 pId);
     event productIsFinished(address userAddress, uint256 pId, uint256 cf);
 
     /**
@@ -61,6 +59,13 @@ contract CarbonFootprint is ERC721{
      */
 	function getAllProducts() public onlyOwner view returns (ProductLibrary.Product[] memory){
         return allProducts;
+    }
+    /**
+     * @notice Returns all the rawmaterials present in `allRawMaterials`.
+     * @return An array of `ProductLibrary.RawMaterial`.
+     */
+	function getAllRawMaterials() public onlyOwner view returns (ProductLibrary.RawMaterial[] memory){
+        return allRawMaterials;
     }
 
     /**
@@ -94,10 +99,11 @@ contract CarbonFootprint is ERC721{
 	{
         require(_rawMaterial.length == _lots.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
         for(uint256 i = 0; i < _rawMaterial.length; i++){
-            allRawMaterials.push(ProductLibrary.RawMaterial(_rawMaterial[i], _lots[i], RmId));
+            string memory RmId = string(bytes.concat(bytes(_rawMaterial[i]), "-", bytes(Strings.toString(_lots[i]))));
+            require(RmToProduct[RmId] == 0, "Il lotto della materia prima inserita e' gia' stato utilizzato");
+            allRawMaterials.push(ProductLibrary.RawMaterial(_rawMaterial[i], _lots[i]));
             RmToProduct[RmId] = productId;
             emit newRawMaterialLotAdded(tx.origin, RmId, productId);
-            RmId++;
         }
         //require(!productExists[_productName], "Il prodotto e' gia' presente.");
         //assert(!(_exists(productId)));

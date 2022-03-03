@@ -19,7 +19,6 @@ library ProductLibrary{
     struct RawMaterial {
         string name;
         uint256 lot;
-        uint256 RmId;
     }
 
 }

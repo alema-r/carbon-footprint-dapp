@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.3+commit.8d00100c"
+		"version": "0.8.7+commit.e28d00a7"
 	},
 	"language": "Solidity",
 	"output": {
@@ -290,7 +290,7 @@
 		"compilationTarget": {
 			"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": "User"
 		},
-		"evmVersion": "istanbul",
+		"evmVersion": "london",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -375,27 +375,27 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0x9846858ad974100a770c33fa8aab411922e51f8c5447976cbd347ecbeca83008",
+			"keccak256": "0x1e3fcbf03825ef2212130237781d6069f9c27ee60b0a6ea03f7e0ba1bca8862f",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://fa285e1213a405fc221d1b191018bd4c134cb127c4366721e35d6ee9f3a3b5eb",
-				"dweb:/ipfs/QmU6EkUb2wbq2MdYixRmVpPziJVVziSWiRS2RwXZUXgTjk"
+				"bzz-raw://7878bf6547ddb56e9a4994d13d8c5162dd21b9935e7ea6f8793ab5b098e46dc6",
+				"dweb:/ipfs/QmfZqdYnqcLCPCbmaRqiZG7r58h8GH6saZkFuyVsNneGbn"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
-			"keccak256": "0x71cc43cc8e786baf6f85e4769c08dd160729d25b0f79dab8ffe7435dba45db28",
+			"keccak256": "0x79308bb0adecc0c3c44ad2a7ac8ed797ae12596077d3d8f71f57be1723fb9f58",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://be2b957e5845342e137aa3975af3eaf4a8ff708ae3ab49c180ee87a08aeb3d04",
-				"dweb:/ipfs/QmaGjibbsb9HgfqsPcg4E82cah6XMTbLK9v2X6GKM4KkeG"
+				"bzz-raw://708aa475965c8199bbdb6955e6e30f95acb7fe7b20e2a6edad349a48a6076d22",
+				"dweb:/ipfs/QmW2CoBehgSnBrqW2xNCbT18GWNyckmyk6HmzoL42ibFPf"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": {
-			"keccak256": "0x78c08cc19c38f7ea968ba9cd6cb22f835f7e1067849cdf40773c921acaa22263",
+			"keccak256": "0x825ff37ab6fcdf598618c61ac61585b05492c17a2d4b73d8d52569e2fedaa512",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://0de3ff9e1d8d30949332f73b09b0484a7f38df597f5b3b8a57611a55a9f7cefd",
-				"dweb:/ipfs/QmadGv3y61Dw9YZwkNdSEYxPDBiFCRqhAb2my9rqBL4gZa"
+				"bzz-raw://4c154106ab787e738f2f23bba792dec882276973ed699abf090494f53d7913e3",
+				"dweb:/ipfs/Qmf6FfPkTdWjAPkAe2at6xsUFoSdvrf9mya6wnXCXtBwEo"
 			]
 		}
 	},
