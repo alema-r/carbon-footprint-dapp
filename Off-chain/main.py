@@ -1,31 +1,59 @@
-import re
 from connection import connect
+import inquirer
 
-ruolo = int(input("Specifica se sei un fornitore, un trasformatore o un cliente per richiedere delle operazioni: ").strip())
-web3 = connect(ruolo)
-print("Ecco le operazioni che puoi fare: ")
-choice = ''
-if ruolo == 0:
-    # istanziazione oggetto che gestisce gli utenti di un ruolo
-    while choice != 'E':
-        print("Ricerca di uno o più prodotti(C)")
-        print("Uscire(E)")
-        choice = input("Digita una lettera per scegliere: ")
-if ruolo == 1:
-    # istanziazione oggetto che gestisce gli utenti di un ruolo
-    while choice != 'E':
-        print("Ricerca di uno o più prodotti(C)")
-        print("Aggiunta di un nuovo prodotto(P)")
-        print("Trasferimento del possesso di un prodotto(S)")
-        print("Uscire(E)")
-        choice = input("Digita una lettera per scegliere: ")
-if ruolo == 2:
-    # istanziazione oggetto che gestisce gli utenti di un ruolo
-    while choice != 'E':
-        print("Ricerca di uno o più prodotti(C)")
-        print("Inserimento di una nuova trasformazione(T)")
-        print("Trasferimento del possesso di un prodotto(S)")
-        print("Uscire(E)")
-        choice = input("Digita una lettera per scegliere: ")
-print("Arrivederci")
 
+role_dict = {
+    "Client": {
+        "num": "0",
+        "actions": ["Search one or more products", "Exit"],
+    },
+    "Supplier": {
+        "num": "1",
+        "actions": [
+            "Search one or more products",
+            "Add a new product",
+            "Transfer the property of a product",
+            "Exit",
+        ],
+    },
+    "Transformer": {
+        "num": "2",
+        "actions": [
+            "Search one or more products",
+            "Add a new operation",
+            "Transfer the property of a product",
+            "Exit",
+        ],
+    },
+}
+
+
+def get_wallet():
+    return inquirer.text(
+        message="Insert your wallet address",
+    )
+
+
+def main():
+
+    print("Welcome!")
+
+    role = inquirer.list_input(
+        message="Specify your role",
+        choices=["Client", "Supplier", "Transformer"],
+    )
+
+    print(role)
+    # web3 = connect(role_dict[role]["num"])
+
+    action = inquirer.list_input(
+        message="What action do you want to perform?",
+        choices=role_dict[role]["actions"],
+    )
+    print(action)
+
+    get_wallet()
+
+
+if __name__ == "__main__":
+    main()
