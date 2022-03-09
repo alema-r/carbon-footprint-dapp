@@ -27,13 +27,6 @@ role_dict = {
     },
 }
 
-
-def get_wallet():
-    return inquirer.text(
-        message="Insert your wallet address",
-    )
-
-
 def main():
 
     print("Welcome!")
@@ -44,15 +37,30 @@ def main():
     )
 
     print(role)
-    # web3 = connect(role_dict[role]["num"])
+    contract = connect(role_dict[role]["num"])
+    if role == "Transformer":
+        pass
+        #istanziazione transformer
+    else:
+        pass
+        #istanziazione supplier
 
     action = inquirer.list_input(
         message="What action do you want to perform?",
         choices=role_dict[role]["actions"],
     )
-    print(action)
+    while action != "Exit":
+        if action == role_dict[role]["actions"][0]:
+            # scelta dei filtri
+            cc = contract.functions.getProducts().call()
+            # chiamata al modulo che applica i filtri
+        #if per il ruolo
+            #if per l'operazione
 
-    get_wallet()
+# logica supplier
+# logica del transformer
+# filtri
+# anagrafica del prodotto
 
 
 if __name__ == "__main__":
