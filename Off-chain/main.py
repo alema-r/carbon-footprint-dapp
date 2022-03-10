@@ -1,5 +1,6 @@
 from connection import connect
 import inquirer
+import Transformer
 
 
 role_dict = {
@@ -37,9 +38,22 @@ def main():
     )
 
     print(role)
-    contract = connect(role_dict[role]["num"])
+    contract, userAdress = connect(role_dict[role]["num"])
+    #I PRODOTTI ANDREBBERO PRESTI TUTTI SUBITO, SERVONO A TUTTI
     if role == "Transformer":
-        pass
+        userProducts=Transformer.getUserProducts(products, userAdress)
+        action= inquirer.list_input(
+            message="What action do you want to perform?",
+            choices=role_dict[role]["actions"]
+        )
+        while action != "Exit":
+            #SERVE UNA SORTA DI DO WHILE, COSI' NON CICLA
+            if action == role_dict[role]["actions"][0]:
+                getFilteredProducts() #FUNZIONE COMUNE DA ISTANZIARE
+            elif action == role_dict[role]["actions"][1]:
+                Transformer.addTransformation(userProducts, contract)
+            else:
+                Transformer.transferProduct(userProducts, contract)
         #istanziazione transformer
     else:
         pass

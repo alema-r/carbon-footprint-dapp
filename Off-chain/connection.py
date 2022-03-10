@@ -17,5 +17,6 @@ def connect(role):
     abi = json.loads(abi_string)
     address = web3.toChecksumAddress(usercontractAddress)
     contract = web3.eth.contract(address=address, abi=abi)
-    web3.eth.defaultAccount = web3.toChecksumAddress(get_wallet())
-    return contract
+    userAdress = web3.toChecksumAddress(get_wallet())
+    web3.eth.defaultAccount = userAdress
+    return contract, userAdress
