@@ -24,6 +24,7 @@ contract User{
      * @dev Initializes the `CarbonFootprint` contract.
      */
     CarbonFootprint CFContract = new CarbonFootprint();
+    address public CFaddress = address(CFContract);
 
 	// Mapping each user address to a role 
 	mapping(address => Role) private _users;

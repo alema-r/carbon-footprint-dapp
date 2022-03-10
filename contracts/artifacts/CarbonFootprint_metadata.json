@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.12+commit.f00d7308"
 	},
 	"language": "Solidity",
 	"output": {
@@ -121,9 +121,9 @@
 					},
 					{
 						"indexed": false,
-						"internalType": "uint256",
+						"internalType": "string",
 						"name": "RmId",
-						"type": "uint256"
+						"type": "string"
 					},
 					{
 						"indexed": false,
@@ -253,6 +253,31 @@
 							}
 						],
 						"internalType": "struct ProductLibrary.Product[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getAllRawMaterials",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "lot",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct ProductLibrary.RawMaterial[]",
 						"name": "",
 						"type": "tuple[]"
 					}
@@ -618,6 +643,11 @@
 						"_0": "An array of `ProductLibrary.Product`."
 					}
 				},
+				"getAllRawMaterials()": {
+					"returns": {
+						"_0": "An array of `ProductLibrary.RawMaterial`."
+					}
+				},
 				"getApproved(uint256)": {
 					"details": "See {IERC721-getApproved}."
 				},
@@ -695,6 +725,9 @@
 				},
 				"getAllProducts()": {
 					"notice": "Returns all the products present in `allProducts`."
+				},
+				"getAllRawMaterials()": {
+					"notice": "Returns all the rawmaterials present in `allRawMaterials`."
 				},
 				"getProductById(uint256)": {
 					"notice": "Returns the product with the specified `pId` id."
@@ -799,19 +832,19 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0x58eadc04693409ea86408d099cfb0a8f9e6a16de23d0cf28e92a32b1a512ad8b",
+			"keccak256": "0x66ba0511b608c7f376bee7ef67b1a45b509497a7a490dfd18ec822a110b1a210",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://e2f1953b13e5cfb9ee2d71236befb4f8e20c2dffefaa3071608b425078bab887",
-				"dweb:/ipfs/Qmb3FcM9eqko2EdxUQz91THks1jnCnvrf4fBBAeEdMtSm1"
+				"bzz-raw://50b33821e1e61748c5beaaf625ca61bff41074b91c045c1bca723cfde0f67b8d",
+				"dweb:/ipfs/QmQvNiUUTGaeDTnjM9AM9gngbd8N39jjmdryt2EtbuZgi2"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
-			"keccak256": "0x71cc43cc8e786baf6f85e4769c08dd160729d25b0f79dab8ffe7435dba45db28",
+			"keccak256": "0x79308bb0adecc0c3c44ad2a7ac8ed797ae12596077d3d8f71f57be1723fb9f58",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://be2b957e5845342e137aa3975af3eaf4a8ff708ae3ab49c180ee87a08aeb3d04",
-				"dweb:/ipfs/QmaGjibbsb9HgfqsPcg4E82cah6XMTbLK9v2X6GKM4KkeG"
+				"bzz-raw://708aa475965c8199bbdb6955e6e30f95acb7fe7b20e2a6edad349a48a6076d22",
+				"dweb:/ipfs/QmW2CoBehgSnBrqW2xNCbT18GWNyckmyk6HmzoL42ibFPf"
 			]
 		}
 	},

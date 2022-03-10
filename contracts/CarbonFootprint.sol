@@ -78,7 +78,7 @@ contract CarbonFootprint is ERC721{
      */
 	function getProductById(uint256 pId) public onlyOwner view returns (ProductLibrary.Product memory){
         require(pId < productId, "Il prodotto non esiste");
-        return allProducts[pId];
+        return allProducts[pId-1];
     }
 
     /**
@@ -122,7 +122,7 @@ contract CarbonFootprint is ERC721{
      */
 	function addCF(uint256 partialCF, uint256 pId, bool isEnded) public onlyOwner{
         require(pId < productId, "Il prodotto non esiste");
-        ProductLibrary.Product storage productToUpdate = allProducts[pId];
+        ProductLibrary.Product storage productToUpdate = allProducts[pId-1];
         require(productToUpdate.ended == false, "Il prodotto non e' piu' modificabile.");
         require(productToUpdate.currentOwner == tx.origin, "Per aggiungere una carbon footprint al prodotto devi esserne il proprietario.");
         assert(productToUpdate.productId < productId);
@@ -144,7 +144,7 @@ contract CarbonFootprint is ERC721{
      */ 
 	function transferProduct(address recipient, uint256 pId) public onlyOwner{
         require(pId < productId, "Il prodotto non esiste");
-        ProductLibrary.Product storage productToUpdate = allProducts[pId];
+        ProductLibrary.Product storage productToUpdate = allProducts[pId-1];
         require(productToUpdate.ended == false, "Il prodotto non e' piu' modificabile.");
         _safeTransfer(tx.origin, recipient, pId, "");
         productToUpdate.currentOwner = recipient; 
