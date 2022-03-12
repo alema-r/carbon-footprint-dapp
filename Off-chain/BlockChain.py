@@ -54,5 +54,29 @@ def transfer_cp(contract, recipient, token_id):
     except:
         raise Exception("Token transfer error")
 
-
+def add_transformation_on_blockchain(contract, carb_foot, product_id, is_the_final):
+    '''This function connects to the blockchain to add a new transformation
     
+    Keyword arguments:
+    contract -- the instance of Contract needed to connect to the blockchain
+    carb_foot -- the value of the carbon footprint 
+    product_id -- the id of the product to which a new transformation needs to be added
+    is_the_final -- boolean that indicates if this is the final transformation of the production chain'''
+    try:
+        contract.functions.addTransformation(
+            carb_foot,  product_id, is_the_final).transact()
+    except:
+        raise Exception
+        
+def transfer_product_on_blockchain(contract, transfer_to, product_id):
+    '''This function connects to the blockchain to transfer the ownership of a product
+    
+    Keyword arguments:
+    contract -- the instance of Contract needed to connect to the blockchain
+    transfer_to -- the adress of the user to whom the product ownership needs to be transfered
+    product_id -- the id of the product to transfer
+    '''
+    try:
+        contract.functions.transferCP(transfer_to, product_id).transact()
+    except:
+        raise Exception

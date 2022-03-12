@@ -40,11 +40,11 @@ def main():
     )
 
     print(role)
-    contract, userAdress = connect(role_dict[role]["num"])
+    contract, user_adress = connect(role_dict[role]["num"])
     #I PRODOTTI ANDREBBERO PRESTI TUTTI SUBITO, SERVONO A TUTTI
     action = "start"
     if role == "Transformer":
-        userProducts=Transformer.getUserProducts(products, userAdress)
+        userProducts=Transformer.get_user_products(products, user_adress)
         action= inquirer.list_input(
             message="What action do you want to perform?",
             choices=role_dict[role]["actions"]
@@ -52,11 +52,11 @@ def main():
         while action != "Exit":
             #SERVE UNA SORTA DI DO WHILE, COSI' NON CICLA
             if action == role_dict[role]["actions"][0]:
-                get_filtere_products() #FUNZIONE COMUNE DA ISTANZIARE
+                get_filtered_products() #FUNZIONE COMUNE DA ISTANZIARE
             elif action == role_dict[role]["actions"][1]:
-                Transformer.addTransformation(userProducts, contract)
+                Transformer.add_transformation(userProducts, contract)
             else:
-                Transformer.transferProduct(userProducts, contract)
+                Transformer.transfer_product(userProducts, contract)
         #istanziazione transformer
     elif role == "Supplier":
         # Inizia il meccanismo di interazione con l'utente. 
