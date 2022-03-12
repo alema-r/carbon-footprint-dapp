@@ -8,6 +8,8 @@ def get_wallet():
     return inquirer.text(
         message="Insert your wallet address",
     )
+    #Controllare l'autorizzazione dell'utente ovvero che il wallet inserito sia effettivamente
+    # un wallet prensete sulla blockchain e che sia del guisto ruolo
 
 
 def connect(role):
