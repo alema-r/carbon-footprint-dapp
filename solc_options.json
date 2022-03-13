@@ -18,14 +18,12 @@
 			"contracts/CarbonFootprint.sol": {
 				"CarbonFootprint": [
                     "abi",
-					"metadata",
 					"evm.bytecode"
 				]
 			},
             "contracts/User.sol": {
 				"User": [
                     "abi",
-					"metadata",
 					"evm.bytecode"
 				]
 			}
@@ -34,10 +32,12 @@
 			"contracts": {
 				"contracts/CarbonFootprint.sol": [
 					"CarbonFootprint"
+				],
+				"contracts/User.sol": [
+					"User"
 				]
 			},
             "showUnproved": true,
-            "solvers": ["smtlib2"],
 			"engine": "all",
 			"timeout": 0
 		}
