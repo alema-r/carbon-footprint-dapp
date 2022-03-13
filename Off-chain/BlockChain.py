@@ -39,6 +39,8 @@ def create_product_on_blockchain(contract, product_name, raw_materials, lots, ca
     if type(product_name) is str & product_name &  raw_materials_ok & lots_ok &  isinstance(carbon_fp, int) & carbon_fp:
         try:
             # Chiamata alla funzione per creare un nuovo prodotto sulla blockchain
+            # TODO: imparare a gestire le eccezioni che arrivano dalla blockchain soprattutto quella riguardante carbonfootprin e lotto già inserito
+
             contract.functions.createProduct(product_name, raw_materials, lots, carbon_fp).transact()
         except:
             raise Exception("Unable to call createProduct function on blockchain")
@@ -46,7 +48,6 @@ def create_product_on_blockchain(contract, product_name, raw_materials, lots, ca
         # TODO: chiedere come inserire una eccezione migliore.
         raise Exception("Improper input's formats")
 
-#TODO: bisogna decidere il modo per ritrovare il token_id
 def transfer_cp(contract, recipient, token_id):
     try:
         # Funzione che trasferisce la CP al trasformatore.
