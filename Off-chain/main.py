@@ -1,5 +1,8 @@
+from email import message
 from connection import connect
 import inquirer
+import Transformer
+import Supplier
 
 
 role_dict = {
@@ -37,12 +40,42 @@ def main():
     )
 
     print(role)
-    contract = connect(role_dict[role]["num"])
+    contract, user_adress = connect(role_dict[role]["num"])
+    #I PRODOTTI ANDREBBERO PRESTI TUTTI SUBITO, SERVONO A TUTTI
+    action = "start"
     if role == "Transformer":
-        pass
+        userProducts=Transformer.get_user_products(products, user_adress)
+        action= inquirer.list_input(
+            message="What action do you want to perform?",
+            choices=role_dict[role]["actions"]
+        )
+        while action != "Exit":
+            #SERVE UNA SORTA DI DO WHILE, COSI' NON CICLA
+            if action == role_dict[role]["actions"][0]:
+                get_filtered_products() #FUNZIONE COMUNE DA ISTANZIARE
+            elif action == role_dict[role]["actions"][1]:
+                Transformer.add_transformation(userProducts, contract)
+            else:
+                Transformer.transfer_product(userProducts, contract)
         #istanziazione transformer
-    else:
+    elif role == "Supplier":
+        # Inizia il meccanismo di interazione con l'utente. 
+        # Nel main si metterà solo la gestione dell'interazione con l'utente e l'interfaccia
+        # TODO: finire la l'interazione con l'utente
+        while action != "Exit":
+            action = inquirer.list_input(
+                message="What action do you want to perform?",
+                choices=role_dict[role]["actions"]
+            )
+            if action == role_dict[role]["actions"][0]:
+                get_filtered_products()
+            if action == role_dict[role]["actions"][1]:
+                Supplier.create_product()
+            if action == role_dict[role]["actions"][2]:
+                Supplier.transfer_product()
+    else :
         pass
+
         #istanziazione supplier
 
     action = inquirer.list_input(

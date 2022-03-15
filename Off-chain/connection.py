@@ -17,6 +17,8 @@ def get_wallet():
     return inquirer.text(
         message="Insert your wallet address",
     )
+    #Controllare l'autorizzazione dell'utente ovvero che il wallet inserito sia effettivamente
+    # un wallet prensete sulla blockchain e che sia del guisto ruolo
 
 
 def connect(role):
@@ -26,5 +28,6 @@ def connect(role):
     abi = json.loads(abi_string)
     address = web3.toChecksumAddress(usercontractAddress)
     contract = web3.eth.contract(address=address, abi=abi)
-    web3.eth.defaultAccount = web3.toChecksumAddress(get_wallet())
-    return contract
+    user_adress = web3.toChecksumAddress(get_wallet())
+    web3.eth.defaultAccount = user_adress
+    return contract, user_adress
