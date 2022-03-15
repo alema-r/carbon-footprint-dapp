@@ -77,12 +77,12 @@ contract User{
     }
 
     // Modificatori necessari per il controllo sulle funzioni
-    modifier onlyFornitore() {
+    modifier onlySupplier() {
         require(getRole() == supplier);
         _;
     }
 
-    modifier onlyTrasformatore() {
+    modifier onlyTransformer() {
         require(getRole() == transformer);
         _;
     }
@@ -91,22 +91,38 @@ contract User{
      * @notice Creates a product with specified name, raw material and initial carbon footprint.
      * @dev Calls the function `mintProduct` from `CarbonFootprint` contract.
      * @param product_name The name to assign to the product.
-     * @param raw_material The array of rawmaterials used to produce the product.
-     * @param lots The array of lots of rawmaterials
-     * @param carbon_fp The carbon footprint relating to supplier actions.
+     * @param indexes The array of indexes of rawmaterials used to produce the product.
      */ 
 	function createProduct(
-		string calldata product_name,
-		string[] calldata raw_material, 
-        uint256[] calldata lots,
-		uint256 carbon_fp
+		string calldata product_name, 
+        uint256[] calldata indexes
 	) 
-		external 
-		onlyFornitore
+		external
+        onlyTransformer
 	{
-        CFContract.mintProduct(product_name,raw_material, lots, carbon_fp);
+        CFContract.mintProduct(product_name, indexes);
     }
- 
+
+    /**
+     * @notice Creates a product with specified name, raw material and initial carbon footprint.
+     * @dev Calls the function `addRawMaterials` from `CarbonFootprint` contract.
+     * @param name The array of the raw materials' name.
+     * @param name The array of the raw materials' lot.
+     * @param name The array of the raw materials' supplier.
+     * @param name The array of the raw materials' carbon footprint.
+     */     
+    function createRawMaterials(
+        string[] calldata name,
+        uint256[] calldata lot,
+        address[] calldata supplier,
+        uint256[] calldata cf
+    )
+        external
+        onlySupplier
+    {
+        CFContract.addRawMaterials(name, lot, supplier, cf, isUsed);
+    }
+
     /**
      * @notice Add a carbon footprint relating to transformer actions.
      * @dev Calls the function `addCF` from `CarbonFootprint` contract.
@@ -120,7 +136,7 @@ contract User{
 		bool isEnded
 	) 
 		external 
-		onlyTrasformatore
+		onlyTransformer
 	{
         CFContract.addCF(carbon_fp,tokenId,isEnded);
     }
