@@ -27,7 +27,7 @@ contract CarbonFootprint is ERC721{
     ProductLibrary.RawMaterial[] private allRawMaterials;
 
     // Rivedere questo mapping nel caso in cui i prodotti possano avere lo stesso nome
-    mapping(string => uint) private RmToProduct;
+    mapping(uint => uint) private RmToProduct;
 
     // Evento da emettere sulla blockchain quando viene aggiornata una carbon footprint
     /**
@@ -37,8 +37,9 @@ contract CarbonFootprint is ERC721{
      * @param pId The id of the updated product.
      */
 	event newCFAdded(address userAddress, uint256 cf, uint256 pId);
-    event newRawMaterialLotAdded(address userAddress, string RmId, uint256 pId);
+    event newRawMaterialLotAdded(address userAddress, string name, uint256 lot, uint256 cf);
     event productIsFinished(address userAddress, uint256 pId, uint256 cf);
+    event rawMaterialIsUsed(address userAddress, uint256 pId, string name, uint256 lot, uint256 cf);
 
     /**
      * @notice Initializes the contract and sets the `owner` to `msg.sender`.
@@ -81,6 +82,19 @@ contract CarbonFootprint is ERC721{
         return allProducts[pId-1];
     }
 
+    function addRawMaterials(string[] calldata _rawMaterialName, uint256[] _lot, uint256[] _cf) public onlyOwner{
+        require(_rawMaterial.length == _lot.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
+        require(_rawMaterial.length == _cf.length, "Il numero delle materie prime non corrisponde al numero delle carboon footprint")
+        for(uint256 i = 0; i < _rawMaterialName.length; i++){
+            string memory RmId = string(bytes.concat(bytes(_rawMaterial[i]), "-", bytes(Strings.toString(_lot[i])), "-", bytes(Strings.toString(tx.origin))));
+            for(uint256 j = 0; j < allRawMaterials.length; j++){
+                require(RmId != string(bytes.concat(bytes(allRawMaterials[j].name), "-", bytes(Strings.toString(allRawMaterials[j].lot)), "-", bytes(Strings.toString(allRawMaterials[j].supplier)))), "Hai già inserito questo lotto di questa materia prima");
+            }
+            allRawMaterials.push(ProductLibrary.RawMaterial(_rawMaterialName[i], _lot[i], tx.origin, _cf[i], false));
+            emit newRawMaterialLotAdded(tx.origin, _rawMaterialName[i], _lot[i], _cf[i]);        
+        }
+    }
+
     /**
      * @notice Creates a product with specified product name, raw material and initial carbon footprint.
      * Then it adds it to `allProducts` and emits a `newCFAddded` event.
@@ -91,26 +105,23 @@ contract CarbonFootprint is ERC721{
      */
 	function mintProduct(
         string calldata _productName,
-		string[] calldata _rawMaterial, 
-        uint256[] calldata _lots,
-		uint256 cf
+		uint256[] _index
 	) 
 		public onlyOwner
-	{
-	require(_rawMaterial.length > 0, "Specifica almeno una materia prima.");
-        require(_rawMaterial.length == _lots.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
-        for(uint256 i = 0; i < _rawMaterial.length; i++){
-            string memory RmId = string(bytes.concat(bytes(_rawMaterial[i]), "-", bytes(Strings.toString(_lots[i]))));
-            require(RmToProduct[RmId] == 0, "Il lotto della materia prima inserita e' gia' stato utilizzato");
-            allRawMaterials.push(ProductLibrary.RawMaterial(_rawMaterial[i], _lots[i]));
-            RmToProduct[RmId] = productId;
-            emit newRawMaterialLotAdded(tx.origin, RmId, productId);
+	{       
+        uint256 cf = 0;
+        for(uint256 i = 0; i < _index.length; i++){
+            require(allRawMaterials[_index[i]].isUsed == false, "Il lotto della materia prima inserita e' gia' stato utilizzato");
+            assert(RmToProduct[_index[i]] == 0);
+            RmToProduct[_index[i]] = productId;
+            allRawMaterials[_index[i]].isUsed = true;
+            cf += allRawMaterials[_index[i]].CF;
+            emit rawMaterialIsUsed(tx.origin, productId, allRawMaterials[_index[i]].name, allRawMaterials[_index[i]].lot, allRawMaterials[_index[i]].CF);
         }
         //require(!productExists[_productName], "Il prodotto e' gia' presente.");
         //assert(!(_exists(productId)));
         _safeMint(tx.origin, productId);
         allProducts.push(ProductLibrary.Product(productId, _productName, tx.origin, cf, false));
-        emit newCFAdded(tx.origin, cf, productId);
         productId++;
     }
 
@@ -144,6 +155,7 @@ contract CarbonFootprint is ERC721{
      */ 
 	function transferProduct(address recipient, uint256 pId) public onlyOwner{
         require(pId < productId, "Il prodotto non esiste");
+        require(pId > 0, "Il prodotto non esiste");
         ProductLibrary.Product storage productToUpdate = allProducts[pId-1];
         require(productToUpdate.ended == false, "Il prodotto non e' piu' modificabile.");
         _safeTransfer(tx.origin, recipient, pId, "");
