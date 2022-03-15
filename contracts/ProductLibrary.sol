@@ -19,6 +19,9 @@ library ProductLibrary{
     struct RawMaterial {
         string name;
         uint256 lot;
+        address supplier;
+        uint256 CF;
+        bool isUsed;
     }
 
 }
