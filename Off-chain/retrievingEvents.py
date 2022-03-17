@@ -9,7 +9,7 @@ from web3.middleware import geth_poa_middleware
 
 baseURL = "http://127.0.0.1:22000"
 
-# Funzione con istruzioni replicate perandare a connetersi alla blockchain
+# Funzione con istruzioni replicate per andare a connetersi alla blockchain
 def connnectionUtils(URL):
     web3 = Web3(Web3.HTTPProvider(URL))
     abiUser = json.loads(

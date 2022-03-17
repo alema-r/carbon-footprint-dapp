@@ -31,8 +31,8 @@ def carbon_fp_input_validation(answers, current):
     try:
         int_cf=int(current)
     except:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Carbon footprint must be positive integer')
+        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Carbon footprint must be a positive integer')
     if int_cf < 0:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Carbon footprint must be positive integer')
+        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Carbon footprint must be a positive integer')
     return True
 

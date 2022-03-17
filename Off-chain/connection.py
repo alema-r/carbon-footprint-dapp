@@ -1,6 +1,10 @@
+from attr import validate
+from sklearn.linear_model import ARDRegression
 from web3 import Web3
 import json
 import inquirer
+from Utils import address_validation
+import sys
 
 # TODO: aggiungere l'address del contratto user quando lo creo.
 usercontractAddress = ""
@@ -15,10 +19,21 @@ bytecode_user = user_interface["evm"]["bytecode"]["object"]
 abi_cf = cf_interface["abi"]
 
 
-def get_wallet():
-    return inquirer.text(
-        message="Insert your wallet address",
+def get_wallet(contract, role):
+    adress = inquirer.text(
+        message="Insert your wallet address"
     )
+    while (not address_validation(contract, adress, role)):
+        print("The inserted address is not valid. Try again.")
+        choice = inquirer.list_input(
+            choices=["Input the address", "Quit"]
+        )
+        if choice == "Input the address":
+            adress = inquirer.text(
+                message="Insert your wallet address"
+            )
+        else:
+            sys.exit()
     #Controllare l'autorizzazione dell'utente ovvero che il wallet inserito sia effettivamente
     # un wallet prensete sulla blockchain e che sia del guisto ruolo
 
@@ -30,6 +45,6 @@ def connect(role):
     abi = json.loads(abi_user)
     address = web3.toChecksumAddress(usercontractAddress)
     contract = web3.eth.contract(address=address, abi=abi)
-    user_adress = web3.toChecksumAddress(get_wallet())
-    web3.eth.defaultAccount = user_adress
-    return contract, user_adress
+    user_address = web3.toChecksumAddress(get_wallet(contract, role))
+    web3.eth.defaultAccount = user_address
+    return contract, user_address

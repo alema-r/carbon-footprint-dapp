@@ -1,5 +1,6 @@
 from web3 import Web3
 import web3
+import Models
 
 # TODO: gestire le eccezioni che arrivano dalla blockchain, in particolare quelle dovute alla duplicazione delle materie prime presenti
 
@@ -55,5 +56,23 @@ def transfer_product_on_blockchain(contract, transfer_to, product_id):
     '''
     try:
         contract.functions.transferCP(transfer_to, product_id).transact()
+    except:
+        raise Exception
+
+def get_raw_materials_from_blockchain(contract):
+    """This function connects to the blockchain to retrieve the raw materials"""
+    try:
+        raw_materials = contract.functions.getRawMaterials().call()
+        raw_materials_object=[]
+        for elem in raw_materials:
+            raw_materials_object.append(Models.Raw_material(elem["name"], elem["lot"], elem["supplier"], elem["CF"], elem["isUsed"]))
+        return raw_materials_object
+    except:
+        raise Exception
+
+def create_new_product_on_blockchain(contract, product_name, raw_material_indexes):
+    """This function connects to the blockchain to add a new product"""
+    try:
+        contract.functions.createProduct(product_name,raw_material_indexes)
     except:
         raise Exception
