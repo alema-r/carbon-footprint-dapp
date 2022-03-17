@@ -21,6 +21,7 @@ def check_raw_material(raw_materials):
 """
 Funzione che controlla l'input che viene mandato sulla blockchain e poi fa la chiamata alla funzione del contratto.
 """
+'''
 def create_product_on_blockchain(contract, product_name: str, raw_materials, carbon_fp: int):
     #sanificazione dell'input
     raw_materials_ok = check_raw_material(raw_materials)
@@ -36,7 +37,7 @@ def create_product_on_blockchain(contract, product_name: str, raw_materials, car
     else:
         raise Exception("Improper input's formats")
         pass
-
+'''
 def create_raw_materials_on_blockchain(contract, raw_materials):
     '''
     Inserisce un nuovo token materia prima nella blockchain 
@@ -53,9 +54,9 @@ def create_raw_materials_on_blockchain(contract, raw_materials):
             raw_materials_name_list = [raw_material.get_name() for raw_material in raw_materials]
             raw_materials_lot_list = [raw_material.get_lot() for raw_material in raw_materials]
             raw_materials_cf_list = [raw_material.get_cf() for raw_material in raw_materials]
-            # TODO: chiamare la funzione del contratto che carica il token materia prima
-        except:
-            raise Exception
+            contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list, raw_materials_cf_list).transact()
+        except Exception as e:
+            raise Exception(e)
     else:
         raise Exception("Improper input's formats")
 

@@ -1,5 +1,9 @@
 from cmath import nan
+from xmlrpc.client import boolean
 import inquirer
+from web3 import Web3
+
+
 
 def lot_input_validation(answers, current):
     try:
@@ -24,8 +28,24 @@ def input_validation(raw_material, raw_materials):
     return True, ''
 
 
-def address_validation(answers, current):
-    #TODO: do address validation and check
+def address_validation(contract,address, role = '') -> bool:
+    '''
+    Controlla se l'indirizzo inserito è valido.
+    Prima controlla se l'indirizzo sia valido
+    se viene specificato il ruolo controlla anche che l'indirizzo sia associato
+    a quel particolare ruolo.
+    Se tutto va bene ritorna true se non va bene riotrna Falso.
+    '''
+    try:
+        checked_address = Web3.toChecksumAddress(address)
+        real_role = contract.functions.getRole(checked_address)
+    except Exception:
+        return False
+    if (role !=''):
+        if (role == real_role):
+            return True
+        else:
+            return False
     return True
 
 '''
@@ -47,45 +67,3 @@ def raw_material_name_input_validation(answers, current):
     if len(current) == 0:
         raise inquirer.errors.ValidationError('', reason= 'Invalid input: Product\'s name can not be empty')    
     return True
-
-'''
-Classe per la definizione del modello che devono avere i raw material.
-Questa struttura permette di avere anche delle materie prime che derivano da 
-più lotti nel caso in cui sia un caso che vorremo contemplare in futuro.
-Ovviamente consente di avere anche più materie prime che derivano da un solo lotto
-'''
- 
-class Raw_material:
-    def __init__(self, name: str, lot: int, address, cf: int):
-        self.__name = name
-        self.__lot = lot
-        self.__address = address
-        self.__cf = cf
-    
-    def __eq__(self, __o: object) -> bool:
-        if isinstance(__o, Raw_material):
-            return ((self.__name == __o.__name) & (self.__lot == __o.__lot) & (self.__address == __o.__address))
-        else:
-            return False
-
-    
-    def set_name(self, name: str):
-        self.__name = name
-
-    def set_lot(self, lot: int):
-        self.__lot = lot
-
-    def set_cf(self, cf: int):
-        self.__cf = cf
-        
-    def get_name(self):
-        return self.__name
-
-    def get_lot(self):
-        return self.__lot
-
-    def get_address(self):
-        return self.__address
-
-    def get_cf(self):
-        return self.__cf

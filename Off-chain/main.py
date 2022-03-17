@@ -70,9 +70,7 @@ def main():
             if action == role_dict[role]["actions"][0]:
                 get_filtered_products()
             if action == role_dict[role]["actions"][1]:
-                Supplier.create_product()
-            if action == role_dict[role]["actions"][2]:
-                Supplier.transfer_product()
+                Supplier.insert_raw_material()
     else :
         pass
 

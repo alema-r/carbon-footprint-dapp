@@ -2,6 +2,8 @@ from web3 import Web3
 import json
 import inquirer
 
+# TODO: aggiungere l'address del contratto user quando lo creo.
+usercontractAddress = ""
 baseURL = "http://127.0.0.1:2200"
 with open("../solc_output/UserContract.json", "r") as user_compiled:
     user_interface = json.load(user_compiled)
@@ -25,7 +27,7 @@ def connect(role):
     URL = baseURL + str(role)
     web3 = Web3(Web3.HTTPProvider(URL))
     #print(web3.isConnected())
-    abi = json.loads(abi_string)
+    abi = json.loads(abi_user)
     address = web3.toChecksumAddress(usercontractAddress)
     contract = web3.eth.contract(address=address, abi=abi)
     user_adress = web3.toChecksumAddress(get_wallet())
