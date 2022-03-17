@@ -39,7 +39,7 @@ contract CarbonFootprint is ERC721{
 	event newCFAdded(address userAddress, uint256 cf, uint256 pId);
     event newRawMaterialLotAdded(address userAddress, string name, uint256 lot, uint256 cf);
     event productIsFinished(address userAddress, uint256 pId, uint256 cf);
-    event rawMaterialIsUsed(address userAddress, uint256 pId, string name, uint256 lot, uint256 cf);
+    event rawMaterialIsUsed(address transformer, address supplier, uint256 pId, string name, uint256 lot, uint256 cf);
 
     /**
      * @notice Initializes the contract and sets the `owner` to `msg.sender`.
@@ -82,13 +82,20 @@ contract CarbonFootprint is ERC721{
         return allProducts[pId-1];
     }
 
-    function addRawMaterials(string[] calldata _rawMaterialName, uint256[] _lot, uint256[] _cf) public onlyOwner{
-        require(_rawMaterial.length == _lot.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
-        require(_rawMaterial.length == _cf.length, "Il numero delle materie prime non corrisponde al numero delle carboon footprint")
+    /**
+     * @notice Creates a new rawmaterial with a specified name, lot and carboon footprint. It is called by the supplier who provides the rawm aterial
+     * Then after checking the rawmaterial does not exist yet, it adds it to `allRawmaterial` and emits a `newRawMaterialLotAdded` event.
+	 * @param _rawMaterialName Array with names of the rawmaterial provided.
+	 * @param _lot Array with the rawmaterials' lot 
+     * @param _cf Array with the rawmaterials' carboon footprint
+     */
+    function addRawMaterials(string[] calldata _rawMaterialName, uint256[] calldata _lot, uint256[] calldata _cf) public onlyOwner{
+        require(_rawMaterialName.length == _lot.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
+        require(_rawMaterialName.length == _cf.length, "Il numero delle materie prime non corrisponde al numero delle carboon footprint");
         for(uint256 i = 0; i < _rawMaterialName.length; i++){
-            string memory RmId = string(bytes.concat(bytes(_rawMaterial[i]), "-", bytes(Strings.toString(_lot[i])), "-", bytes(Strings.toString(tx.origin))));
+            bytes32 RmId = keccak256(bytes.concat(bytes(_rawMaterialName[i]), "-", bytes(Strings.toString(_lot[i])), "-", bytes20(tx.origin)));
             for(uint256 j = 0; j < allRawMaterials.length; j++){
-                require(RmId != string(bytes.concat(bytes(allRawMaterials[j].name), "-", bytes(Strings.toString(allRawMaterials[j].lot)), "-", bytes(Strings.toString(allRawMaterials[j].supplier)))), "Hai già inserito questo lotto di questa materia prima");
+                require(RmId != keccak256(bytes.concat(bytes(allRawMaterials[j].name), "-", bytes(Strings.toString(allRawMaterials[j].lot)), "-", bytes20(allRawMaterials[j].supplier))), "Hai gia' inserito questo lotto di questa materia prima");
             }
             allRawMaterials.push(ProductLibrary.RawMaterial(_rawMaterialName[i], _lot[i], tx.origin, _cf[i], false));
             emit newRawMaterialLotAdded(tx.origin, _rawMaterialName[i], _lot[i], _cf[i]);        
@@ -96,16 +103,15 @@ contract CarbonFootprint is ERC721{
     }
 
     /**
-     * @notice Creates a product with specified product name, raw material and initial carbon footprint.
+     * @notice Creates a product with specified product name, and specify rawmaterials transformer will use for the product.
      * Then it adds it to `allProducts` and emits a `newCFAddded` event.
      * @dev See {ERC721-_safeMint}
 	 * @param _productName The name of the product.
-	 * @param _rawMaterial The raw material used for the product.
-	 * @param cf The initial carbon footprint.
+	 * @param _index Array of indexes of the Rawmaterials in allRawMaterials
      */
 	function mintProduct(
         string calldata _productName,
-		uint256[] _index
+		uint256[] calldata _index
 	) 
 		public onlyOwner
 	{       
@@ -116,7 +122,7 @@ contract CarbonFootprint is ERC721{
             RmToProduct[_index[i]] = productId;
             allRawMaterials[_index[i]].isUsed = true;
             cf += allRawMaterials[_index[i]].CF;
-            emit rawMaterialIsUsed(tx.origin, productId, allRawMaterials[_index[i]].name, allRawMaterials[_index[i]].lot, allRawMaterials[_index[i]].CF);
+            emit rawMaterialIsUsed(tx.origin, allRawMaterials[_index[i]].supplier,productId, allRawMaterials[_index[i]].name, allRawMaterials[_index[i]].lot, allRawMaterials[_index[i]].CF);
         }
         //require(!productExists[_productName], "Il prodotto e' gia' presente.");
         //assert(!(_exists(productId)));

@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.12+commit.f00d7308"
+		"version": "0.8.7+commit.e28d00a7"
 	},
 	"language": "Solidity",
 	"output": {
@@ -122,13 +122,19 @@
 					{
 						"indexed": false,
 						"internalType": "string",
-						"name": "RmId",
+						"name": "name",
 						"type": "string"
 					},
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "pId",
+						"name": "lot",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "cf",
 						"type": "uint256"
 					}
 				],
@@ -161,6 +167,43 @@
 				"type": "event"
 			},
 			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "userAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "pId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "lot",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "cf",
+						"type": "uint256"
+					}
+				],
+				"name": "rawMaterialIsUsed",
+				"type": "event"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -179,6 +222,29 @@
 					}
 				],
 				"name": "addCF",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string[]",
+						"name": "_rawMaterialName",
+						"type": "string[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "_lot",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "_cf",
+						"type": "uint256[]"
+					}
+				],
+				"name": "addRawMaterials",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -275,6 +341,21 @@
 								"internalType": "uint256",
 								"name": "lot",
 								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "supplier",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "CF",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "isUsed",
+								"type": "bool"
 							}
 						],
 						"internalType": "struct ProductLibrary.RawMaterial[]",
@@ -382,19 +463,9 @@
 						"type": "string"
 					},
 					{
-						"internalType": "string[]",
-						"name": "_rawMaterial",
-						"type": "string[]"
-					},
-					{
 						"internalType": "uint256[]",
-						"name": "_lots",
+						"name": "_index",
 						"type": "uint256[]"
-					},
-					{
-						"internalType": "uint256",
-						"name": "cf",
-						"type": "uint256"
 					}
 				],
 				"name": "mintProduct",
@@ -629,6 +700,13 @@
 						"partialCF": "The carbon footprint to be added."
 					}
 				},
+				"addRawMaterials(string[],uint256[],uint256[])": {
+					"params": {
+						"_cf": "Array with the rawmaterials' carboon footprint",
+						"_lot": "Array with the rawmaterials' lot ",
+						"_rawMaterialName": "Array with names of the rawmaterial provided."
+					}
+				},
 				"approve(address,uint256)": {
 					"details": "See {IERC721-approve}."
 				},
@@ -663,12 +741,11 @@
 				"isApprovedForAll(address,address)": {
 					"details": "See {IERC721-isApprovedForAll}."
 				},
-				"mintProduct(string,string[],uint256[],uint256)": {
+				"mintProduct(string,uint256[])": {
 					"details": "See {ERC721-_safeMint}",
 					"params": {
-						"_productName": "The name of the product.",
-						"_rawMaterial": "The raw material used for the product.",
-						"cf": "The initial carbon footprint."
+						"_index": "Array of indexes of the Rawmaterials in allRawMaterials",
+						"_productName": "The name of the product."
 					}
 				},
 				"name()": {
@@ -720,6 +797,9 @@
 				"addCF(uint256,uint256,bool)": {
 					"notice": "Adds a carbon footprint to the specified product"
 				},
+				"addRawMaterials(string[],uint256[],uint256[])": {
+					"notice": "Creates a new rawmaterial with a specified name, lot and carboon footprint. It is called by the supplier who provides the rawm aterial Then after checking the rawmaterial does not exist yet, it adds it to `allRawmaterial` and emits a `newRawMaterialLotAdded` event."
+				},
 				"constructor": {
 					"notice": "Initializes the contract and sets the `owner` to `msg.sender`."
 				},
@@ -732,8 +812,8 @@
 				"getProductById(uint256)": {
 					"notice": "Returns the product with the specified `pId` id."
 				},
-				"mintProduct(string,string[],uint256[],uint256)": {
-					"notice": "Creates a product with specified product name, raw material and initial carbon footprint. Then it adds it to `allProducts` and emits a `newCFAddded` event."
+				"mintProduct(string,uint256[])": {
+					"notice": "Creates a product with specified product name, and specify rawmaterials transformer will use for the product. Then it adds it to `allProducts` and emits a `newCFAddded` event."
 				},
 				"transferProduct(address,uint256)": {
 					"notice": "Transfer the property of a product with id `pId` to address `recipient`."
@@ -832,19 +912,19 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0x66ba0511b608c7f376bee7ef67b1a45b509497a7a490dfd18ec822a110b1a210",
+			"keccak256": "0x41ecdeacca32b52aeab5d7c6cf589984af823ed4599dabf80cb64e32e101f217",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://50b33821e1e61748c5beaaf625ca61bff41074b91c045c1bca723cfde0f67b8d",
-				"dweb:/ipfs/QmQvNiUUTGaeDTnjM9AM9gngbd8N39jjmdryt2EtbuZgi2"
+				"bzz-raw://0be7697fafa6475706fc3114ec781b3788028b591fae8a4b3d5f231f099137d4",
+				"dweb:/ipfs/QmVxhpGRQeysA6gmRk7rt7pMsaXcM5o9kdM3PjAgWa4iGw"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
-			"keccak256": "0x79308bb0adecc0c3c44ad2a7ac8ed797ae12596077d3d8f71f57be1723fb9f58",
+			"keccak256": "0xcc4eb17461b6ef98a6efe48c9125b1a20935b3fe4b0e088d4eb5fbbb19b69090",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://708aa475965c8199bbdb6955e6e30f95acb7fe7b20e2a6edad349a48a6076d22",
-				"dweb:/ipfs/QmW2CoBehgSnBrqW2xNCbT18GWNyckmyk6HmzoL42ibFPf"
+				"bzz-raw://e805eeaa9ffe2ac3210ff331c19ce92f7af58a15aa0006671f7e105ee707beba",
+				"dweb:/ipfs/QmQzYcYpW9U9AwTUuTkntBnGuHmTYYMpHjMshFxVnyhYkm"
 			]
 		}
 	},

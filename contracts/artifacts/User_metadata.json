@@ -84,22 +84,35 @@
 						"type": "string"
 					},
 					{
+						"internalType": "uint256[]",
+						"name": "indexes",
+						"type": "uint256[]"
+					}
+				],
+				"name": "createProduct",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "string[]",
-						"name": "raw_material",
+						"name": "name",
 						"type": "string[]"
 					},
 					{
 						"internalType": "uint256[]",
-						"name": "lots",
+						"name": "lot",
 						"type": "uint256[]"
 					},
 					{
-						"internalType": "uint256",
-						"name": "carbon_fp",
-						"type": "uint256"
+						"internalType": "uint256[]",
+						"name": "cf",
+						"type": "uint256[]"
 					}
 				],
-				"name": "createProduct",
+				"name": "createRawMaterials",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -150,6 +163,46 @@
 							}
 						],
 						"internalType": "struct ProductLibrary.Product[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getRawMaterials",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "lot",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "supplier",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "CF",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "isUsed",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct ProductLibrary.RawMaterial[]",
 						"name": "",
 						"type": "tuple[]"
 					}
@@ -223,13 +276,17 @@
 				"constructor": {
 					"details": "Initializes the contract by setting a default supplier and a default transformer.\tAlso it sets the `owner` of the contract to `msg.sender`."
 				},
-				"createProduct(string,string[],uint256[],uint256)": {
+				"createProduct(string,uint256[])": {
 					"details": "Calls the function `mintProduct` from `CarbonFootprint` contract.",
 					"params": {
-						"carbon_fp": "The carbon footprint relating to supplier actions.",
-						"lots": "The array of lots of rawmaterials",
-						"product_name": "The name to assign to the product.",
-						"raw_material": "The array of rawmaterials used to produce the product."
+						"indexes": "The array of indexes of rawmaterials used to produce the product.",
+						"product_name": "The name to assign to the product."
+					}
+				},
+				"createRawMaterials(string[],uint256[],uint256[])": {
+					"details": "Calls the function `addRawMaterials` from `CarbonFootprint` contract.",
+					"params": {
+						"name": "The array of the raw materials' carbon footprint."
 					}
 				},
 				"createUser(uint8)": {
@@ -238,6 +295,11 @@
 					}
 				},
 				"getProducts()": {
+					"returns": {
+						"_0": "An array of `ProductLibrary.Product`."
+					}
+				},
+				"getRawMaterials()": {
 					"returns": {
 						"_0": "An array of `ProductLibrary.Product`."
 					}
@@ -276,13 +338,19 @@
 				"addTransformation(uint16,uint256,bool)": {
 					"notice": "Add a carbon footprint relating to transformer actions."
 				},
-				"createProduct(string,string[],uint256[],uint256)": {
+				"createProduct(string,uint256[])": {
+					"notice": "Creates a product with specified name, raw material and initial carbon footprint."
+				},
+				"createRawMaterials(string[],uint256[],uint256[])": {
 					"notice": "Creates a product with specified name, raw material and initial carbon footprint."
 				},
 				"createUser(uint8)": {
 					"notice": "Function that associate the Role `role` to `msg.sender`."
 				},
 				"getProducts()": {
+					"notice": "Returns all the products currently present in `CarbonFootprint` contract"
+				},
+				"getRawMaterials()": {
 					"notice": "Returns all the products currently present in `CarbonFootprint` contract"
 				},
 				"getRole()": {
@@ -388,27 +456,27 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0x66ba0511b608c7f376bee7ef67b1a45b509497a7a490dfd18ec822a110b1a210",
+			"keccak256": "0xcce2213000cdeb4e4ebd87a35cc47d3ebe1a4f7c59c517fecc9cbfe2a60d2729",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://50b33821e1e61748c5beaaf625ca61bff41074b91c045c1bca723cfde0f67b8d",
-				"dweb:/ipfs/QmQvNiUUTGaeDTnjM9AM9gngbd8N39jjmdryt2EtbuZgi2"
+				"bzz-raw://46786734fea626890aa60feb4e15ba3c45edf00c7d467700696998dfeacb546f",
+				"dweb:/ipfs/QmWNggk1eq6FR7YUgNhZZzpkWBayNwxWbxmZajSgV9VQvK"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
-			"keccak256": "0x79308bb0adecc0c3c44ad2a7ac8ed797ae12596077d3d8f71f57be1723fb9f58",
+			"keccak256": "0xcc4eb17461b6ef98a6efe48c9125b1a20935b3fe4b0e088d4eb5fbbb19b69090",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://708aa475965c8199bbdb6955e6e30f95acb7fe7b20e2a6edad349a48a6076d22",
-				"dweb:/ipfs/QmW2CoBehgSnBrqW2xNCbT18GWNyckmyk6HmzoL42ibFPf"
+				"bzz-raw://e805eeaa9ffe2ac3210ff331c19ce92f7af58a15aa0006671f7e105ee707beba",
+				"dweb:/ipfs/QmQzYcYpW9U9AwTUuTkntBnGuHmTYYMpHjMshFxVnyhYkm"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": {
-			"keccak256": "0xc64f7546800a22fc6e8010b98956414e0a29e6541f18232c3a8de5c9b58e4227",
+			"keccak256": "0x8cd8c20e8de5e6d8595c084ca2003273c180d848a0788b1185f7773085415064",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://61e75dab9f3cd98bfcf9ec5e3b831e8555950b23920d4789a9a6dbec3a832175",
-				"dweb:/ipfs/QmdTYVnB1XRK47HaVD8PQurhkSLQJory9X3redjEB3z9iV"
+				"bzz-raw://7fc5e1b82a7e43773a5a8d58fc3b1b70786b3451ef7d95d9823b172cf091a381",
+				"dweb:/ipfs/QmWcG7axh6Q4qaVMJRhddVbA141DwYnvLhntqkvaphY4Tz"
 			]
 		}
 	},
