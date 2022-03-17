@@ -2,21 +2,6 @@ from web3 import Web3
 import web3
 
 # TODO: gestire le eccezioni che arrivano dalla blockchain, in particolare quelle dovute alla duplicazione delle materie prime presenti
-# TODO: probabilmente da eliminare
-def check_raw_material(raw_materials):
-    # Si controlla che ci sia almeno una materia prima    
-    if len(raw_materials) == 0:
-        return False
-
-    # Si controlla che tutti gli elementi dell'array siano effettivamente delle stringe e che ci sia almeno una materia prima
-    for material in raw_materials:
-        if (isinstance(material.get_name(), str)) & (len(material.get_name()) >0) & (isinstance(material.get_lot(), int) & (material.get_lot() >= 0) & (material.get_cf()>=0)):
-            pass
-        else:
-            return False
-    
-    return True
-    
 
 """
 Funzione che controlla l'input che viene mandato sulla blockchain e poi fa la chiamata alla funzione del contratto.
@@ -47,18 +32,16 @@ def create_raw_materials_on_blockchain(contract, raw_materials):
     raw_materials -- lista di oggetti materie prime che contengono tutte le informazioni sulle materie prima da caricare sulla blockchain
     carbon_fp -- Carbon footprint associata alla materia prima che si sta inserendo
     '''
-    raw_materials_ok = check_raw_material(raw_materials)
-    if raw_materials_ok:
-
-        try:
-            raw_materials_name_list = [raw_material.get_name() for raw_material in raw_materials]
-            raw_materials_lot_list = [raw_material.get_lot() for raw_material in raw_materials]
-            raw_materials_cf_list = [raw_material.get_cf() for raw_material in raw_materials]
-            contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list, raw_materials_cf_list).transact()
-        except Exception as e:
-            raise Exception(e)
-    else:
-        raise Exception("Improper input's formats")
+    try:
+        raw_materials_name_list = [raw_material.get_name() for raw_material in raw_materials]
+        raw_materials_lot_list = [raw_material.get_lot() for raw_material in raw_materials]
+        raw_materials_cf_list = [raw_material.get_cf() for raw_material in raw_materials]
+        contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list, raw_materials_cf_list).transact()
+    except Exception as e:
+        if (e.__str__ == "Il numero delle materie prime non corrispone al numero di lotti") or (e.__str__ == "Il numero delle materie prime non corrisponde al numero delle carbon footprint") or (e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
+            raise e
+        else:
+            raise Exception("Errore nel caricamento della materia prima")
 
 
 def transfer_cp(contract, recipient, token_id):
