@@ -7,6 +7,7 @@ import "./ProductLibrary.sol";
 import "./CarbonFootprint.sol";
 
 
+
 /**
  * @title A proxy for `CarbonFootprint` contract that also manages users.
  * @notice A user can use this contract to manage carbon footprints of all products.
@@ -108,19 +109,17 @@ contract User{
      * @dev Calls the function `addRawMaterials` from `CarbonFootprint` contract.
      * @param name The array of the raw materials' name.
      * @param name The array of the raw materials' lot.
-     * @param name The array of the raw materials' supplier.
      * @param name The array of the raw materials' carbon footprint.
      */     
     function createRawMaterials(
         string[] calldata name,
         uint256[] calldata lot,
-        address[] calldata supplier,
         uint256[] calldata cf
     )
         external
         onlySupplier
     {
-        CFContract.addRawMaterials(name, lot, supplier, cf, isUsed);
+        CFContract.addRawMaterials(name, lot, cf);
     }
 
     /**
@@ -157,5 +156,12 @@ contract User{
      */
 	function getProducts() external view returns (ProductLibrary.Product[] memory){
         return CFContract.getAllProducts();
+    }
+    /**
+    * @notice Returns all the products currently present in `CarbonFootprint` contract
+    * @return An array of `ProductLibrary.Product`.
+    */
+    function getRawMaterials() external view onlyTransformer returns (ProductLibrary.RawMaterial[] memory){
+        return CFContract.getAllRawMaterials();
     }
 }
