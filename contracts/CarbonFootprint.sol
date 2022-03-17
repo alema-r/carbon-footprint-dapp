@@ -91,7 +91,7 @@ contract CarbonFootprint is ERC721{
      */
     function addRawMaterials(string[] calldata _rawMaterialName, uint256[] calldata _lot, uint256[] calldata _cf) public onlyOwner{
         require(_rawMaterialName.length == _lot.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
-        require(_rawMaterialName.length == _cf.length, "Il numero delle materie prime non corrisponde al numero delle carboon footprint");
+        require(_rawMaterialName.length == _cf.length, "Il numero delle materie prime non corrisponde al numero delle carbon footprint");
         for(uint256 i = 0; i < _rawMaterialName.length; i++){
             bytes32 RmId = keccak256(bytes.concat(bytes(_rawMaterialName[i]), "-", bytes(Strings.toString(_lot[i])), "-", bytes20(tx.origin)));
             for(uint256 j = 0; j < allRawMaterials.length; j++){

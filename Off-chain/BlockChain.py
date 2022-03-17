@@ -3,26 +3,6 @@ import web3
 
 # TODO: gestire le eccezioni che arrivano dalla blockchain, in particolare quelle dovute alla duplicazione delle materie prime presenti
 
-"""
-Funzione che controlla l'input che viene mandato sulla blockchain e poi fa la chiamata alla funzione del contratto.
-"""
-'''
-def create_product_on_blockchain(contract, product_name: str, raw_materials, carbon_fp: int):
-    #sanificazione dell'input
-    raw_materials_ok = check_raw_material(raw_materials)
-    if (len(product_name)>0) & (raw_materials_ok) & (carbon_fp>0):
-        raw_materials_name_list = [raw_material.get_name() for raw_material in raw_materials]
-        raw_materials_lot_list = [raw_material.get_lot() for raw_material in raw_materials]
-        try:
-            # Chiamata alla funzione per creare un nuovo prodotto sulla blockchain
-            # TODO: imparare a gestire le eccezioni che arrivano dalla blockchain soprattutto quella riguardante carbonfootprin e lotto già inseriti
-            contract.functions.createProduct(product_name, raw_materials_name_list, raw_materials_lot_list, carbon_fp).transact()
-        except:
-            raise Exception("Unable to call createProduct function on blockchain")
-    else:
-        raise Exception("Improper input's formats")
-        pass
-'''
 def create_raw_materials_on_blockchain(contract, raw_materials):
     '''
     Inserisce un nuovo token materia prima nella blockchain 
@@ -41,7 +21,7 @@ def create_raw_materials_on_blockchain(contract, raw_materials):
         if (e.__str__ == "Il numero delle materie prime non corrispone al numero di lotti") or (e.__str__ == "Il numero delle materie prime non corrisponde al numero delle carbon footprint") or (e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
             raise e
         else:
-            raise Exception("Errore nel caricamento della materia prima")
+            raise Exception("Errore nel caricamento delle materie prime")
 
 
 def transfer_cp(contract, recipient, token_id):
