@@ -1,9 +1,8 @@
-from web3 import Web3
 import json
-
+from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
-baseURL = "http://127.0.0.1:2200"
+BASE_URL = "http://127.0.0.1:2200"
 
 
 class UserContract(object):
@@ -11,11 +10,11 @@ class UserContract(object):
     A singleton class for the `User` contract.
     """
 
-    instance = None
-
     def __new__(cls, web3: Web3):
         """
         Creates a new istance of the class if it doesn't exists.
+        Checks if there is an address in the file address.json. If not it 
+        creates the contract and it save the address for subsequent uses.
         Returns a `web3._utils.datatypes.Contract`
         """
         if not hasattr(cls, "instance"):
@@ -44,6 +43,9 @@ class UserContract(object):
                 user = web3.eth.contract(
                     address=tx_receipt.contractAddress, abi=user_interface["abi"]
                 )
+                with open("address.json", "w") as file:
+                    json_address = dict(address=user.address)
+                    json.dump(json_address, file)
                 cls.instance = user
             else:
                 contract_address = web3.toChecksumAddress(address)
@@ -57,7 +59,7 @@ with open("../solc_output/CFContract.json", "r") as cf_compiled:
 
 
 def connect(role):
-    url = baseURL + str(role)
+    url = BASE_URL + str(role)
     web3 = Web3(Web3.HTTPProvider(url))
     user_contract = UserContract(web3=web3)
     cf_contract = web3.eth.contract(
