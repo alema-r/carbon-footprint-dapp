@@ -1,17 +1,10 @@
-from audioop import add
-from operator import is_
-from random import choices
-from secrets import choice
-from attr import validate
-from idna import valid_contextj
 from Utils import carbon_fp_input_validation, address_validation
 from connection import connect
 import inquirer
 import Transformer
 import Supplier
-from Models import Raw_material
+from Models import RawMaterial, Product
 import BlockChain
-
 
 role_dict = {
     "Client": {
@@ -37,9 +30,6 @@ role_dict = {
         ],
     },
 }
-
-
-
 
 def insert_raw_material(contract, user_address):
     raw_materials = []
@@ -92,30 +82,28 @@ def insert_raw_material(contract, user_address):
             print(e)
             print ("Please insert raw materials again")
 
-def add_transformation(user_products, contract):
+def add_transformation(user_products:list[Product], contract):
     '''This function lets the transformer user add a new trasformation to the production chain of a product that they own. 
 
     Keyword arguments:
     user_products -- the list of the products that the user currently owns
     contract -- the instance of Contract necessary to connect to the blockchain
     '''
+    #ottengo i nomi dei prodotti dell'utente
     user_products_names = []
     for p in user_products:
-        user_products_names.append(p["name"])
+        user_products_names.append(p.name)
 
     product_name = inquirer.list_input(
         message="What product do you want to update?",
         choices=user_products_names
     )
 
-    #SARA' DA CAMBIARE QUANDO SI FA LA CLASSE RELATIVA AL PRODOTTO, PER ORA JSON
+    #trovo l'id del prodotto con il nome selezionato
     for p in user_products:
-        if p["name"] == product_name:
-            this_product = p
+        if p.name == product_name:
+            product_id = p.productId
             break
-
-    product_id = this_product["productId"]
-
     
     carb_footprint = inquirer.text(
         message="Insert the carbon footprint value of this transformation: ",
@@ -139,41 +127,41 @@ def add_transformation(user_products, contract):
             print(e)
             print("Something went wrong while trying to add the trasnformation to the blockchain... Please retry.")
 
-def transfer_product(user_products, contract):
+def transfer_product(user_products:list[Product], contract):
     '''This function lets the transformer user transfer the property of a product to another transformer
 
     Keyword arguments
     user_products -- the list of the products that the user currently owns
     contract -- the instance of Contract necessary to connect to the blockchain
     '''
+    #Ottengo i nomi dei prodotti dell'utente
     user_products_names = []
     for p in user_products:
-        user_products_names.append(p["name"])
+        user_products_names.append(p.name)
 
     product_name = inquirer.list_input(
         message="What product do you want to transfer? ",
         choices=user_products_names
     )
-    #SARA' DA CAMBIARE QUANDO SI FA LA CLASSE RELATIVA AL PRODOTTO, PER ORA JSON
+    
+    #Ottengo l'id del prodotto con il nome selezionato
     for p in user_products:
-        if p["name"] == product_name:
-            this_product = p
+        if p.name == product_name:
+            product_id = p.productId
             break
 
-    product_id = this_product["productId"]
-
-    adress_ok = False
-    while not adress_ok:
+    address_ok = False
+    while not address_ok:
         transfer_to = inquirer.text(
-            message="Insert the adress of the transformer to who you want to transfer the product: "
+            message="Insert the address of the transformer to who you want to transfer the product: "
         )
-        adress_ok = address_validation(
+        address_ok = address_validation(
             contract, transfer_to, "Transformer")
-        if not adress_ok:
-            print("The specified adress is not valid, please retry.")
+        if not address_ok:
+            print("The specified address is not valid, please retry.")
 
     confirm = inquirer.confirm(
-        message=f"Do you want to transfer the product {product_name} to {transfer_to}?"
+        message=f"Do you want to transfer the product {product_name} to the address {transfer_to}?"
     )
     if confirm:
         try:
@@ -184,20 +172,26 @@ def transfer_product(user_products, contract):
             print("Something went wrong while trying to trasfer the ownership of the product... Please retry.")
 
 def create_new_product(contract):
-    raw_materials = BlockChain.get_raw_materials_from_blockchain(contract)
+    """This function lets the transformer create a new product, by selecting the necessary raw materials
+    
+    Keyword arguments
+    contract -- the instance of Contract necessary to connect to the blockchain"""
+    raw_materials: list[RawMaterial] = BlockChain.get_raw_materials_from_blockchain(contract)
 
     product_name = inquirer.text(
         message="Type the name of the product you want to create: ",
         validate=Transformer.new_product_name_input_validation
     )
     
+    #creo la lista delle scelte da mostrare all'utente e raccolgo gli indici delle materie prime usabili
     possible_choices=[]
     usable_materials_index=[]
-    for index, material in raw_materials:
-        if not material.get_isUsed():
-            possible_choices.append(f"Material name: {material.get_name()}, lot: {material.get_lot()}, supplier_address: {material.get_address}")
+    for index, material in enumerate(raw_materials):
+        if not material.isUsed:
+            possible_choices.append(f"Material name: {material.name}, lot: {material.lot}, supplier_address: {material.address}")
             usable_materials_index.append(index)
     
+    #Faccio selezionare all'utente le materie prima da usare. Per ognuna di essere raccolgo l'id.
     add_new_material = True
     materials_to_use_indexes=[]
     while add_new_material:
@@ -205,12 +199,13 @@ def create_new_product(contract):
             message="Select a raw material to use",
             choices=possible_choices
         )
+        #Gli elementi in possible_choices e usable_material_index hanno la stessa posizione nei rispettivi array se fanno riferimento
+        #alla stessa materia prima.
         new_material_to_use_index = usable_materials_index[possible_choices.index(
-            added_material)]
-        materials_to_use_indexes.append(new_material_to_use_index)
-        possible_choices.remove(added_material)
-        usable_materials_index.remove(new_material_to_use_index)
-
+            added_material)] 
+        materials_to_use_indexes.append(new_material_to_use_index) #Qua prendo l'id
+        possible_choices.remove(added_material) #Qua rimuovo la materia appena selezionata, così che non venga rimostrata
+        usable_materials_index.remove(new_material_to_use_index) # Qua rimuovo l'id della materia appena selezionata
         add_more = inquirer.confirm(
             message="Do you want to add another raw material?"
         )
@@ -237,11 +232,13 @@ def main():
     )
 
     print(role)
-    contract, user_adress = connect(role_dict[role]["num"])
-    #QUANDO PRENDIAMO I PRODOTTI?
+    #contract, user_adress = connect(role_dict[role]["num"])
+    web3, user_contract, cf_contract = connect(role_dict[role]["num"])
     action = "start"
     if role == "Transformer":
-        userProducts=Transformer.get_updatable_user_products(products, user_adress)
+        all_products=BlockChain.get_products_from_blockchain(cf_contract)
+        user_products = Transformer.get_updatable_user_products(
+            all_products, user_contract.functions.CFaddress().call())
         action= inquirer.list_input(
             message="What action do you want to perform?",
             choices=role_dict[role]["actions"]
@@ -251,11 +248,11 @@ def main():
             if action == role_dict[role]["actions"][0]:
                 get_filtered_products() #FUNZIONE COMUNE DA ISTANZIARE
             elif action == role_dict[role]["actions"][1]:
-                create_new_product(contract)
+                create_new_product(cf_contract)
             elif action == role_dict[role]["actions"][2]:
-                add_transformation(userProducts, contract)
+                add_transformation(user_products, cf_contract)
             else:
-                transfer_product(userProducts, contract)
+                transfer_product(user_products, cf_contract)
         #istanziazione transformer
     elif role == "Supplier":
         # Inizia il meccanismo di interazione con l'utente. 
@@ -269,7 +266,8 @@ def main():
             if action == role_dict[role]["actions"][0]:
                 get_filtered_products()
             if action == role_dict[role]["actions"][1]:
-                insert_raw_material(contract, user_adress)
+                insert_raw_material(
+                    cf_contract, user_contract.functions.CFaddress().call())
     else :
         pass
 
@@ -282,7 +280,7 @@ def main():
     while action != "Exit":
         if action == role_dict[role]["actions"][0]:
             # scelta dei filtri
-            cc = contract.functions.getProducts().call()
+            cc = cf_contract.functions.getProducts().call()
             # chiamata al modulo che applica i filtri
         #if per il ruolo
             #if per l'operazione

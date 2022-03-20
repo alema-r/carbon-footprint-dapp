@@ -157,11 +157,21 @@ contract User{
 	function getProducts() external view returns (ProductLibrary.Product[] memory){
         return CFContract.getAllProducts();
     }
+
+    /**
+     * @notice Returns the product with the specified `pId` id.
+     * @param productId The id of the product.
+     * @return A `ProductLibrary.Product` object.
+     */
+    function getProductById(uint256 productId) external view returns (ProductLibrary.Product memory){
+        return CFContract.getProductById(productId);
+    }
+
     /**
     * @notice Returns all the products currently present in `CarbonFootprint` contract
     * @return An array of `ProductLibrary.Product`.
     */
-    function getRawMaterials() external view onlyTransformer returns (ProductLibrary.RawMaterial[] memory){
+    function getRawMaterials() external view returns (ProductLibrary.RawMaterial[] memory){
         return CFContract.getAllRawMaterials();
     }
 }

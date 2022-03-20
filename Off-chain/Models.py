@@ -5,46 +5,85 @@ Questa struttura permette di avere anche delle materie prime che derivano da
 più lotti nel caso in cui sia un caso che vorremo contemplare in futuro.
 Ovviamente consente di avere anche più materie prime che derivano da un solo lotto
 '''
- 
-class Raw_material:
-    def __init__(self, name: str, lot: int, address, cf: int, isEnded = False ):
-        self.__name = name
-        self.__lot = lot
-        self.__address = address
-        self.__cf = cf
-        self.__isEnded = isEnded
+from datetime import datetime
+
+class RawMaterial:
+    """
+    Class mapping the structure of a raw material on the blockchain
+    """
+    def __init__(self, name: str, lot: int, address, cf: int, isUsed=False, time_of_insertion: datetime = None,
+                 time_of_use: datetime = None):
+        self.name = name
+        self.lot = lot
+        self.address = address
+        self.cf = cf
+        self.isUsed = isUsed
+        self.time_of_insertion = time_of_insertion
+        self.time_of_use = time_of_use
+
+    @classmethod
+    def fromBlockChain(cls, data: tuple, time_of_insertion=None, time_of_use=None):
+        return cls(data[0], data[1], data[2], data[3], data[4], time_of_insertion, time_of_use)
+
+    def __str__(self):
+        return f"\t{self.name}\t{self.lot}\t{self.address}\t\t{self.cf}\t\t{self.time_of_insertion}\t\t{self.time_of_use}"
     
     def __eq__(self, __o: object) -> bool:
-        if isinstance(__o, Raw_material):
-            return ((self.__name == __o.__name) & (self.__lot == __o.__lot) & (self.__address == __o.__address))
+        if isinstance(__o, RawMaterial):
+            return (self.name == __o.name) & (self.lot == __o.lot) & (self.address == __o.address)
         else:
             return False
 
-    
-    def set_name(self, name: str):
-        self.__name = name
+class Product:
+    """
+    Class mapping the structure of a product on the blockchain
+    """
+    def __init__(self, productId: int, name: str, address, CF: int, isEnded=False, time_of_start: datetime=None,
+                 time_of_finishing: datetime=None):
+        self.productId = productId
+        self.name = name
+        self.address = address
+        self.CF = CF
+        self.isEnded = isEnded
+        self.time_of_start = time_of_start
+        self.time_of_finishing = time_of_finishing
+        self.supplier = []
+        self.transformations = []
+        self.rawMaterials = []
 
-    def set_lot(self, lot: int):
-        self.__lot = lot
+    @classmethod
+    def fromBlockChain(cls, data: tuple, time_of_start=None, time_of_finishing=None):
+        return cls(data[0], data[1], data[2], data[3], data[4], time_of_start, time_of_finishing)
 
-    def set_cf(self, cf: int):
-        self.__cf = cf
-    
-    def set_isEnded(self, isEnded: bool):
-        if (self.__isEnded == False):
-            self.__isEnded = isEnded
-        
-    def get_name(self):
-        return self.__name
+    def __str__(self):
+        print(f"Information about product No. {self.productId}")
+        print(f"Name:{self.name}, Owner:{self.address}, Actual Carboon Footprint:{self.CF}")
+        print(f"Started on {self.time_of_start}")
+        print('These are rawmaterials used for this product:')
+        print()
+        print('\tName\tlot\tsupplier\t\tCarboon Footprint\t\tDate of insertion\t\tDate of use')
+        for raw in self.rawMaterials:
+            print(raw)
+        print('------------------------------------------------------------------------------')
+        print('These are transformation done on this product:')
+        print()
+        print('\tAddress\t\tCarboon Footprint\t\tDate')
+        for transformation in self.transformations:
+            print(transformation)
+        print('------------------------------------------------------------------------------')
+        print()
+        finished = f"Product was finished on {self.time_of_finishing}" if self.isEnded else "Product is still in the the works"
+        return finished
 
-    def get_lot(self):
-        return self.__lot
 
-    def get_address(self):
-        return self.__address
+class Transformation:
+    """
+    Class mapping the structure of a transformation operation recorded on a blockchain
+    """
+    def __init__(self, transformer, CF, date: datetime):
+        self.transformer = transformer
+        self.CF = CF
+        self.date = date
 
-    def get_cf(self):
-        return self.__cf
-    
-    def get_isEnded(self):
-        return self.__isEnded
+    def __str__(self):
+        return f"\t{self.transformer}\t{self.CF}\t{self.date}"

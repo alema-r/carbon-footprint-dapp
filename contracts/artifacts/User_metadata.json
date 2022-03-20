@@ -131,6 +131,52 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "productId",
+						"type": "uint256"
+					}
+				],
+				"name": "getProductById",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "productId",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "currentOwner",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "CF",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "ended",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct ProductLibrary.Product",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "getProducts",
 				"outputs": [
@@ -294,6 +340,14 @@
 						"role": "The role to set. (1=Supplier, 2=Transformer)."
 					}
 				},
+				"getProductById(uint256)": {
+					"params": {
+						"productId": "The id of the product."
+					},
+					"returns": {
+						"_0": "A `ProductLibrary.Product` object."
+					}
+				},
 				"getProducts()": {
 					"returns": {
 						"_0": "An array of `ProductLibrary.Product`."
@@ -346,6 +400,9 @@
 				},
 				"createUser(uint8)": {
 					"notice": "Function that associate the Role `role` to `msg.sender`."
+				},
+				"getProductById(uint256)": {
+					"notice": "Returns the product with the specified `pId` id."
 				},
 				"getProducts()": {
 					"notice": "Returns all the products currently present in `CarbonFootprint` contract"
@@ -472,11 +529,11 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": {
-			"keccak256": "0x8cd8c20e8de5e6d8595c084ca2003273c180d848a0788b1185f7773085415064",
+			"keccak256": "0xb23819b972c07d94599af154d90b08f6d3c8648b2a2757564068f2ac4ec2e4c0",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://7fc5e1b82a7e43773a5a8d58fc3b1b70786b3451ef7d95d9823b172cf091a381",
-				"dweb:/ipfs/QmWcG7axh6Q4qaVMJRhddVbA141DwYnvLhntqkvaphY4Tz"
+				"bzz-raw://3194ee35320721593ce60bea5d4ddb57c1de87004a0b21e059554e1027984b68",
+				"dweb:/ipfs/QmQ9EuNDpPU7McoRxAMZKiHgjFu5epy5VLVWTBU4cFxx1r"
 			]
 		}
 	},

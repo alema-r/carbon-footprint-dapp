@@ -1,6 +1,8 @@
+from math import prod
 from web3 import Web3
 import web3
 import Models
+import json
 
 # TODO: gestire le eccezioni che arrivano dalla blockchain, in particolare quelle dovute alla duplicazione delle materie prime presenti
 
@@ -23,7 +25,6 @@ def create_raw_materials_on_blockchain(contract, raw_materials):
             raise e
         else:
             raise Exception("Errore nel caricamento delle materie prime")
-
 
 def transfer_cp(contract, recipient, token_id):
     try:
@@ -62,11 +63,11 @@ def transfer_product_on_blockchain(contract, transfer_to, product_id):
 def get_raw_materials_from_blockchain(contract):
     """This function connects to the blockchain to retrieve the raw materials"""
     try:
-        raw_materials = contract.functions.getRawMaterials().call()
-        raw_materials_object=[]
-        for elem in raw_materials:
-            raw_materials_object.append(Models.Raw_material(elem["name"], elem["lot"], elem["supplier"], elem["CF"], elem["isUsed"]))
-        return raw_materials_object
+        raw_materials_json_object = json.loads(contract.functions.getRawMaterials().call())
+        raw_materials=[]
+        for elem in raw_materials_json_object:
+            raw_materials.append(Models.RawMaterial(elem["name"], elem["lot"], elem["supplier"], elem["CF"], elem["isUsed"]))
+        return raw_materials
     except:
         raise Exception
 
@@ -74,5 +75,17 @@ def create_new_product_on_blockchain(contract, product_name, raw_material_indexe
     """This function connects to the blockchain to add a new product"""
     try:
         contract.functions.createProduct(product_name,raw_material_indexes)
+    except:
+        raise Exception
+
+def get_products_from_blockchain(contract):
+    """This function retrieves the products from the blockchain and stores them in a list. Then it returns that list."""
+    try: 
+        product_list_object = json.loads(
+            contract.functions.getProducts().call())
+        product_list=[]
+        for product in product_list_object:
+            product_list.append(Models.Product(product["productId"], product["name"], product["currentOwner"],product["CF"]))
+        return product_list
     except:
         raise Exception

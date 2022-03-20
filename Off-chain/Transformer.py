@@ -1,6 +1,7 @@
 import inquirer
+from Models import Product
 
-def get_updatable_user_products(products, user_adress):
+def get_updatable_user_products(products:list[Product], user_address):
     '''This function filters the products stored in the blockhain. It returns a list of the products that are owned by the 
     current user.
     
@@ -10,7 +11,7 @@ def get_updatable_user_products(products, user_adress):
     '''
     user_products=[]
     for p in products:
-        if p["currentOwner"]==user_adress and not p["ended"]: 
+        if p.address==user_address and not p.isEnded: 
             user_products.append(p)
     return user_products
 
