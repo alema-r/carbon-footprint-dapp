@@ -24,7 +24,7 @@ class Filters(object):
             cls.instance.new_raw_material_lot_added_events_filter = (
                 CFContract.events.newRawMaterialLotAdded().createFilter(fromBlock=0x0)
             )
-            cls.instance.minted_products_events = (
+            cls.instance.transfer_products_events = (
                 CFContract.events.Transfer().createFilter(fromBlock=0x0)
             )
         return cls.instance
@@ -64,7 +64,7 @@ def convert_to_timestamp(event, web3) -> datetime:
     return timestamp
 
 
-def retrievingData(userContract, CFContract, filter_events, web3):
+def retrievingData(userContract, filter_events, web3):
     """This function retrieves all data and events from the blockchain, required to construct array of products
     and rawmaterials, in local memory
 
@@ -78,7 +78,7 @@ def retrievingData(userContract, CFContract, filter_events, web3):
     :type web3: eth
     :return: two lists: The first is the products list and the second is the rawmaterials list
     """
-    minted_products_events = filter_events.minted_products_events.get_all_entries()
+    minted_products_events = filter_events.minted_products_events.get_all_entries()                                               #NON SONO SOLO MINT MA ANCHE TRANSFER
     new_raw_material_lot_added_events = (
         filter_events.new_raw_material_lot_added_events_filter.get_all_entries()
     )
@@ -100,53 +100,33 @@ def retrievingData(userContract, CFContract, filter_events, web3):
             product, time_of_start=convert_to_timestamp(start_event, web3)
         )
         for product, start_event in zip(
-            userContract.functions.getProducts().call(), minted_products_events
+            userContract.functions.getProducts().call(), minted_products_events                                                   #NON SONO SOLO MINT MA ANCHE TRANSFER
         )
     ]
     # Iterating over products' list in order to initialize other attributes as: raw materials' list, and
     # transformations' list. At the same time we add raw materials time of use only for consumed raw materials'
     # lots, since it is the same of processing time of start
+
+    # Retrieving all events about used raw materials
+    raw_materials_events = filter_events.raw_materials_isUsed_events_filter.get_all_entries()
+    # Retrieving all events about transformations
+    transformations_events = filter_events.transformation_events_filter.get_all_entries()
+
+    # Retrieving the only event which certificates product's end of processing. If this event doesn't exist
+    # we will get an empty list
+    date_of_finishing = filter_events.is_finished_events_filter.get_all_entries()
+
     for product in products_array:
-        # Retrieving all events about used raw materials
-        raw_materials_events = (
-            CFContract.events.rawMaterialIsUsed()
-            .createFilter(fromBlock=0x0, argument_filters={"pId": product.productId})
-            .get_all_entries()
-        )
-        # Retrieving all events about transformations
-        transformations_events = (
-            CFContract.events.newCFAdded()
-            .createFilter(fromBlock=0x0, argument_filters={"pId": product.productId})
-            .get_all_entries()
-        )
+        product_transformations = []
+        raw_materials_indexes = []
         # Initializing transformation's list
-        product_transformations = [
-            Transformation(
-                event["args"]["userAddress"],
-                event["args"]["cf"],
-                convert_to_timestamp(event, web3),
-            )
-            for event in transformations_events
-        ]
-        # Retrieving the only event which certificates product's end of processing. If this event doesn't exist
-        # we will get an empty list
-        date_of_finishing = (
-            CFContract.events.productIsFinished()
-            .createFilter(fromBlock=0x0, argument_filters={"pId": product.productId})
-            .get_all_entries()
-        )
+        for event in transformations_events:
+            if(product.productId == event["args"]["pId"]):
+                product_transformations.append(Transformation(event["args"]["userAddress"], event["args"]["cf"], convert_to_timestamp(event, web3),))
         # Retrieving all indexes of raw materials' used for current product from raw materials' list
-        raw_materials_indexes = [
-            raw_materials_array.index(
-                RawMaterial(
-                    event["args"]["name"],
-                    event["args"]["lot"],
-                    event["args"]["supplier"],
-                    event["args"]["cf"],
-                )
-            )
-            for event in raw_materials_events
-        ]
+        for event in raw_materials_events:
+            if(product.productId == event["args"]["pId"]):
+                raw_materials_indexes.append(raw_materials_array.index(RawMaterial(event["args"]["name"], event["args"]["lot"], event["args"]["supplier"], event["args"]["cf"],)))
         # Initializing list containing raw materials used for current product
         raw_materials_used = [
             raw_materials_array[raw_materials_indexes[i]]
@@ -157,21 +137,60 @@ def retrievingData(userContract, CFContract, filter_events, web3):
         for raw in raw_materials_used:
             raw.time_of_use = product.time_of_start
         # Initializing product's list of raw materials using a copy of raw_materials_used in order to prevent
-        # someone to modify raw materials list by acceding it from a product
-        product.rawMaterials = raw_materials_used.copy()
+        # someone to modify raw materials list by acceding it from a product (.copy utile?)
+        product.rawMaterials = raw_materials_used
         # Checking if product's processing is terminated e in that case updating end of processing date. We are
         # sure date_of_finishing will contain only an event since, when products are marked as finished on the
         # blockchain cannot be modified anymore
         if product.isEnded:
-            product.time_of_finishing = datetime.fromtimestamp(
-                web3.eth.getBlock(date_of_finishing[0]["blockNumber"])["timestamp"]
-                // 10**9
-            )
+            for event in date_of_finishing:
+                if(product.productId == event["args"]["pId"]):
+                    product.time_of_finishing = datetime.fromtimestamp(
+                        web3.eth.getBlock(date_of_finishing[0]["blockNumber"])["timestamp"]
+                        // 10**9
+                    )
         # Initializing product's list of transformations using a copy of product_transformation in order to
-        # prevent someone to modify product's transformation list by acceding it from this variable
-        product.transformations = product_transformations.copy()
+        # prevent someone to modify product's transformation list by acceding it from this variable (.copy utile?)
+        product.transformations = product_transformations
     return products_array, raw_materials_array
 
+def updateData(userContract, products, rawMaterials, filter_events, web3):
+    #Nuove materie prime
+    newRawMaterials = userContract.functions.getRawMaterials().call()
+    index = len(rawMaterials)
+    rawMaterialLogs = filter_events.new_raw_material_lot_added_events_filter.get_new_entries()
+    for event in rawMaterialLogs:
+        rawMaterials.append(RawMaterial.fromBlockChain(newRawMaterials[index], time_of_insertion=convert_to_timestamp(event, web3)))
+        index += 1
+
+    #Nuovi prodotti
+    mintLogs = filter_events.minted_products_events.get_new_entries()
+    for event in mintLogs:
+        if(event["args"]["from"] == "0x0000000000000000000000000000000000000000"):
+            products.append(Product.fromBlockChain(userContract.functions.getProductById(event["args"]["tokenId"]).call(), time_of_start=convert_to_timestamp(event, web3)))
+        else:
+            products[event["args"]["tokenId"] - 1].address = event["args"]["to"]
+
+    transformationLogs = filter_events.transformation_events_filter.get_new_entries()
+    for event in transformationLogs:
+        products[event["args"]["pId"] - 1].transformations.append(Transformation(event["args"]["userAddress"], event["args"]["cf"], convert_to_timestamp(event, web3)))
+        products[event["args"]["pId"] - 1].cf = Product.fromBlockChain(userContract.functions.getProductById(event["args"]["tokenId"]).call()[3])
+
+    rawMaterialsUsedLogs = filter_events.raw_materials_isUsed_events_filter.get_new_entries()
+    for event in rawMaterialsUsedLogs:
+        for rm in rawMaterials:
+            if(event["args"]["name"] == rm.name and event["args"]["lot"] == rm.lot and event["args"]["supplier"] == rm.address):
+                rm.isUsed = True
+                rm.time_of_use = convert_to_timestamp(event, web3)
+                products[event["args"]["pId"] - 1].rawMaterials.append(rm)
+                products[event["args"]["pId"] - 1].supplier.append(rm.address)
+
+    isFinishedLogs = filter_events.is_finished_events_filter.get_new_entries()
+    for event in isFinishedLogs:
+        products[event["args"]["pId"] - 1].isEnded = True
+        products[event["args"]["pId"] - 1].time_of_finishing = convert_to_timestamp(event, web3)
+
+    return products, rawMaterials
 
 if __name__ == "__main__":
     # web3, CFContractp, user_contract = connnectionUtils(baseURL)
@@ -180,7 +199,14 @@ if __name__ == "__main__":
     web3, user_contract, CFContractp = connection.connect(1)
     web3.middleware_onion.inject(geth_poa_middleware, layer=0)
     filters = Filters(CFContractp)
-    products, raw_materials = retrievingData(user_contract, CFContractp, filters, web3)
-    for product in products:
-        print(product)
-    # print(raw_materials)
+    products, raw_materials = retrievingData(user_contract, filters, web3)
+    '''
+    for p in products:
+        print(p)
+    input()
+    updateData(user_contract, products, raw_materials, filters, web3)
+    for p in products:
+        print(p)
+    for rm in raw_materials:
+        print(rm)
+    '''
