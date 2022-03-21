@@ -24,15 +24,25 @@ def address_validation(contract,address, role = '') -> bool:
             return False
     return True
 
-'''
-Funzione che controlla il corretto formato numerico della carbon footprint inserita dall'utente
-'''
 def carbon_fp_input_validation(answers, current):
+    """Functions that validates inserted carbon footprint value
+
+    Args:
+        answers (Dictionary): Dictinary of given answers
+        current (Dictionary): Currenct given answer
+
+    Raises:
+        inquirer.errors.ValidationError: Raised if given carbon footprint isn't an integer
+        inquirer.errors.ValidationError: Raised if given carbon footprint isn't positive
+
+    Returns:
+        Boolean: True if input is valid
+    """
     try:
         int_cf=int(current)
     except:
         raise inquirer.errors.ValidationError('', reason = 'Invalid input: Carbon footprint must be a positive integer')
-    if int_cf < 0:
+    if int_cf <= 0:
         raise inquirer.errors.ValidationError('', reason = 'Invalid input: Carbon footprint must be a positive integer')
     return True
 

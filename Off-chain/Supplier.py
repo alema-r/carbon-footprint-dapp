@@ -2,6 +2,19 @@ import inquirer
 
 
 def lot_input_validation(answers, current):
+    """Functions that validates lot
+
+    Args:
+        answers (Dictionary): Dictionary of given answers
+        current (Dictionary): Current given answer
+
+    Raises:
+        inquirer.errors.ValidationError: Raised if the lot's value isn't an integer
+        inquirer.errors.ValidationError: Raised if lot's value isn't positive
+
+    Returns:
+        Boolean: True if the input is valid
+    """
     try:
         int_cf=int(current)
     except:
@@ -10,13 +23,16 @@ def lot_input_validation(answers, current):
         raise inquirer.errors.ValidationError('', reason = 'Invalid input: Lot must be positive integer')
     return True
 
-'''
-Funzione che fa tutte le validazioni che richiedono un confronto fra materie prime e lotti.
-'''
 def input_validation(raw_material, raw_materials):
-    # Controlla cha la materia prima e il lotto associato non siano già stati inseriti nei precedenti passaggi
-    # Questo controllo funziona solo se tra materia prima e lotto c'è una corrispondenza uno a uno, che credo fosse il nostro caso
-    # TODO: controllare anche con le materie prime che gia stanno sulla blockchain
+    """Functions the checks if the user inserted two equals raw materials
+
+    Args:
+        raw_material (RawMaterial): last inserted raw material
+        raw_materials (List[RawMaterial]): list of inserted raw materials
+
+    Returns:
+        Boolean: True if the input is valid else False
+    """
     if raw_material in raw_materials:
         error_message = "Raw material and lot already inserted"
         return False, error_message
@@ -24,6 +40,19 @@ def input_validation(raw_material, raw_materials):
     return True, ''
 
 def raw_material_name_input_validation(answers, current):
+    """Functions that validates raw material's name inserted by user
+
+    Args:
+        answers (Dictionary): Dictionary of inserted answers
+        current (Dictionary): Current given answer
+
+    Raises:
+        inquirer.errors.ValidationError: Raised if raw material's name contains special characters
+        inquirer.errors.ValidationError: Raised if raw material's name is an empty string
+
+    Returns:
+        Boolean: True if the input is valid
+    """
     special_characters = "!@#$%^&*()-+?_=,<>\""
     if any(c in special_characters for c in current):
         raise inquirer.errors.ValidationError('', reason= 'Invalid input: Raw material\'s name can not contain special characters')    

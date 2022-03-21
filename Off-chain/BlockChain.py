@@ -4,17 +4,17 @@ import web3
 import Models
 import json
 
-# TODO: gestire le eccezioni che arrivano dalla blockchain, in particolare quelle dovute alla duplicazione delle materie prime presenti
-
 def create_raw_materials_on_blockchain(contract, raw_materials):
-    '''
-    Inserisce un nuovo token materia prima nella blockchain 
+    """Functions that insert new raw materials on blockchain
 
-    Keyword arguments:
-    contract -- l'istanza del contratto chiamato sulla blockchain
-    raw_materials -- lista di oggetti materie prime che contengono tutte le informazioni sulle materie prima da caricare sulla blockchain
-    carbon_fp -- Carbon footprint associata alla materia prima che si sta inserendo
-    '''
+    Args:
+        contract (Contract): User contract address used to call his functions
+        raw_materials (List[RawMaterial]): List of raw materials that must be inserted
+
+    Raises:
+        e: Error returned from Blockchain
+        Exception: Custom general error raised if a non planned error occurs
+    """
     try:
         raw_materials_name_list = [raw_material.get_name() for raw_material in raw_materials]
         raw_materials_lot_list = [raw_material.get_lot() for raw_material in raw_materials]
