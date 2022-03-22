@@ -25,6 +25,9 @@ class RawMaterial:
     def fromBlockChain(cls, data: tuple, time_of_insertion=None, time_of_use=None):
         return cls(data[0], data[1], data[2], data[3], data[4], time_of_insertion, time_of_use)
 
+    def from_event(event, used=False):
+        return RawMaterial(event.args.name, event.args.lot, event.args.supplier, event.args.cf, used)
+
     def __str__(self):
         return f"\t{self.name}\t{self.lot}\t{self.address}\t\t{self.cf}\t\t{self.time_of_insertion}\t\t{self.time_of_use}"
     
@@ -80,10 +83,13 @@ class Transformation:
     """
     Class mapping the structure of a transformation operation recorded on a blockchain
     """
-    def __init__(self, transformer, CF, date: datetime):
+    def __init__(self, transformer, CF, date: datetime=None):
         self.transformer = transformer
         self.CF = CF
         self.date = date
+
+    def from_event(event):
+        return Transformation(event.args.userAddress, event.args.cf)
 
     def __str__(self):
         return f"\t{self.transformer}\t{self.CF}\t{self.date}"
