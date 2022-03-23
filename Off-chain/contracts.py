@@ -7,11 +7,11 @@ Since every subsequent `import` after the first uses the cached module
 instead of re-evaluating it, it is guaranteed that every module that import
 contracts, refer to the same instance.
 """
-
+import os
 import json
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
-
+os.chdir(str(os.getcwd())+"/Off-chain/")
 with open("address.json", "r") as file:
     address = json.load(file)["address"]
 with open("../solc_output/UserContract.json", "r") as user_compiled:

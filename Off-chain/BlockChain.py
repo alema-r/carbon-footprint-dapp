@@ -1,25 +1,27 @@
+from eth_typing import Address
 import contracts
 import event_logs
 from functools import singledispatch
 from Models import Product, RawMaterial, Transformation
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
+from web3 import exceptions
 
 BASE_URL = "http://127.0.0.1:2200"
 
 
-def connect(role: int) -> Web3:
+def connect(role: int, address:Address) -> Web3:
     url = BASE_URL + str(role)
     web3 = Web3(Web3.HTTPProvider(url))
     web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-    # --- Non testato e non so se è corretto ---
-    # si potrebbe fare un controllo sull'indirizzo qui (passando prima l'indirizzo alla funzione), tipo:
-    # if address not in web3.eth.address:
-    #     errore: l'indirizzo non è presente nel nodo
-    # else:
-    #     # imposto l'indirizzo di default uguale a quello passato
-    #     web3.default_account = web3.toChecksumAddress(address)
-    #     # controlla se ha un ruolo, altrimenti chiama newUser
+    try:
+        web3.default_account = web3.toChecksumAddress(address)
+        #TODO: in questo modo funziona tuttavia devo usare transact() non so se c'è un modo migliore
+        real_role = contracts.user_contract.functions.getRole(web3.default_account).transact()
+        if real_role == 0:
+            contracts.user_contract.functions.createUser(role).transact()
+    except:
+        raise Exception("Error: it's impossible to verify your role and address, please try again")
     return web3
 
 
@@ -39,11 +41,11 @@ def create_raw_materials_on_blockchain(raw_materials):
         raw_materials_lot_list = [raw_material.get_lot() for raw_material in raw_materials]
         raw_materials_cf_list = [raw_material.get_cf() for raw_material in raw_materials]
         contracts.user_contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list, raw_materials_cf_list).transact()
-    except Exception as e:
-        if (e.__str__ == "Il numero delle materie prime non corrispone al numero di lotti") or (e.__str__ == "Il numero delle materie prime non corrisponde al numero delle carbon footprint") or (e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
-            raise e
+    except exceptions.SolidityError as e:
+        if (e.__str__ == "Il numero delle materie prime non corrisponde al numero di lotti") or (e.__str__ == "Il numero delle materie prime non corrisponde al numero delle carbon footprint") or (e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
+            print(e)
         else:
-            raise Exception("Errore nel caricamento delle materie prime")
+            print("Errore nel caricamento delle materie prime")
 
 def transfer_cp(recipient, token_id):
     try:
@@ -143,7 +145,8 @@ def _(product: Product) -> Product:
     return product
 
 # uguale alla precedente get_products_from_blockchain()
-# visto che non salviamo i dati ora non so se ha senso il 'from_blockchain' vedete voi come è meglio
+#o visto che non salviamo i dati ora non so se ha senso il 'from_blockchain' vedete voi come è meglio
+'''
 def get_all_products() -> list[Product]:
     """
     Retrieves all `Product`s on the blockchain.
@@ -188,3 +191,4 @@ def get_all_raw_materials() -> list[RawMaterial]:
 def get_raw_material_not_used() -> list[RawMaterial]:
     rms = list(filter(lambda e: e[4] == False, get_all_raw_materials()))
     return [RawMaterial.fromBlockChain(rm) for rm in rms]
+'''
