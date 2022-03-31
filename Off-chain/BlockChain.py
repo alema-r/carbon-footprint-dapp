@@ -146,7 +146,7 @@ def _(product: Product) -> Product:
 
 # uguale alla precedente get_products_from_blockchain()
 #o visto che non salviamo i dati ora non so se ha senso il 'from_blockchain' vedete voi come è meglio
-'''
+
 def get_all_products() -> list[Product]:
     """
     Retrieves all `Product`s on the blockchain.
@@ -164,7 +164,7 @@ def get_all_products() -> list[Product]:
         for product in contracts.user_contract.functions.getProducts().call()
     ]
 
-
+'''
 def get_all_products_detailed() -> list[Product]:
     """
     Retrieves all `Product`s on the blockchain with informations on raw

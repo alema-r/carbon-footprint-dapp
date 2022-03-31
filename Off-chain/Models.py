@@ -41,27 +41,23 @@ class Product:
     """
     Class mapping the structure of a product on the blockchain
     """
-    def __init__(self, productId: int, name: str, address, CF: int, isEnded=False, time_of_start: datetime=None,
-                 time_of_finishing: datetime=None):
+    def __init__(self, productId: int, name: str, address, CF: int, isEnded=False):
         self.productId = productId
         self.name = name
         self.address = address
         self.CF = CF
         self.isEnded = isEnded
-        self.time_of_start = time_of_start
-        self.time_of_finishing = time_of_finishing
         self.supplier = []
         self.transformations = []
         self.rawMaterials = []
 
     @classmethod
     def fromBlockChain(cls, data: tuple, time_of_start=None, time_of_finishing=None):
-        return cls(data[0], data[1], data[2], data[3], data[4], time_of_start, time_of_finishing)
+        return cls(data[0], data[1], data[2], data[3], data[4])
 
     def __str__(self):
         print(f"Information about product No. {self.productId}")
         print(f"Name:{self.name}, Owner:{self.address}, Actual Carboon Footprint:{self.CF}")
-        print(f"Started on {self.time_of_start}")
         print('These are rawmaterials used for this product:')
         print()
         print('\tName\tlot\tsupplier\t\tCarboon Footprint\t\tDate of insertion\t\tDate of use')
@@ -75,7 +71,7 @@ class Product:
             print(transformation)
         print('------------------------------------------------------------------------------')
         print()
-        finished = f"Product was finished on {self.time_of_finishing}" if self.isEnded else "Product is still in the the works"
+        finished = f"Product is finished" if self.isEnded else "Product is still in the works"
         return finished
 
 
