@@ -8,6 +8,8 @@ import connection
 baseURL = "http://127.0.0.1:22000"
 
 # classe contente le istanze uniche dei filtri di tutti gli eventi che ci servono
+
+
 class Filters(object):
     def __new__(cls, CFContract):
         if not hasattr(cls, "instance"):
@@ -29,6 +31,7 @@ class Filters(object):
             )
         return cls.instance
 
+
 """
 # Funzione con istruzioni replicate per andare a connettersi alla blockchain
 def connnectionUtils(URL):
@@ -46,6 +49,7 @@ def connnectionUtils(URL):
     web3.middleware_onion.inject(geth_poa_middleware, layer=0)
     return web3, CFContract, userContract
 """
+
 
 def convert_to_timestamp(event, web3) -> datetime:
     """This function convert a block timestamp into a datetime object
@@ -78,7 +82,8 @@ def retrievingData(userContract, filter_events, web3):
     :type web3: eth
     :return: two lists: The first is the products list and the second is the rawmaterials list
     """
-    minted_products_events = filter_events.minted_products_events.get_all_entries()                                               #NON SONO SOLO MINT MA ANCHE TRANSFER
+    minted_products_events = filter_events.minted_products_events.get_all_entries(
+    )  # NON SONO SOLO MINT MA ANCHE TRANSFER
     new_raw_material_lot_added_events = (
         filter_events.new_raw_material_lot_added_events_filter.get_all_entries()
     )
@@ -100,7 +105,8 @@ def retrievingData(userContract, filter_events, web3):
             product, time_of_start=convert_to_timestamp(start_event, web3)
         )
         for product, start_event in zip(
-            userContract.functions.getProducts().call(), minted_products_events                                                   #NON SONO SOLO MINT MA ANCHE TRANSFER
+            # NON SONO SOLO MINT MA ANCHE TRANSFER
+            userContract.functions.getProducts().call(), minted_products_events
         )
     ]
     # Iterating over products' list in order to initialize other attributes as: raw materials' list, and
@@ -122,11 +128,13 @@ def retrievingData(userContract, filter_events, web3):
         # Initializing transformation's list
         for event in transformations_events:
             if(product.productId == event["args"]["pId"]):
-                product_transformations.append(Transformation(event["args"]["userAddress"], event["args"]["cf"], convert_to_timestamp(event, web3),))
+                product_transformations.append(Transformation(
+                    event["args"]["userAddress"], event["args"]["cf"], convert_to_timestamp(event, web3),))
         # Retrieving all indexes of raw materials' used for current product from raw materials' list
         for event in raw_materials_events:
             if(product.productId == event["args"]["pId"]):
-                raw_materials_indexes.append(raw_materials_array.index(RawMaterial(event["args"]["name"], event["args"]["lot"], event["args"]["supplier"], event["args"]["cf"],)))
+                raw_materials_indexes.append(raw_materials_array.index(RawMaterial(
+                    event["args"]["materialId"], event["args"]["name"], event["args"]["lot"], event["args"]["supplier"], event["args"]["cf"])))
         # Initializing list containing raw materials used for current product
         raw_materials_used = [
             raw_materials_array[raw_materials_indexes[i]]
@@ -146,7 +154,8 @@ def retrievingData(userContract, filter_events, web3):
             for event in date_of_finishing:
                 if(product.productId == event["args"]["pId"]):
                     product.time_of_finishing = datetime.fromtimestamp(
-                        web3.eth.getBlock(date_of_finishing[0]["blockNumber"])["timestamp"]
+                        web3.eth.getBlock(date_of_finishing[0]["blockNumber"])[
+                            "timestamp"]
                         // 10**9
                     )
         # Initializing product's list of transformations using a copy of product_transformation in order to
@@ -154,27 +163,33 @@ def retrievingData(userContract, filter_events, web3):
         product.transformations = product_transformations
     return products_array, raw_materials_array
 
+
 def updateData(userContract, products, rawMaterials, filter_events, web3):
-    #Nuove materie prime
+    # Nuove materie prime
     newRawMaterials = userContract.functions.getRawMaterials().call()
     index = len(rawMaterials)
     rawMaterialLogs = filter_events.new_raw_material_lot_added_events_filter.get_new_entries()
     for event in rawMaterialLogs:
-        rawMaterials.append(RawMaterial.fromBlockChain(newRawMaterials[index], time_of_insertion=convert_to_timestamp(event, web3)))
+        rawMaterials.append(RawMaterial.fromBlockChain(
+            newRawMaterials[index], time_of_insertion=convert_to_timestamp(event, web3)))
         index += 1
 
-    #Nuovi prodotti
+    # Nuovi prodotti
     mintLogs = filter_events.minted_products_events.get_new_entries()
     for event in mintLogs:
         if(event["args"]["from"] == "0x0000000000000000000000000000000000000000"):
-            products.append(Product.fromBlockChain(userContract.functions.getProductById(event["args"]["tokenId"]).call(), time_of_start=convert_to_timestamp(event, web3)))
+            products.append(Product.fromBlockChain(userContract.functions.getProductById(
+                event["args"]["tokenId"]).call(), time_of_start=convert_to_timestamp(event, web3)))
         else:
-            products[event["args"]["tokenId"] - 1].address = event["args"]["to"]
+            products[event["args"]["tokenId"] -
+                     1].address = event["args"]["to"]
 
     transformationLogs = filter_events.transformation_events_filter.get_new_entries()
     for event in transformationLogs:
-        products[event["args"]["pId"] - 1].transformations.append(Transformation(event["args"]["userAddress"], event["args"]["cf"], convert_to_timestamp(event, web3)))
-        products[event["args"]["pId"] - 1].cf = Product.fromBlockChain(userContract.functions.getProductById(event["args"]["tokenId"]).call()[3])
+        products[event["args"]["pId"] - 1].transformations.append(Transformation(
+            event["args"]["userAddress"], event["args"]["cf"], convert_to_timestamp(event, web3)))
+        products[event["args"]["pId"] - 1].cf = Product.fromBlockChain(
+            userContract.functions.getProductById(event["args"]["tokenId"]).call()[3])
 
     rawMaterialsUsedLogs = filter_events.raw_materials_isUsed_events_filter.get_new_entries()
     for event in rawMaterialsUsedLogs:
@@ -188,9 +203,11 @@ def updateData(userContract, products, rawMaterials, filter_events, web3):
     isFinishedLogs = filter_events.is_finished_events_filter.get_new_entries()
     for event in isFinishedLogs:
         products[event["args"]["pId"] - 1].isEnded = True
-        products[event["args"]["pId"] - 1].time_of_finishing = convert_to_timestamp(event, web3)
+        products[event["args"]["pId"] -
+                 1].time_of_finishing = convert_to_timestamp(event, web3)
 
     return products, rawMaterials
+
 
 if __name__ == "__main__":
     # web3, CFContractp, user_contract = connnectionUtils(baseURL)

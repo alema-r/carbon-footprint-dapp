@@ -92,15 +92,19 @@ contract User{
      * @notice Creates a product with specified name, raw material and initial carbon footprint.
      * @dev Calls the function `mintProduct` from `CarbonFootprint` contract.
      * @param product_name The name to assign to the product.
-     * @param indexes The array of indexes of rawmaterials used to produce the product.
+     * @param materialIds The ids of the raw materials used to create the product
      */ 
 	function createProduct(
 		string calldata product_name, 
-        uint256[] calldata indexes
+        uint256[] calldata materialIds
 	) 
 		external
         onlyTransformer
 	{
+        uint256[] memory indexes;
+        for (uint256 i=0; i<materialIds.length; i++){
+            indexes.push(materialIds[i]-1);
+        }
         CFContract.mintProduct(product_name, indexes);
     }
 

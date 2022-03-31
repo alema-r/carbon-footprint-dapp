@@ -1,10 +1,11 @@
 import inquirer
+import contracts
 from web3 import Web3
 
 
 
 
-def address_validation(contract,address, role = '') -> bool:
+def address_validation(address, role = '') -> bool:
     '''
     Controlla se l'indirizzo inserito è valido.
     Prima controlla se l'indirizzo sia valido
@@ -14,7 +15,7 @@ def address_validation(contract,address, role = '') -> bool:
     '''
     try:
         checked_address = Web3.toChecksumAddress(address)
-        real_role = contract.functions.getRole(checked_address)
+        real_role = contracts.user_contract.functions.getRole(checked_address)
     except Exception:
         return False
     if (role !=''):
