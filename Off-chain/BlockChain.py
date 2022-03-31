@@ -144,6 +144,7 @@ def _(product: Product) -> Product:
     ]
     return product
 
+
 def get_raw_material_not_used() -> list[RawMaterial]:
     rms = list(filter(lambda e: e[4] == False, get_all_raw_materials()))
     return [RawMaterial.fromBlockChain(rm) for rm in rms]
@@ -154,7 +155,6 @@ def get_all_raw_materials() -> list[RawMaterial]:
         RawMaterial.fromBlockChain(rm)
         for rm in contracts.user_contract.functions.getRawMaterials().call()
     ]
-
 
 def get_all_products() -> list[Product]:
     """
