@@ -3,6 +3,7 @@ import inquirer
 import Transformer
 import Supplier
 import BlockChain
+from contracts import user_contract, cf_contract
 
 role_dict = {
     "Client": {
@@ -66,9 +67,8 @@ def main():
 
     action = "start"
     if role == "Transformer":
-        all_products = BlockChain.get_produget_all_products()
-        user_products = Transformer.get_updatable_user_products(
-            all_products, user_contract.functions.CFaddress().call())
+        all_products = BlockChain.get_all_products()
+        user_products = Transformer.get_updatable_user_products(all_products, answers['address'])
         action= inquirer.list_input(
             message="What action do you want to perform?",
             choices=role_dict[role]["actions"]
@@ -77,11 +77,11 @@ def main():
             if action == role_dict[role]["actions"][0]:
                 get_filtered_products() #FUNZIONE COMUNE DA ISTANZIARE
             elif action == role_dict[role]["actions"][1]:
-                Transformer.create_new_product(cf_contract)
+                Transformer.create_new_product()
             elif action == role_dict[role]["actions"][2]:
-                Transformer.add_transformation(user_products, user_contract)
+                Transformer.add_transformation(user_products)
             else:
-                Transformer.transfer_product(user_products, user_contract)
+                Transformer.transfer_product(user_products)
         #istanziazione transformer
     elif role == "Supplier":
         # Inizia il meccanismo di interazione con l'utente. 

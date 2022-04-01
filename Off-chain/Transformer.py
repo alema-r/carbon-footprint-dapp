@@ -125,7 +125,7 @@ def transfer_product(user_products: list[Product]):
                 "Something went wrong while trying to trasfer the ownership of the product... Please retry.")
 
 
-def create_new_prodcut():
+def create_new_product():
     """This function lets the transformer create a new product, by selecting the necessary raw materials"""
 
     product_name = inquirer.text(
@@ -135,39 +135,20 @@ def create_new_prodcut():
     raw_materials = get_raw_material_not_used()
     
     # creo la lista delle scelte da mostrare all'utente
-    possible_choices = []
-    for material in raw_materials:
-        possible_choices.append(
-            f"Material name: {material.name}, lot: {material.lot}, supplier_address: {material.address}")
+    possible_choices = [(material.__str__(), material.materialId) for material in raw_materials]
 
-    # Faccio selezionare all'utente le materie prima da usare. Per ognuna di essere raccolgo l'id.
-    add_new_material = True
-    materials_to_use_ids = []
-    while add_new_material:
-        added_material = inquirer.list_input(
-            message="Select a raw material to use",
-            choices=possible_choices
-        )
-        # Gli elementi in possible_choices e raw_materials
-        # hanno la stessa posizione nei rispettivi array se fanno riferimento
-        # alla stessa materia prima.
-        position = possible_choices.index(added_material)
-        materials_to_use_ids.append(raw_materials[position].materialId)
-        # Qua rimuovo la materia appena selezionata, così che non venga rimostrata
-        possible_choices.remove(added_material)
-        raw_materials.remove(raw_materials[position])
-        add_more = inquirer.confirm(
-            message="Do you want to add another raw material?"
-        )
-        add_new_material = add_more
-
+    # Faccio selezionare all'utente le materie prima da usare.
+    raw_materials_to_use = inquirer.checkbox(
+        message="Select a raw material to use",
+        choices=possible_choices
+    )
     confirm = inquirer.confirm(
         message=f'Do you want to create the product "{product_name} with the selected materials?'
     )
     if confirm:
         try:
             create_new_product_on_blockchain(
-                product_name, materials_to_use_ids)
+                product_name, raw_materials_to_use)
         except Exception as e:
             print(e)
             print("Please insert the new product again...")

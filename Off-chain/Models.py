@@ -31,7 +31,7 @@ class RawMaterial:
         return RawMaterial(event.args.materialId, event.args.name, event.args.lot, event.args.supplier, event.args.cf, used)
 
     def __str__(self):
-        return f"\t{self.materialId}\t{self.name}\t{self.lot}\t{self.address}\t\t{self.cf}\t\t{self.time_of_insertion}\t\t{self.time_of_use}"
+        return f"\t{self.name}\t{self.lot}\t{self.address}\t\t{self.cf}"
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, RawMaterial):
