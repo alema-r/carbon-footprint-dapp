@@ -156,8 +156,17 @@ def _(product: Product) -> Product:
     ]
     return product
 
-# uguale alla precedente get_products_from_blockchain()
-#o visto che non salviamo i dati ora non so se ha senso il 'from_blockchain' vedete voi come è meglio
+
+def get_raw_material_not_used() -> list[RawMaterial]:
+    rms = list(filter(lambda e: e[4] == False, get_all_raw_materials()))
+    return [RawMaterial.fromBlockChain(rm) for rm in rms]
+
+
+def get_all_raw_materials() -> list[RawMaterial]:
+    return [
+        RawMaterial.fromBlockChain(rm)
+        for rm in contracts.user_contract.functions.getRawMaterials().call()
+    ]
 
 def get_all_products() -> list[Product]:
     """
@@ -176,7 +185,9 @@ def get_all_products() -> list[Product]:
         for product in contracts.user_contract.functions.getProducts().call()
     ]
 
-
+# uguale alla precedente get_products_from_blockchain()
+#o visto che non salviamo i dati ora non so se ha senso il 'from_blockchain' vedete voi come è meglio
+'''
 def get_all_products_detailed() -> list[Product]:
     """
     Retrieves all `Product`s on the blockchain with informations on raw
@@ -193,13 +204,6 @@ def get_transferred_products():
 
 # uguale alla precedente get_raw_materials_from_blockchain()
 # visto che non salviamo i dati ora non so se ha senso il 'from_blockchain' vedete voi come è meglio
-def get_all_raw_materials() -> list[RawMaterial]:
-    return [
-        RawMaterial.fromBlockChain(rm)
-        for rm in contracts.user_contract.functions.getRawMaterials().call()
-    ]
 
 
-def get_raw_material_not_used() -> list[RawMaterial]:
-    rms = list(filter(lambda e: e[4] == False, get_all_raw_materials()))
-    return [RawMaterial.fromBlockChain(rm) for rm in rms]
+'''

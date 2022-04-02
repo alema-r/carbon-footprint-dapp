@@ -17,8 +17,11 @@ contract CarbonFootprint is ERC721{
     // The address of the owner
     address public owner;
 
-	// Variable that represent the id of a product
+	// Variable that represents the id of a product
     uint256 private productId = 1;
+
+    //Variable that represents the if of a raw material
+    uint256 private materialId = 1;
 
     // Array that contains all products present in the contract.
     ProductLibrary.Product[] private allProducts;
@@ -37,7 +40,7 @@ contract CarbonFootprint is ERC721{
      * @param pId The id of the updated product.
      */
 	event newCFAdded(address userAddress, uint256 cf, uint256 pId);
-    event newRawMaterialLotAdded(address userAddress, string name, uint256 lot, uint256 cf);
+    event newRawMaterialLotAdded(address userAddress, string mId, string name, uint256 lot, uint256 cf);
     event productIsFinished(address userAddress, uint256 pId, uint256 cf);
     event rawMaterialIsUsed(address transformer, address supplier, uint256 pId, string name, uint256 lot, uint256 cf);
 
@@ -97,8 +100,9 @@ contract CarbonFootprint is ERC721{
             for(uint256 j = 0; j < allRawMaterials.length; j++){
                 require(RmId != keccak256(bytes.concat(bytes(allRawMaterials[j].name), "-", bytes(Strings.toString(allRawMaterials[j].lot)), "-", bytes20(allRawMaterials[j].supplier))), "Hai gia' inserito questo lotto di questa materia prima");
             }
-            allRawMaterials.push(ProductLibrary.RawMaterial(_rawMaterialName[i], _lot[i], tx.origin, _cf[i], false));
-            emit newRawMaterialLotAdded(tx.origin, _rawMaterialName[i], _lot[i], _cf[i]);        
+            allRawMaterials.push(ProductLibrary.RawMaterial(materialId, _rawMaterialName[i], _lot[i], tx.origin, _cf[i], false));
+            emit newRawMaterialLotAdded(tx.origin, materialId, _rawMaterialName[i], _lot[i], _cf[i]);
+            materialId++;      
         }
     }
 

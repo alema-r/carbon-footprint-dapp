@@ -17,6 +17,7 @@ library ProductLibrary{
     }
     // Struct that represent rawmaterial
     struct RawMaterial {
+        uint256 materialId;
         string name;
         uint256 lot;
         address supplier;
