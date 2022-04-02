@@ -2,6 +2,7 @@ import inquirer
 from BlockChain import create_raw_materials_on_blockchain
 from Utils import carbon_fp_input_validation
 from Models import RawMaterial
+import re
 
 
 def lot_input_validation(answers, current):
@@ -19,11 +20,11 @@ def lot_input_validation(answers, current):
         Boolean: True if the input is valid
     """
     try:
-        int_cf=int(current)
+        int_lot=int(current)
     except:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Lot must be positive integer')
-    if int_cf < 0:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Lot must be positive integer')
+        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Lot must be positive integer or 0')
+    if int_lot < 0:
+        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Lot must be positive integer or 0')
     return True
 
 def input_validation(raw_material, raw_materials):
@@ -56,12 +57,12 @@ def raw_material_name_input_validation(answers, current):
     Returns:
         Boolean: True if the input is valid
     """
-    special_characters = "!@#$%^&*()-+?_=,<>\""
-    if any(c in special_characters for c in current):
+    pattern = "[a-zA-Z0-9]"
+    if re.search(pattern, current):
+        return True
+    else:
         raise inquirer.errors.ValidationError('', reason= 'Invalid input: Raw material\'s name can not contain special characters')    
-    if len(current) == 0:
-        raise inquirer.errors.ValidationError('', reason= 'Invalid input: Raw material\'s name can not be empty')    
-    return True
+
 
 def insert_raw_material(user_address):
     """This function manages the interaction with a supplier in order to insert a new raw material on blockchain

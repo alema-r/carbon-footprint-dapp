@@ -199,12 +199,12 @@ def main():
         except Exception as e:
             print(e)
             # The program asks the user to try again or to exit
-            choise = inquirer.list_input(
+            choice = inquirer.list_input(
                 message="Select \"Try again\" to retry or \"Exit\" to close the application",
                 choices=["Try again", "Exit"]
             )
             # if the user chooses to exit the program ends
-            if choise == "Exit":
+            if choice == "Exit":
                 return
 
     action = "start"
