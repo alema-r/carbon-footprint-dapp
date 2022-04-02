@@ -10,10 +10,10 @@ from web3 import exceptions
 BASE_URL = "http://127.0.0.1:2200"
 
 
-def connect(role: int, address:Address) -> Web3:
+def connect(role: int, address: Address) -> Web3:
     url = BASE_URL + str(role)
     try:
-        # Tring to connect to blockchain
+        # Trying to connect to blockchain
         web3 = Web3(Web3.HTTPProvider(url))
         web3.middleware_onion.inject(geth_poa_middleware, layer=0)
         # Checking for correct account format
@@ -32,7 +32,7 @@ def connect(role: int, address:Address) -> Web3:
         else:
             # An error is raised
             raise Exception
-    except:
+    except Exception:
         raise Exception("Error: it's impossible to verify your role and address, please try again")
     return web3
 
@@ -52,12 +52,17 @@ def create_raw_materials_on_blockchain(raw_materials):
         raw_materials_name_list = [raw_material.name for raw_material in raw_materials]
         raw_materials_lot_list = [raw_material.lot for raw_material in raw_materials]
         raw_materials_cf_list = [raw_material.cf for raw_material in raw_materials]
-        contracts.user_contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list, raw_materials_cf_list).transact()
+        contracts.user_contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list,
+                                                             raw_materials_cf_list).transact()
+
     except exceptions.SolidityError as e:
-        if (e.__str__ == "Il numero delle materie prime non corrisponde al numero di lotti") or (e.__str__ == "Il numero delle materie prime non corrisponde al numero delle carbon footprint") or (e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
+        if (e.__str__ == "Il numero delle materie prime non corrisponde al numero di lotti") or (
+                e.__str__ == "Il numero delle materie prime non corrisponde al numero delle carbon footprint") or (
+                e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
             print(e)
         else:
             print("Errore nel caricamento delle materie prime, riprova")
+
 
 def transfer_cp(recipient, token_id):
     try:
@@ -65,6 +70,7 @@ def transfer_cp(recipient, token_id):
         contracts.user_contract.functions.transferCP(recipient, token_id).transact()
     except:
         raise Exception("Token transfer error")
+
 
 def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
     '''This function connects to the blockchain to add a new transformation
@@ -76,10 +82,11 @@ def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
     is_the_final -- boolean that indicates if this is the final transformation of the production chain'''
     try:
         contracts.user_contract.functions.addTransformation(
-            carb_foot,  product_id, is_the_final).transact()
+            carb_foot, product_id, is_the_final).transact()
     except:
         raise Exception
-        
+
+
 def transfer_product_on_blockchain(transfer_to, product_id):
     '''This function connects to the blockchain to transfer the ownership of a product
     
@@ -97,10 +104,9 @@ def transfer_product_on_blockchain(transfer_to, product_id):
 def create_new_product_on_blockchain(product_name, raw_material_indexes):
     """This function connects to the blockchain to add a new product"""
     try:
-        contracts.user_contract.functions.createProduct(product_name,raw_material_indexes)
+        contracts.user_contract.functions.createProduct(product_name, raw_material_indexes)
     except:
         raise Exception
-
 
 
 def get_product(product_id: int) -> Product:
@@ -168,6 +174,7 @@ def get_all_raw_materials() -> list[RawMaterial]:
         for rm in contracts.user_contract.functions.getRawMaterials().call()
     ]
 
+
 def get_all_products() -> list[Product]:
     """
     Retrieves all `Product`s on the blockchain.
@@ -185,8 +192,9 @@ def get_all_products() -> list[Product]:
         for product in contracts.user_contract.functions.getProducts().call()
     ]
 
+
 # uguale alla precedente get_products_from_blockchain()
-#o visto che non salviamo i dati ora non so se ha senso il 'from_blockchain' vedete voi come è meglio
+# o visto che non salviamo i dati ora non so se ha senso il 'from_blockchain' vedete voi come è meglio
 '''
 def get_all_products_detailed() -> list[Product]:
     """

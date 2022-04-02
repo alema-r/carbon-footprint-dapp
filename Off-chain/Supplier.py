@@ -20,12 +20,13 @@ def lot_input_validation(answers, current):
         Boolean: True if the input is valid
     """
     try:
-        int_lot=int(current)
+        int_lot = int(current)
     except:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Lot must be positive integer or 0')
+        raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
     if int_lot < 0:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Lot must be positive integer or 0')
+        raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
     return True
+
 
 def input_validation(raw_material, raw_materials):
     """Functions the checks if the user inserted two equals raw materials
@@ -40,8 +41,9 @@ def input_validation(raw_material, raw_materials):
     if raw_material in raw_materials:
         error_message = "Raw material and lot already inserted"
         return False, error_message
-    
+
     return True, ''
+
 
 def raw_material_name_input_validation(answers, current):
     """Functions that validates raw material's name inserted by user
@@ -57,11 +59,12 @@ def raw_material_name_input_validation(answers, current):
     Returns:
         Boolean: True if the input is valid
     """
-    pattern = "[a-zA-Z0-9]"
-    if re.search(pattern, current):
+    pattern = "^[a-zA-Z0-9 ]*$"
+    if bool(re.match(pattern, current.strip(' '))) and len(current) > 0:
         return True
     else:
-        raise inquirer.errors.ValidationError('', reason= 'Invalid input: Raw material\'s name can not contain special characters')    
+        raise inquirer.errors.ValidationError('', reason=f'Invalid input: Raw material\'s name is invalid. Please \
+        insert names with only letters and numbers or type almost one character')
 
 
 def insert_raw_material(user_address):
@@ -78,51 +81,54 @@ def insert_raw_material(user_address):
     while (actions != "Done") & (actions != "Cancel"):
         # List of actions the user can perform
         actions = inquirer.list_input(
-            message= "Select \"Add new raw material\" to add new material or select \"Done\" to complete operation or select \"Cancel\" to cancel the operation",
+            message="Select \"Add new raw material\" to add new material or select \"Done\" to complete operation or select \"Cancel\" to cancel the operation",
             choices=["Add new raw material", "Done", "Cancel"]
         )
         # List of input the user should insert if he chooses to add new raw material
         if actions == "Add new raw material":
             questions = [
-            inquirer.Text('raw material',
-            message="Insert new raw material name",
-            validate=raw_material_name_input_validation
-            ),
-            inquirer.Text('lot',
-            message="Insert raw material's lot",
-            validate=lot_input_validation
-            ),
-            inquirer.Text('carbon footprint',
-            message = "Insert raw material carbon footprint",
-            validate=carbon_fp_input_validation
-            )
+                inquirer.Text('raw material',
+                              message="Insert new raw material name",
+                              validate=raw_material_name_input_validation
+                              ),
+                inquirer.Text('lot',
+                              message="Insert raw material's lot",
+                              validate=lot_input_validation
+                              ),
+                inquirer.Text('carbon footprint',
+                              message="Insert raw material carbon footprint",
+                              validate=carbon_fp_input_validation
+                              )
             ]
             # This line show all the questions coded above and the put the user's answers inside "answers" variable
             answers = inquirer.prompt(questions)
             # New raw material instance generated using user's inputs values
-            raw_material_to_check = RawMaterial(answers["raw material"], int(answers['lot']), user_address, int(answers['carbon footprint']))
+            raw_material_to_check = RawMaterial(answers["raw material"], int(answers['lot']), user_address,
+                                                int(answers['carbon footprint']))
             # The new raw material is validated. 
-            valid, error_message = input_validation(raw_material_to_check, raw_materials) 
+            valid, error_message = input_validation(raw_material_to_check, raw_materials)
             # If the new raw material is valid it is appended in the raw materials list 
             if valid:
                 raw_materials.append(raw_material_to_check)
                 print("New raw material correctly inserted")
-                print("To add another raw material select \"Add new raw material\" or select \"Done\" to complete the operation")
+                print(
+                    "To add another raw material select \"Add new raw material\" or select \"Done\" to complete \
+                    the operation")
             # If the added raw material is not valid an error message is shown to the user
             else:
                 print(f"Invalid input: {error_message}")
-                print('Select \"Add new raw material\" and try again or select \"Cancel\" to cancel the operation') 
-    
-    # If the user chooses to Cancel the operation all inserted inputs are destroyed and the functions ends
+                print('Select \"Add new raw material\" and try again or select \"Cancel\" to cancel the operation')
+
+                # If the user chooses to Cancel the operation all inserted inputs are destroyed and the functions ends
     if actions == "Cancel":
         raw_materials = []
         return
-    
+
     # When the user select Done, the interactions ends and the new added raw materials are insertend inside the blockchain
-    if (len(raw_materials) > 0):
+    if len(raw_materials) > 0:
         try:
             create_raw_materials_on_blockchain(raw_materials)
         # If the inserting operation fails, an error is printed. 
         except Exception as e:
             print(e)
-            print ("Please insert raw materials again")
+            print("Please insert raw materials again")
