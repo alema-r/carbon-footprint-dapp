@@ -85,7 +85,7 @@
 					},
 					{
 						"internalType": "uint256[]",
-						"name": "indexes",
+						"name": "materialIds",
 						"type": "uint256[]"
 					}
 				],
@@ -223,6 +223,11 @@
 					{
 						"components": [
 							{
+								"internalType": "uint256",
+								"name": "materialId",
+								"type": "uint256"
+							},
+							{
 								"internalType": "string",
 								"name": "name",
 								"type": "string"
@@ -325,7 +330,7 @@
 				"createProduct(string,uint256[])": {
 					"details": "Calls the function `mintProduct` from `CarbonFootprint` contract.",
 					"params": {
-						"indexes": "The array of indexes of rawmaterials used to produce the product.",
+						"materialIds": "The ids of the raw materials used to create the product",
 						"product_name": "The name to assign to the product."
 					}
 				},
@@ -513,27 +518,27 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0xcce2213000cdeb4e4ebd87a35cc47d3ebe1a4f7c59c517fecc9cbfe2a60d2729",
+			"keccak256": "0xe43dddfe24fbe9410f08b38e2f252e7fd9cc9d58815e469032ea16b943eb33c1",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://46786734fea626890aa60feb4e15ba3c45edf00c7d467700696998dfeacb546f",
-				"dweb:/ipfs/QmWNggk1eq6FR7YUgNhZZzpkWBayNwxWbxmZajSgV9VQvK"
+				"bzz-raw://4d9d5eacf5e3f90b059192fd6e6d245dff4b8a66ce908d9d489e5291fd184d05",
+				"dweb:/ipfs/QmVehjaRW8QGrnnESS5cUM9nDT478AeKdHK7vav5M5p2mz"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
-			"keccak256": "0xcc4eb17461b6ef98a6efe48c9125b1a20935b3fe4b0e088d4eb5fbbb19b69090",
+			"keccak256": "0xa5220373f9d954635abd865702825405838d2c5b0cca74b4452a3e08578cfc58",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://e805eeaa9ffe2ac3210ff331c19ce92f7af58a15aa0006671f7e105ee707beba",
-				"dweb:/ipfs/QmQzYcYpW9U9AwTUuTkntBnGuHmTYYMpHjMshFxVnyhYkm"
+				"bzz-raw://f910c65dd924a755fe3adc9aa52ebba09f06504e69770b4050222232437bd786",
+				"dweb:/ipfs/QmaSmWJKtRnpdkdDMboEMFT5FNG1Aozacaf2CdTsYJqHEg"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/User.sol": {
-			"keccak256": "0xb23819b972c07d94599af154d90b08f6d3c8648b2a2757564068f2ac4ec2e4c0",
+			"keccak256": "0x6f06f2b08219d3351c109135c89794b32fcef29c6a8f52c093b837d74929cf0b",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://3194ee35320721593ce60bea5d4ddb57c1de87004a0b21e059554e1027984b68",
-				"dweb:/ipfs/QmQ9EuNDpPU7McoRxAMZKiHgjFu5epy5VLVWTBU4cFxx1r"
+				"bzz-raw://5df288d303dec41971f07a9b66fdbaf4f90e9841e3f8e1949a8dcd7a0f845faf",
+				"dweb:/ipfs/QmdegwZX9fzgEs9tK98sUY4wyicztGD9NzYjM7qTMsE51H"
 			]
 		}
 	},

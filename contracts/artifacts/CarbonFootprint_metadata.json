@@ -121,6 +121,12 @@
 					},
 					{
 						"indexed": false,
+						"internalType": "uint256",
+						"name": "mId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
 						"internalType": "string",
 						"name": "name",
 						"type": "string"
@@ -172,7 +178,13 @@
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "userAddress",
+						"name": "transformer",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "supplier",
 						"type": "address"
 					},
 					{
@@ -332,6 +344,11 @@
 				"outputs": [
 					{
 						"components": [
+							{
+								"internalType": "uint256",
+								"name": "materialId",
+								"type": "uint256"
+							},
 							{
 								"internalType": "string",
 								"name": "name",
@@ -912,19 +929,19 @@
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/CarbonFootprint.sol": {
-			"keccak256": "0x41ecdeacca32b52aeab5d7c6cf589984af823ed4599dabf80cb64e32e101f217",
+			"keccak256": "0x7efabe4c1e8482f6f03d5be23d2fa1885ba292794de61bf11131679b1c9d8f51",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://0be7697fafa6475706fc3114ec781b3788028b591fae8a4b3d5f231f099137d4",
-				"dweb:/ipfs/QmVxhpGRQeysA6gmRk7rt7pMsaXcM5o9kdM3PjAgWa4iGw"
+				"bzz-raw://17b08b2797939722fbd0362eaef77baec293bb5429516513a2e5e6103aa89e8b",
+				"dweb:/ipfs/QmdGe3NX4T7FBvggFszNjxknXCNn4zwzbvnvqj2KGc76Gj"
 			]
 		},
 		"PycharmProjects/progetto-software-cybersecurity/contracts/ProductLibrary.sol": {
-			"keccak256": "0xcc4eb17461b6ef98a6efe48c9125b1a20935b3fe4b0e088d4eb5fbbb19b69090",
+			"keccak256": "0xa5220373f9d954635abd865702825405838d2c5b0cca74b4452a3e08578cfc58",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://e805eeaa9ffe2ac3210ff331c19ce92f7af58a15aa0006671f7e105ee707beba",
-				"dweb:/ipfs/QmQzYcYpW9U9AwTUuTkntBnGuHmTYYMpHjMshFxVnyhYkm"
+				"bzz-raw://f910c65dd924a755fe3adc9aa52ebba09f06504e69770b4050222232437bd786",
+				"dweb:/ipfs/QmaSmWJKtRnpdkdDMboEMFT5FNG1Aozacaf2CdTsYJqHEg"
 			]
 		}
 	},

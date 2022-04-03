@@ -109,14 +109,11 @@ def create_new_product():
         validate=new_product_name_input_validation
     )
     raw_materials = get_raw_material_not_used()
-    
-    # creo la lista delle scelte da mostrare all'utente
-    possible_choices = [(material.__str__(), material.materialId) for material in raw_materials]
 
     # Faccio selezionare all'utente le materie prima da usare.
     raw_materials_to_use = inquirer.checkbox(
         message="Select a raw material to use",
-        choices=possible_choices
+        choices=[(material.__str__(), material.materialId) for material in raw_materials]
     )
     confirm = inquirer.confirm(
         message=f'Do you want to create the product "{product_name} with the selected materials?'
