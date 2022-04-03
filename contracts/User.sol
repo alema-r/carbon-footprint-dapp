@@ -101,11 +101,7 @@ contract User{
 		external
         onlyTransformer
 	{
-        uint256[] memory indexes;
-        for (uint256 i=0; i<materialIds.length; i++){
-            indexes.push(materialIds[i]-1);
-        }
-        CFContract.mintProduct(product_name, indexes);
+        CFContract.mintProduct(product_name, materialIds);
     }
 
     /**
