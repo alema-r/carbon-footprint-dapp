@@ -28,10 +28,10 @@ class RawMaterial:
         return cls(data[1], data[2], data[3], data[4], data[5], data[0], time_of_insertion, time_of_use)
 
     def from_event(event, used=False):
-        return RawMaterial(event.args.name, event.args.lot, event.args.supplier, event.args.cf, used, event.args.materialId)
+        return RawMaterial(event.args.name, event.args.lot, event.args.supplier, event.args.cf, used)#, event.args.materialId)
 
     def __str__(self):
-        return f"\t{self.name}\t{self.lot}\t{self.address}\t\t{self.cf}"
+        return f"{self.name}\t{self.lot}\t{self.address}\t{self.cf}"
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, RawMaterial):
@@ -95,4 +95,4 @@ class Transformation:
         return Transformation(event.args.userAddress, event.args.cf)
 
     def __str__(self):
-        return f"\t{self.transformer}\t{self.CF}\t{self.date}"
+        return f"{self.transformer}\t{self.CF}\t{self.date}"

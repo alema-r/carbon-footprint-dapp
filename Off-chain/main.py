@@ -3,6 +3,7 @@ from BlockChain import connect
 import connection
 import Supplier
 import Transformer
+import Filter
 
 
 def bye():
@@ -13,14 +14,14 @@ def bye():
 role_dict = {
     "Client": {
         "num": "0",
-        "actions": {"Search one or more products": lambda a: a,  # get_filtered_products,
+        "actions": {"Search one or more products": Filter.filterProducts,
                     "Exit": bye
                     },
     },
     "Supplier": {
         "num": "1",
         "actions": {
-            "Search one or more products": lambda a: a,
+            "Search one or more products": Filter.filterProducts,
             "Add new raw materials": Supplier.insert_raw_material,
             "Exit": bye,
         },
@@ -28,7 +29,7 @@ role_dict = {
     "Transformer": {
         "num": "2",
         "actions": {
-            "Search one or more products": lambda a: a,
+            "Search one or more products": Filter.filterProducts,
             "Create a new product": Transformer.create_new_product,
             "Add a new operation": Transformer.add_transformation,
             "Transfer the property of a product": Transformer.transfer_product,
