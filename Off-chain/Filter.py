@@ -85,7 +85,8 @@ def show_products(ids):
 
 def show_detailed_product(id):
     product = BlockChain.get_product_details(id)
-    print("Id: ", product.productId, "\tName: ", product.name, "\nOwner: ", product.address, "\nCF: ", product.CF, "\tisEnded: ", product.isEnded, "\nSuppliers:\n")
+    product.__str__()
+    '''print("Id: ", product.productId, "\tName: ", product.name, "\nOwner: ", product.address, "\nCF: ", product.CF, "\tisEnded: ", product.isEnded, "\nSuppliers:\n")
     for supplier in product.supplier:
         print(supplier, '\n')
     print("Transformation:\n")
@@ -93,7 +94,7 @@ def show_detailed_product(id):
         print(transformation, '\n')
     print("Raw Materials:\n")
     for rm in product.rawMaterials:
-        print(rm, '\n')
+        print(rm, '\n')'''
 
 def select_operator():
     choices = ["Equal", "Greater", "Greater equal", "Lower", "Lower equal"]
@@ -113,7 +114,8 @@ def select_operator():
         op = operator.le
     return op
 
-def filterProducts(results, filter):
+
+def filterProducts(results=[], filters=simpleFilter):
     criteria = {}
     choices = ["Id", "Name", "Owner", "CF", "Ended", "Supplier", "Transformer",
                "Raw Material"]
@@ -187,7 +189,7 @@ def filterProducts(results, filter):
         criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value, "field": "name",
                     "operator": operator.eq, "event": True}
 
-    results = filter(results, criteria)
+    results = filters(results, criteria)
     show_products(results)  # FUNZIONE DI PRINT
     choices = ["View one product details", "Add another filter", "Exit"]
     action = inquirer.list_input(
@@ -210,12 +212,3 @@ def filterProducts(results, filter):
             filterProducts(results, andFilter)
         else:
             filterProducts(results, orFilter)
-    else:
-        return
-
-
-if __name__ == "__main__":
-    while True:
-        filter = simpleFilter
-        results = []
-        filterProducts(results, filter)

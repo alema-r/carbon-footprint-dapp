@@ -31,7 +31,7 @@ class RawMaterial:
         return RawMaterial(event.args.name, event.args.lot, event.args.supplier, event.args.cf, used)#, event.args.materialId)
 
     def __str__(self):
-        return f"{self.name}\t{self.lot}\t{self.address}\t{self.cf}"
+        return f"{self.name}\t{self.lot}\t{self.cf}\t{self.address}"
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, RawMaterial):
@@ -60,22 +60,20 @@ class Product:
 
     def __str__(self):
         print(f"Information about product No. {self.productId}")
-        print(f"Name:{self.name}, Owner:{self.address}, Actual Carboon Footprint:{self.CF}")
-        print('These are rawmaterials used for this product:')
+        print(f"Owner: {self.address}")
+        print(f"Name:{self.name}, Actual Carboon Footprint:{self.CF}")
+        print('These are raw materials used for this product:')
         print()
-        print(
-            '\tName\tlot\tsupplier\t\tCarboon Footprint\t\tDate of insertion\t\tDate of use')
+        print('Name\tlot\tCarboon Footprint\tsupplier')
         for raw in self.rawMaterials:
             print(raw)
-        print(
-            '------------------------------------------------------------------------------')
+        print('------------------------------------------------------------------------------')
         print('These are transformation done on this product:')
         print()
-        print('\tAddress\t\tCarboon Footprint\t\tDate')
+        print('Carboon Footprint\tAddress')
         for transformation in self.transformations:
             print(transformation)
-        print(
-            '------------------------------------------------------------------------------')
+        print('------------------------------------------------------------------------------')
         print()
         finished = f"Product is finished" if self.isEnded else "Product is still in the works"
         return finished
@@ -95,4 +93,4 @@ class Transformation:
         return Transformation(event.args.userAddress, event.args.cf)
 
     def __str__(self):
-        return f"{self.transformer}\t{self.CF}\t{self.date}"
+        return f"{self.CF}\t{self.transformer}"
