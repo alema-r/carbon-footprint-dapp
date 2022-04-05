@@ -1,29 +1,55 @@
-from BlockChain import connect
 import inquirer
-from contracts import cf_contract
-from Utils import role_dict
+from BlockChain import connect
+import connection
+import Supplier
+import Transformer
+
+
+def bye():
+    print("Goodbye, have a nice day")
+    exit(0)
+
+
+role_dict = {
+    "Client": {
+        "num": "0",
+        "actions": {"Search one or more products": lambda a: a,  # get_filtered_products,
+                    "Exit": bye
+                    },
+    },
+    "Supplier": {
+        "num": "1",
+        "actions": {
+            "Search one or more products": lambda a: a,
+            "Add new raw materials": Supplier.insert_raw_material,
+            "Exit": bye,
+        },
+    },
+    "Transformer": {
+        "num": "2",
+        "actions": {
+            "Search one or more products": lambda a: a,
+            "Create a new product": Transformer.create_new_product,
+            "Add a new operation": Transformer.add_transformation,
+            "Transfer the property of a product": Transformer.transfer_product,
+            "Exit": bye,
+        },
+    },
+}
 
 
 def main():
-    print("Welcome!")
-    # This while loop manages the initial interactions with the user
     while True:
-        # Asks the user to declare his role and address
+        # Asks the user to declare his address
         questions = [
-            inquirer.List('role',
-                          message="Specify your role",
-                          choices=["Client", "Supplier", "Transformer"],
-                          ),
             inquirer.Text('address',
                           message="Insert your address")
         ]
         # Prompt questions
         answers = inquirer.prompt(questions)
-        address = answers['address']
         # Here it tries to connect to blockchain
         try:
-            web3 = connect(role_dict[answers['role']]["num"], answers['address'])
-            role = answers['role']
+            address = connect(connection.role, answers['address'])
             # if everything is ok the while loop ends
             break
         # if something goes wrong an exception is thrown
@@ -38,53 +64,36 @@ def main():
             if choice == "Exit":
                 return
     action = "start"
-    if role == "Transformer":
+    if connection.role == int(role_dict['Transformer']['num']):
         while action != "Exit":
             action = inquirer.list_input(
                 message="What action do you want to perform?",
-                choices=role_dict[role]["actions"]
+                choices=role_dict['Transformer']["actions"]
             )
-            if action in role_dict[role]["actions"].keys()[:2]:
-                role_dict[role]["actions"][action]()
+            if action in list(role_dict['Transformer']["actions"].keys())[2:4]:
+                role_dict['Transformer']["actions"][action](address)
             else:
-                role_dict[role]["actions"][action](address)
-
-            '''
-            if action == role_dict[role]["actions"][0]:
-                get_filtered_products()  # FUNZIONE COMUNE DA ISTANZIARE
-            elif action == role_dict[role]["actions"][1]:
-                Transformer.create_new_product()
-            elif action == role_dict[role]["actions"][2]:
-                Transformer.add_transformation(user_products)
-            else:
-                Transformer.transfer_product(user_products)
-            '''
-        # istanziazione transformer
-    elif role == "Supplier":
+                role_dict['Transformer']["actions"][action]()
+    elif connection.role == int(role_dict["Supplier"]['num']):
         # Inizia il meccanismo di interazione con l'utente.
         # Nel main si metterà solo la gestione dell'interazione con l'utente e l'interfaccia
         # TODO: finire la l'interazione con l'utente
         while action != "Exit":
             action = inquirer.list_input(
                 message="What action do you want to perform?",
-                choices=role_dict[role]["actions"]
+                choices=role_dict["Supplier"]["actions"]
             )
-            role_dict[role]["actions"][action]()
+            if action == list(role_dict["Supplier"]["actions"].keys())[1]:
+                role_dict["Supplier"]["actions"][action](address)
+            else:
+                role_dict["Supplier"]["actions"][action]()
     else:
         while action != "Exit":
             action = inquirer.list_input(
                 message="What action do you want to perform?",
-                choices=role_dict[role]["actions"],
+                choices=role_dict["Client"]["actions"],
             )
-            role_dict[role]["actions"][action]()
-
-    while action != "Exit":
-        if action == role_dict[role]["actions"][0]:
-            # scelta dei filtri
-            cc = cf_contract.functions.getProducts().call()
-            # chiamata al modulo che applica i filtri
-        # if per il ruolo
-        # if per l'operazione
+            role_dict["Client"]["actions"][action]()
 
 
 if __name__ == "__main__":

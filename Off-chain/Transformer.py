@@ -1,5 +1,8 @@
 import inquirer
 import re
+
+from web3 import Web3
+
 from Models import Product
 from BlockChain import add_transformation_on_blockchain, transfer_product_on_blockchain, create_new_product_on_blockchain, get_raw_material_not_used, get_all_products
 from Utils import carbon_fp_input_validation, address_validation
@@ -81,11 +84,12 @@ def transfer_product(user_address):
     )
 
     address_ok = False
+    #RIVEDERE
     while not address_ok:
         transfer_to = inquirer.text(
-            message="Insert the address of the transformer to who you want to transfer the product: "
+            message="Insert the address of the transformer to who you want to transfer the product: ",
         )
-        address_ok = address_validation(transfer_to, "Transformer")
+        address_ok, checked_address = address_validation(transfer_to, 2)
         if not address_ok:
             print("The specified address is not valid, please retry.")
 
@@ -94,7 +98,7 @@ def transfer_product(user_address):
     )
     if confirm:
         try:
-            transfer_product_on_blockchain(transfer_to, product_id)
+            transfer_product_on_blockchain(checked_address, product_id)
         except Exception as e:
             print(e)
             print(

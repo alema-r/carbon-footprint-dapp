@@ -1,9 +1,11 @@
 import inquirer
+from typing import Tuple
+
 import contracts
 from web3 import Web3
 
 
-def address_validation(address, role = '') -> bool:
+def address_validation(address, role='') -> Tuple[bool, any]:
     '''
     Controlla se l'indirizzo inserito è valido.
     Prima controlla se l'indirizzo sia valido
@@ -13,15 +15,15 @@ def address_validation(address, role = '') -> bool:
     '''
     try:
         checked_address = Web3.toChecksumAddress(address)
-        real_role = contracts.user_contract.functions.getRole(checked_address)
+        real_role = contracts.user_contract.functions.getRole(checked_address).call()
     except Exception:
-        return False
-    if (role !=''):
-        if (role == real_role):
-            return True
+        return False, ''
+    if role != '':
+        if role == real_role:
+            return True, checked_address
         else:
-            return False
-    return True
+            return False, checked_address
+    return False, checked_address
 
 def carbon_fp_input_validation(answers, current):
     """Functions that validates inserted carbon footprint value
@@ -44,4 +46,3 @@ def carbon_fp_input_validation(answers, current):
     if int_cf <= 0:
         raise inquirer.errors.ValidationError('', reason = 'Invalid input: Carbon footprint must be a positive integer')
     return True
-

@@ -1,47 +1,42 @@
 from eth_typing import Address
+from typing import List
+
 import contracts
 import event_logs
 from functools import singledispatch
 from Models import Product, RawMaterial, Transformation
-from web3 import Web3
-from web3.middleware import geth_poa_middleware
 from web3 import exceptions
+from connection import web3
 
-BASE_URL = "http://127.0.0.1:2200"
-
-
-def connect(role: int, address: Address) -> Web3:
-    url = BASE_URL + str(role)
+#sistemare per il cliente perchè secondo me da problemi
+def connect(user_role: int, address: Address):
     try:
-        # Trying to connect to blockchain
-        web3 = Web3(Web3.HTTPProvider(url))
-        web3.middleware_onion.inject(geth_poa_middleware, layer=0)
         # Checking for correct account format
         account = web3.toChecksumAddress(address)
         # If the account is inside the list of known accounts of the block
-        if account in web3.eth.accounts:
+        if account in web3.eth.accounts :
             # Calling the method to ckeck current account role inside user contract
             real_role = contracts.user_contract.functions.getRole(account).call()
-            # If the account isnt registered inside the contract 
+            # If the account isnt registered inside the contract
             if real_role == 0:
-                # The user is created with the given role inside the contract
-                contracts.user_contract.functions.createUser(role).transact()
+                # The user is created with the given role inside the
+                web3.eth.default_account = account
+                contracts.user_contract.functions.createUser(user_role).transact()
             # The account is setted as the default account
-            web3.default_account = account
+            web3.eth.default_account = account
         # If the account isnt inside the current block's list of accounts
         else:
             # An error is raised
             raise Exception
-    except Exception:
+    except Exception as e:
         raise Exception("Error: it's impossible to verify your role and address, please try again")
-    return web3
+    return account
 
 
 def create_raw_materials_on_blockchain(raw_materials):
     """Functions that insert new raw materials on blockchain
 
     Args:
-        contract (Contract): User contract address used to call his functions
         raw_materials (List[RawMaterial]): List of raw materials that must be inserted
 
     Raises:
@@ -61,6 +56,7 @@ def create_raw_materials_on_blockchain(raw_materials):
                 e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
             print(e)
         else:
+            print(e)
             print("Errore nel caricamento delle materie prime, riprova")
 
 
@@ -97,14 +93,14 @@ def transfer_product_on_blockchain(transfer_to, product_id):
     '''
     try:
         contracts.user_contract.functions.transferCP(transfer_to, product_id).transact()
-    except:
-        raise Exception
+    except Exception as e:
+        raise e
 
 
 def create_new_product_on_blockchain(product_name, raw_material_indexes):
     """This function connects to the blockchain to add a new product"""
     try:
-        contracts.user_contract.functions.createProduct(product_name, raw_material_indexes)
+        contracts.user_contract.functions.createProduct(product_name, raw_material_indexes).transact()
     except:
         raise Exception
 
@@ -163,19 +159,19 @@ def _(product: Product) -> Product:
     return product
 
 
-def get_raw_material_not_used() -> list[RawMaterial]:
-    rms = list(filter(lambda e: e[4] == False, get_all_raw_materials()))
-    return [RawMaterial.fromBlockChain(rm) for rm in rms]
+def get_raw_material_not_used() -> List[RawMaterial]:
+    rms = list(filter(lambda e: e.isUsed == False, get_all_raw_materials()))
+    return rms
 
 
-def get_all_raw_materials() -> list[RawMaterial]:
+def get_all_raw_materials() -> List[RawMaterial]:
     return [
         RawMaterial.fromBlockChain(rm)
         for rm in contracts.user_contract.functions.getRawMaterials().call()
     ]
 
 
-def get_all_products() -> list[Product]:
+def get_all_products() -> List[Product]:
     """
     Retrieves all `Product`s on the blockchain.
     This function returns a list of all the products without informations
