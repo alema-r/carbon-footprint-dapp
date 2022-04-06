@@ -8,8 +8,22 @@ from Models import Product, RawMaterial, Transformation
 from web3 import exceptions
 from connection import web3
 
-#sistemare per il cliente perchè secondo me da problemi
-def connect(user_role: int, address: Address):
+
+def connect(user_role: int, address: Address) -> Address:
+    """
+    Function used to validate user address and check if it corresponds to the given role. After
+    validation function set the current user address as default web3 account in order to accomplish transactions
+    Args:
+        user_role: (int): the integer identifier of the role chose by the current user
+        address: (Address): address of current logged user
+
+    Returns:
+        address: (Address): validated address of the current user
+
+    Raises:
+        Exception: Custom general error raised if a non planned error occurs
+
+    """
     try:
         # Checking for correct account format
         account = web3.toChecksumAddress(address)
@@ -18,7 +32,7 @@ def connect(user_role: int, address: Address):
             # Calling the method to ckeck current account role inside user contract
             real_role = contracts.user_contract.functions.getRole(account).call()
             # If the account isnt registered inside the contract
-            if real_role == 0:
+            if real_role == 0 & user_role != 0:
                 # The user is created with the given role inside the
                 web3.eth.default_account = account
                 contracts.user_contract.functions.createUser(user_role).transact()

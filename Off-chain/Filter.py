@@ -1,4 +1,5 @@
 import operator
+from tabulate import tabulate
 import inquirer     #TEST
 import BlockChain   #TEST
 import event_logs   #TEST
@@ -17,7 +18,7 @@ def simpleFilter(result: list, criteria: dict) -> list:
     else:
         for e in elements:
             if criteria["operator"](getattr(e, criteria["field"]), criteria["value"]):
-                result.append(e.productId)
+                result.append(e)
     return result
 
 
@@ -71,17 +72,20 @@ def address_validation(answers, current):
     Returns:
         Boolean: True if the input is valid
     """
-    return Web3.isChecksumAddress(current)
+    return Web3.isAddress(current) # per il controllo ruolo mappare la getRole con una funzione su blockchain
 
-def show_products(ids):
+def show_products(products):
     #products = BlockChain.get_all_products()
     #print("productId\tName\tOwner\tCF\tisEnded")
     #for id in ids:
     #    print(products[id-1].productId, '\t', products[id-1].name, '\t', products[id-1].address, '\t', products[id-1].CF, '\t', products[id-1].isEnded)
-    print("Id\tName\t\tOwner\t\t\t\t\t\tCF\tisEnded")
+    products_printable = [[p.productId, p.name, p.address, p.CF, p.isEnded] for p in products]
+    table = tabulate(products_printable, headers=["Id", "Name", "Owner", "CF", "isEnded"], tablefmt="tsv")
+    print(table)
+    """print("Id\tName\t\tOwner\t\t\t\t\t\tCF\tisEnded")
     for id in ids:
         p = BlockChain.get_product(id)
-        print(p.productId, '\t', p.name, '\t', p.address, '\t', p.CF, '\t', p.isEnded)
+        print(p.productId, '\t', p.name, '\t', p.address, '\t', p.CF, '\t', p.isEnded)"""
 
 def show_detailed_product(id):
     product = BlockChain.get_product_details(id)
@@ -114,7 +118,8 @@ def select_operator():
         op = operator.le
     return op
 
-
+# DAVIDE LA FUNZIONE MI SONO ACCORTO CHE È RICORSIVA. HAI VERIFICATO SE LA RICORSIONE È TAIL E FATTA IN MANIERA
+# INTELLIGENTE?
 def filterProducts(results=[], filters=simpleFilter):
     criteria = {}
     choices = ["Id", "Name", "Owner", "CF", "Ended", "Supplier", "Transformer",
@@ -143,7 +148,7 @@ def filterProducts(results=[], filters=simpleFilter):
             message="Owner's address: ",
             validate=address_validation  # Controllo ruolo?
         )
-        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "address",
+        criteria = {"elements": BlockChain.get_all_products, "value": Web3.toChecksumAddress(value), "field": "address",
                     "operator": operator.eq, "event": False}
     elif action == choices[3]:  # CF
         op = select_operator()

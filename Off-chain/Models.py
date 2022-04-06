@@ -1,10 +1,12 @@
 '''
 Classe per la definizione del modello che devono avere i raw material.
-Questa struttura permette di avere anche delle materie prime che derivano da 
+Questa struttura permette di avere anche delle materie prime che derivano da
 più lotti nel caso in cui sia un caso che vorremo contemplare in futuro.
 Ovviamente consente di avere anche più materie prime che derivano da un solo lotto
 '''
 from datetime import datetime
+from tabulate import tabulate
+from web3.datastructures import AttributeDict
 
 
 class RawMaterial:
@@ -25,10 +27,32 @@ class RawMaterial:
 
     @classmethod
     def fromBlockChain(cls, data: tuple, time_of_insertion=None, time_of_use=None):
+        """
+        Alternative constructor of RawMaterial class in order to simply instantiate objects with data retrieved from
+        blockchain
+        Args:
+            data: (tuple) structure returned after calling smart contracts
+            time_of_insertion:
+            time_of_use:
+
+        Returns:
+            RawMaterial Object
+        """
         return cls(data[1], data[2], data[3], data[4], data[5], data[0], time_of_insertion, time_of_use)
 
-    def from_event(event, used=False):
-        return RawMaterial(event.args.name, event.args.lot, event.args.supplier, event.args.cf, used)#, event.args.materialId)
+    @classmethod
+    def from_event(cls, event: AttributeDict, used=False):
+        """
+        Alternative constructor of RawMaterial class in order to simply instantiate objects with data about events
+        retrieved from blockchain
+        Args:
+            event: (AttributeDict) dictionary containing event logs returned from blockchain
+            used: (bool) boolean parameter indicating whether raw material is used or not
+
+        Returns:
+            RawMaterial Object
+        """
+        return cls(event.args.name, event.args.lot, event.args.supplier, event.args.cf, used)
 
     def __str__(self):
         return f"{self.name}\t{self.lot}\t{self.cf}\t{self.address}"
@@ -55,7 +79,15 @@ class Product:
         self.rawMaterials = []
 
     @classmethod
-    def fromBlockChain(cls, data: tuple, time_of_start=None, time_of_finishing=None):
+    def fromBlockChain(cls, data: tuple):
+        """
+        Alternative constructor of Product class in order to simply instantiate objects with data retrieved from
+        blockchain
+        Args:
+            data: (tuple) structure returned after calling smart contracts
+        Returns:
+            Product Object
+        """
         return cls(data[0], data[1], data[2], data[3], data[4])
 
     def __str__(self):
@@ -64,15 +96,17 @@ class Product:
         print(f"Name:{self.name}, Actual Carboon Footprint:{self.CF}")
         print('These are raw materials used for this product:')
         print()
-        print('Name\tlot\tCarboon Footprint\tsupplier')
-        for raw in self.rawMaterials:
-            print(raw)
+        raw_materials_printable = [[raw.name, raw.lot, raw.cf, raw.address] for raw in self.rawMaterials]
+        table = tabulate(raw_materials_printable, headers=['Name', 'Lot', 'Carboon Footprint', 'Supplier'],
+                         tablefmt='tsv')
+        print(table)
         print('------------------------------------------------------------------------------')
         print('These are transformation done on this product:')
         print()
-        print('Carboon Footprint\tAddress')
-        for transformation in self.transformations:
-            print(transformation)
+        transformations_printable =[[t.CF, t.transformer] for t in self.transformations]
+        table = tabulate(transformations_printable, headers=['Carboon Footprint', 'Transformer'],
+                         tablefmt='tsv')
+        print(table)
         print('------------------------------------------------------------------------------')
         print()
         finished = f"Product is finished" if self.isEnded else "Product is still in the works"
@@ -89,8 +123,19 @@ class Transformation:
         self.CF = CF
         self.date = date
 
-    def from_event(event):
-        return Transformation(event.args.userAddress, event.args.cf)
+    @classmethod
+    def from_event(cls, event: AttributeDict):
+        """
+        Alternative constructor of Transformation class in order to simply instantiate objects with data about events
+        retrieved from blockchain
+        Args:
+            event: (AttributeDict) dictionary containing event logs returned from blockchain
+            used: (bool) boolean parameter indicating whether raw material is used or not
+
+        Returns:
+            RawMaterial Object
+        """
+        return cls(event.args.userAddress, event.args.cf)
 
     def __str__(self):
         return f"{self.CF}\t{self.transformer}"
