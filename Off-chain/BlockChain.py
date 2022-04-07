@@ -34,14 +34,10 @@ def connect(user_role: int, address: Address):
 
 
 def create_raw_materials_on_blockchain(raw_materials):
-    """Functions that insert new raw materials on blockchain
+    """Functions that inserts a new raw materials on the blockchain
 
     Args:
-        raw_materials (List[RawMaterial]): List of raw materials that must be inserted
-
-    Raises:
-        e: Error returned from Blockchain
-        Exception: Custom general error raised if a non planned error occurs
+        raw_materials (`list[RawMaterial]`): List of raw materials that must be inserted
     """
     try:
         raw_materials_name_list = [raw_material.name for raw_material in raw_materials]
@@ -51,31 +47,28 @@ def create_raw_materials_on_blockchain(raw_materials):
                                                              raw_materials_cf_list).transact()
 
     except exceptions.SolidityError as e:
+        #These are custom exceptions
         if (e.__str__ == "Il numero delle materie prime non corrisponde al numero di lotti") or (
                 e.__str__ == "Il numero delle materie prime non corrisponde al numero delle carbon footprint") or (
                 e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
             print(e)
+        #And these are other generic exceptions
         else:
             print(e)
             print("Errore nel caricamento delle materie prime, riprova")
 
 
-def transfer_cp(recipient, token_id):
-    try:
-        # Funzione che trasferisce la CP al trasformatore.
-        contracts.user_contract.functions.transferCP(recipient, token_id).transact()
-    except:
-        raise Exception("Token transfer error")
-
-
 def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
     '''This function connects to the blockchain to add a new transformation
     
-    Keyword arguments:
-    contract -- the instance of Contract needed to connect to the blockchain
-    carb_foot -- the value of the carbon footprint 
-    product_id -- the id of the product to which a new transformation needs to be added
-    is_the_final -- boolean that indicates if this is the final transformation of the production chain'''
+    Args:
+        carb_foot (`int`): the value of the carbon footprint 
+        product_id (`int`): the id of the product to which a new transformation needs to be added
+        is_the_final (`bool`): boolean that indicates if this is the final transformation of the production chain
+    
+    Raises:
+        `Exception`: if the operations fails
+    '''
     try:
         contracts.user_contract.functions.addTransformation(
             carb_foot, product_id, is_the_final).transact()
@@ -86,10 +79,12 @@ def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
 def transfer_product_on_blockchain(transfer_to, product_id):
     '''This function connects to the blockchain to transfer the ownership of a product
     
-    Keyword arguments:
-    contract -- the instance of Contract needed to connect to the blockchain
-    transfer_to -- the adress of the user to whom the product ownership needs to be transfered
-    product_id -- the id of the product to transfer
+    Args:
+        transfer_to (`ChecksumAddres`): the adress of the user to whom the product ownership needs to be transfered
+        product_id (`int`): the id of the product to transfer
+
+    Raises:
+        `Exception`: if the operations fails
     '''
     try:
         contracts.user_contract.functions.transferCP(transfer_to, product_id).transact()
@@ -97,21 +92,30 @@ def transfer_product_on_blockchain(transfer_to, product_id):
         raise e
 
 
-def create_new_product_on_blockchain(product_name, raw_material_indexes):
-    """This function connects to the blockchain to add a new product"""
+def create_new_product_on_blockchain(product_name, raw_material_ids):
+    """This function connects to the blockchain to add a new product
+    
+    Args:
+        product_name (`str`): the name of the product to create
+        raw_material_ids (`list[int]`): Ids of the raw materials to use for the product
+
+    Raises:
+        `Exception`: if the operations fails
+    """
     try:
-        contracts.user_contract.functions.createProduct(product_name, raw_material_indexes).transact()
+        contracts.user_contract.functions.createProduct(product_name, raw_material_ids).transact()
     except:
         raise Exception
 
 
 def get_product(product_id: int) -> Product:
-    """Gets the product from the blockchain with no informations on 
-    raw materials and transformations.
-    :param product_id: the id of the product to get
-    :type product_id: int
-    :returns: a product from the blockchain
-    :rtype: Product
+    """Gets the product from the blockchain with no informations on raw materials and transformations.
+
+    Args:
+        product_id (`int`): the id of the product to get
+
+    Returns: 
+        `Product`: a product from the blockchain
     """
     return Product.fromBlockChain(
         contracts.user_contract.functions.getProductById(product_id).call()
@@ -123,15 +127,20 @@ def get_product(product_id: int) -> Product:
 # doc: https://docs.python.org/3/library/functools.html#functools.singledispatch
 @singledispatch
 def get_product_details(product: int) -> Product:
-    """Gets informations about raw material used and transformations performed
-    on the specified product
-    :param product: the product id
-    :type product: int
-    :returns: a Product object
-    :rtype: Product
+    """Gets informations about raw material used and transformations performed on the specified product
+
+    Args_
+        product (`int`): the product id
+
+    Returns
+        `Product`: a product from the blockchain, with all of the info
     """
+    #The info regarding the raw materials used and the transformations implemented
+    #is taken from the events saved on the blockchain
     rm_events = event_logs.get_raw_materials_used_events(product)
     transformation_events = event_logs.get_transformations_events(product)
+
+    #The Product object is taken form the blockchain and the materials and transformation info is added
     product = get_product(product)
     product.rawMaterials = [RawMaterial.from_event(event=ev) for ev in rm_events]
     product.transformations = [
@@ -143,15 +152,20 @@ def get_product_details(product: int) -> Product:
 @get_product_details.register
 def _(product: Product) -> Product:
     """Overload of the `get_product_details` function.
-    Gets informations about raw material used and transformations performed
-    on the specified product.
-    :param product: the product object 
-    :type product: Product
-    :returns: a Product object
-    :rtype: Product
+    Gets informations about raw material used and transformations performed on the specified product.
+    
+    Args:
+        product (`Product`): the product object without the requested info
+
+    Returns:
+        `Product`: a product from the blockchain, with all of the info
     """
+    #The info regarding the raw materials used and the transformations implemented
+    #is taken from the events saved on the blockchain
     rm_events = event_logs.get_raw_materials_used_events(product.productId)
     transformation_events = event_logs.get_transformations_events(product.productId)
+
+    #materials and transformation info is added to the product
     product.rawMaterials = [RawMaterial.from_event(event=ev) for ev in rm_events]
     product.transformations = [
         Transformation.from_event(event=ev) for ev in transformation_events
@@ -160,11 +174,21 @@ def _(product: Product) -> Product:
 
 
 def get_raw_material_not_used() -> List[RawMaterial]:
+    """This function fetches and returns a list of non-used raw materials from the blockchain
+    
+    Returns:
+        `list[RawMaterial]`: a list of all of the non-used raw materials
+    """
     rms = list(filter(lambda e: e.isUsed == False, get_all_raw_materials()))
     return rms
 
 
 def get_all_raw_materials() -> List[RawMaterial]:
+    """This function fetches and returns the list of all of the raw materials saved on the blockchain
+    
+    Returns:
+        `list[RawMaterial]`: a list of all of the raw materials    
+    """
     return [
         RawMaterial.fromBlockChain(rm)
         for rm in contracts.user_contract.functions.getRawMaterials().call()
@@ -180,8 +204,10 @@ def get_all_products() -> List[Product]:
     If you need these information for a specific product, use
     `get_product_details`, or if you need them for all products use
     `get_all_products_detailed`
-    :returns: a list of all the products on the blockchain
-    :rtype: list
+
+
+    Returns: 
+        `list[Product]`: a list of all the products on the blockchain
     """
     return [
         Product.fromBlockChain(product)
@@ -196,8 +222,9 @@ def get_all_products_detailed() -> list[Product]:
     """
     Retrieves all `Product`s on the blockchain with informations on raw
     materials and transformation.
-    :returns: a list of all the products on the blockchain
-    :rtype: list
+
+    Returns:
+    `list[Product]`: a list of all the products on the blockchain
     """
     return [get_product_details(product) for product in get_all_products()]
 
