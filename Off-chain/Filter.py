@@ -1,4 +1,5 @@
 import operator
+from tabulate import tabulate
 import inquirer     #TEST
 import BlockChain   #TEST
 import event_logs   #TEST
@@ -71,30 +72,30 @@ def address_validation(answers, current):
     Returns:
         Boolean: True if the input is valid
     """
-    return Web3.isChecksumAddress(current)
+    return Web3.isAddress(current) # per il controllo ruolo mappare la getRole con una funzione su blockchain
 
-def show_products(ids):
-    #products = BlockChain.get_all_products()
-    #print("productId\tName\tOwner\tCF\tisEnded")
-    #for id in ids:
-    #    print(products[id-1].productId, '\t', products[id-1].name, '\t', products[id-1].address, '\t', products[id-1].CF, '\t', products[id-1].isEnded)
-    print("Id\tName\t\tOwner\t\t\t\t\t\tCF\tisEnded")
+
+def print_products(ids):
+    products_printable = []
     for id in ids:
         p = BlockChain.get_product(id)
-        print(p.productId, '\t', p.name, '\t', p.address, '\t', p.CF, '\t', p.isEnded)
+        products_printable.append([p.productId, p.name, p.address, p.CF, p.isEnded])
 
-def show_detailed_product(id):
+    #products = BlockChain.get_all_products()
+    #products_printable = [[p.productId, p.name, p.address, p.CF, p.isEnded] for p in products]
+
+    table = tabulate(products_printable, headers=["Id", "Name", "Owner", "CF", "isEnded"], tablefmt="tsv")
+    print(table)
+
+'''
+def print_all_products():
+    products = BlockChain.get_all_products()
+'''
+
+def detailed_print(id):
     product = BlockChain.get_product_details(id)
     product.__str__()
-    '''print("Id: ", product.productId, "\tName: ", product.name, "\nOwner: ", product.address, "\nCF: ", product.CF, "\tisEnded: ", product.isEnded, "\nSuppliers:\n")
-    for supplier in product.supplier:
-        print(supplier, '\n')
-    print("Transformation:\n")
-    for transformation in product.transformations:
-        print(transformation, '\n')
-    print("Raw Materials:\n")
-    for rm in product.rawMaterials:
-        print(rm, '\n')'''
+
 
 def select_operator():
     choices = ["Equal", "Greater", "Greater equal", "Lower", "Lower equal"]
@@ -115,6 +116,8 @@ def select_operator():
     return op
 
 
+# DAVIDE LA FUNZIONE MI SONO ACCORTO CHE È RICORSIVA. HAI VERIFICATO SE LA RICORSIONE È TAIL E FATTA IN MANIERA
+# INTELLIGENTE?
 def filterProducts(results=[], filters=simpleFilter):
     criteria = {}
     choices = ["Id", "Name", "Owner", "CF", "Ended", "Supplier", "Transformer",
@@ -136,14 +139,14 @@ def filterProducts(results=[], filters=simpleFilter):
             message="Name: ",
             validate=Transformer.new_product_name_input_validation
         )
-        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "name", "operator": operator.eq,
+        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "name", "operator": operator.eq,  #OPERATOR CONTAINS?
                     "event": False}
     elif action == choices[2]:  # OWNER
         value = inquirer.text(
             message="Owner's address: ",
             validate=address_validation  # Controllo ruolo?
         )
-        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "address",
+        criteria = {"elements": BlockChain.get_all_products, "value": Web3.toChecksumAddress(value), "field": "address",
                     "operator": operator.eq, "event": False}
     elif action == choices[3]:  # CF
         op = select_operator()
@@ -154,19 +157,13 @@ def filterProducts(results=[], filters=simpleFilter):
         criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "CF", "operator": op,
                     "event": False}
     elif action == choices[4]:  # ISENDED
-        choices = ["True", "False"]
+        choices = [("Yes", True), ("No", False)]
         action = inquirer.list_input(
             message="Is it ended?",
             choices=choices
         )
-        if action == choices[0]:
-            # value = True
-            criteria = {"elements": BlockChain.get_all_products, "value": True, "field": "isEnded",
-                        "operator": operator.eq, "event": False}
-        else:
-            # value = False
-            criteria = {"elements": BlockChain.get_all_products, "value": False, "field": "isEnded",
-                        "operator": operator.eq, "event": False}
+        criteria = {"elements": BlockChain.get_all_products, "value": action, "field": "isEnded",
+                    "operator": operator.eq, "event": False}
     elif action == choices[5]:  # SUPPLIERS
         value = inquirer.text(
             message="Supplier's address: ",
@@ -186,11 +183,12 @@ def filterProducts(results=[], filters=simpleFilter):
             message="Raw Material name: ",
             validate=raw_material_name_input_validation
         )
-        criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value, "field": "name",
+        criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value, "field": "name",              #OPERATOR CONTAINS?
                     "operator": operator.eq, "event": True}
 
     results = filters(results, criteria)
-    show_products(results)  # FUNZIONE DI PRINT
+    if len(results) > 0:
+        print_products(results)
     choices = ["View one product details", "Add another filter", "Exit"]
     action = inquirer.list_input(
         message="",
@@ -201,7 +199,7 @@ def filterProducts(results=[], filters=simpleFilter):
             message="ID: ",
             validate=id_input_validation
         ))
-        show_detailed_product(value)  # FUNZIONE DI PRINT DETTAGLIATA
+        detailed_print(value)  # FUNZIONE DI PRINT DETTAGLIATA
     elif action == choices[1]:
         choices = ["AND", "OR"]
         action = inquirer.list_input(
