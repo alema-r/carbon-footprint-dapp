@@ -1,5 +1,5 @@
 import inquirer
-from BlockChain import connect
+from BlockChain import set_account_as_default
 import connection
 import Supplier
 import Transformer
@@ -44,13 +44,13 @@ def main():
         # Asks the user to declare his address
         questions = [
             inquirer.Text('address',
-                          message="Insert your address")
+                          message="Insert your address") # aggiungere validazione dell'indirizzo
         ]
         # Prompt questions
         answers = inquirer.prompt(questions)
         # Here it tries to connect to blockchain
         try:
-            address = connect(connection.role, answers['address'])
+            address = set_account_as_default(connection.role, answers['address'])
             # if everything is ok the while loop ends
             break
         # if something goes wrong an exception is thrown

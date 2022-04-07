@@ -9,10 +9,10 @@ from web3 import exceptions
 from connection import web3
 
 
-def connect(user_role: int, address: Address) -> Address:
+def set_account_as_default(user_role: int, address: Address) -> Address:
     """
-    Function used to validate user address and check if it corresponds to the given role. After
-    validation function set the current user address as default web3 account in order to accomplish transactions
+    Function used to check if user address corresponds to the given role and set current user address as
+    default web3 account in order to accomplish transactions
     Args:
         user_role: (int): the integer identifier of the role chose by the current user
         address: (Address): address of current logged user
@@ -28,23 +28,40 @@ def connect(user_role: int, address: Address) -> Address:
         # Checking for correct account format
         account = web3.toChecksumAddress(address)
         # If the account is inside the list of known accounts of the block
-        if account in web3.eth.accounts :
-            # Calling the method to ckeck current account role inside user contract
-            real_role = contracts.user_contract.functions.getRole(account).call()
+        if account in web3.eth.accounts:
+            web3.geth.personal.unlock_account(account, '')
+            # Calling the method to check current account role inside user contract
+            real_role = get_user_role()
             # If the account isnt registered inside the contract
             if real_role == 0 & user_role != 0:
                 # The user is created with the given role inside the
                 web3.eth.default_account = account
                 contracts.user_contract.functions.createUser(user_role).transact()
-            # The account is setted as the default account
-            web3.eth.default_account = account
+            else:
+                # The account is setted as the default account
+                web3.eth.default_account = account
+            return account
         # If the account isnt inside the current block's list of accounts
         else:
             # An error is raised
             raise Exception
     except Exception as e:
         raise Exception("Error: it's impossible to verify your role and address, please try again")
-    return account
+
+
+def get_user_role(address: Address=None) -> int:
+    """
+    Function used to validate user address and check if it corresponds to the given role. After
+    validation function set the current user address as default web3 account in order to accomplish transactions
+    Args:
+        address: (Address): address of current logged user
+    Returns:
+        role: (int): role of current logged user
+    """
+    if address is None:
+        return contracts.user_contract.functions.getRole().call()
+    else:
+        return contracts.user_contract.functions.getRole(address).call()
 
 
 def create_raw_materials_on_blockchain(raw_materials):
@@ -61,19 +78,19 @@ def create_raw_materials_on_blockchain(raw_materials):
                                                              raw_materials_cf_list).transact()
 
     except exceptions.SolidityError as e:
-        #These are custom exceptions
+        # These are custom exceptions
         if (e.__str__ == "Il numero delle materie prime non corrisponde al numero di lotti") or (
                 e.__str__ == "Il numero delle materie prime non corrisponde al numero delle carbon footprint") or (
                 e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
             print(e)
-        #And these are other generic exceptions
+        # And these are other generic exceptions
         else:
             print(e)
             print("Errore nel caricamento delle materie prime, riprova")
 
 
 def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
-    '''This function connects to the blockchain to add a new transformation
+    """This function connects to the blockchain to add a new transformation
     
     Args:
         carb_foot (`int`): the value of the carbon footprint 
@@ -82,7 +99,7 @@ def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
     
     Raises:
         `Exception`: if the operations fails
-    '''
+    """
     try:
         contracts.user_contract.functions.addTransformation(
             carb_foot, product_id, is_the_final).transact()
@@ -91,7 +108,7 @@ def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
 
 
 def transfer_product_on_blockchain(transfer_to, product_id):
-    '''This function connects to the blockchain to transfer the ownership of a product
+    """This function connects to the blockchain to transfer the ownership of a product
     
     Args:
         transfer_to (`ChecksumAddres`): the adress of the user to whom the product ownership needs to be transfered
@@ -99,7 +116,7 @@ def transfer_product_on_blockchain(transfer_to, product_id):
 
     Raises:
         `Exception`: if the operations fails
-    '''
+    """
     try:
         contracts.user_contract.functions.transferCP(transfer_to, product_id).transact()
     except Exception as e:
@@ -136,12 +153,12 @@ def get_product(product_id: int) -> Product:
     )
 
 
-# Il decoratore singledispatch permette di fare function overloading in base al
-# tipo di argomento (in questo caso l'argomento product)
+# @singledispatch decorator allows function overloading depending on argument type
+# (in this case argument is a Product Object)
 # doc: https://docs.python.org/3/library/functools.html#functools.singledispatch
 @singledispatch
 def get_product_details(product: int) -> Product:
-    """Gets informations about raw material used and transformations performed on the specified product
+    """Gets information about raw material used and transformations performed on the specified product
 
     Args_
         product (`int`): the product id
@@ -149,12 +166,12 @@ def get_product_details(product: int) -> Product:
     Returns
         `Product`: a product from the blockchain, with all of the info
     """
-    #The info regarding the raw materials used and the transformations implemented
-    #is taken from the events saved on the blockchain
+    # The information regarding the raw materials used and the transformations implemented
+    # are taken from the events emitted on the blockchain
     rm_events = event_logs.get_raw_materials_used_events(product)
     transformation_events = event_logs.get_transformations_events(product)
 
-    #The Product object is taken form the blockchain and the materials and transformation info is added
+    # The Product object is taken form the blockchain and the materials and transformation info is added
     product = get_product(product)
     product.rawMaterials = [RawMaterial.from_event(event=ev) for ev in rm_events]
     product.transformations = [
@@ -174,12 +191,12 @@ def _(product: Product) -> Product:
     Returns:
         `Product`: a product from the blockchain, with all of the info
     """
-    #The info regarding the raw materials used and the transformations implemented
-    #is taken from the events saved on the blockchain
+    # The info regarding the raw materials used and the transformations implemented
+    # are taken from the events emitted on the blockchain
     rm_events = event_logs.get_raw_materials_used_events(product.productId)
     transformation_events = event_logs.get_transformations_events(product.productId)
 
-    #materials and transformation info is added to the product
+    # materials and transformation info is added to the product
     product.rawMaterials = [RawMaterial.from_event(event=ev) for ev in rm_events]
     product.transformations = [
         Transformation.from_event(event=ev) for ev in transformation_events
