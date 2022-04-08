@@ -10,6 +10,18 @@ from Supplier import raw_material_name_input_validation #TEST
 
 
 def simpleFilter(result: list, criteria: dict) -> list:
+    """This function applies a filter on the products list.
+
+        Args:
+            result (List): list of product id where the function appends valid results
+            criteria (Dictionary):
+                Dictionary containing the function used to get products data, the name of the field, the value and the
+                operator to use in the filtering process and a boolean indicating if data is being gathered from
+                blockchain events
+
+        Returns:
+            'list[int]': list containing all the identifiers that are in result or which product satisfies the filter
+    """
     elements = criteria["elements"]()
     if criteria["event"]:
         for e in elements:
@@ -23,11 +35,37 @@ def simpleFilter(result: list, criteria: dict) -> list:
 
 
 def orFilter(result, criteria):
+    """This function implements the OR logic for multiple filter.
+
+    Args:
+        result (List): list of product id obtained from a previous filter
+        criteria (Dictionary):
+            Dictionary containing the function used to get products data, the name of the field, the value and the
+            operator to use in the filtering process and a boolean indicating if data is being gathered from
+            blockchain events
+
+    Returns:
+        'list[int]': list containing all the identifiers that either are in results or which product satisfies
+            the filter
+    """
     simpleFilter(result, criteria)
     return list(set(result))
 
 
 def andFilter(result, criteria):
+    """This function implements the AND logic for multiple filter.
+
+    Args:
+        result (List): list of product id obtained from a previous filter
+        criteria (Dictionary):
+            Dictionary containing the function used to get products data, the name of the field, the value and the
+            operator to use in the filtering process and a boolean indicating if data is being gathered from
+            blockchain events
+
+    Returns:
+        'list[int]': list containing all the identifiers that are in results and which product satisfies
+            the filter
+    """
     temp = simpleFilter([], criteria)
     temp2 = result.copy()
     for e in temp2:
@@ -59,6 +97,7 @@ def id_input_validation(answers, current):
         raise inquirer.errors.ValidationError('', reason = 'Invalid input: ID must be an integer greater than 0')
     return True
 
+
 def address_validation(answers, current):
     """Functions that validates an address
 
@@ -76,6 +115,11 @@ def address_validation(answers, current):
 
 
 def print_products(ids):
+    """This function prints a table containing products basic information.
+
+    Args:
+        ids (List): list of identifiers of the products to print
+    """
     products_printable = []
     for id in ids:
         p = BlockChain.get_product(id)
@@ -93,17 +137,27 @@ def print_all_products():
 '''
 
 def detailed_print(id):
+    """This function prints all the details regarding one product.
+
+    Args:
+        id: productId of the product
+    """
     product = BlockChain.get_product_details(id)
     product.__str__()
 
 
 def select_operator():
+    """This function makes the user select an operator from a given list
+
+    Returns:
+        'operator': the operator selected by the user
+    """
     choices = ["Equal", "Greater", "Greater equal", "Lower", "Lower equal"]
     action = inquirer.list_input(
         message="Select an operator",
         choices=choices
     )
-    if action == choices[0]:    #ALTRI OPERATORI
+    if action == choices[0]:
         op = operator.eq
     elif action == choices[1]:
         op = operator.gt
@@ -116,9 +170,13 @@ def select_operator():
     return op
 
 
-# DAVIDE LA FUNZIONE MI SONO ACCORTO CHE È RICORSIVA. HAI VERIFICATO SE LA RICORSIONE È TAIL E FATTA IN MANIERA
-# INTELLIGENTE?
 def filterProducts(results=[], filters=simpleFilter):
+    """This functions manages the filtering process
+
+    Args:
+        results (List): list of productId that are currently the result of the filtering process
+        filters (Callable): filter function to call
+    """
     criteria = {}
     choices = ["Id", "Name", "Owner", "CF", "Ended", "Supplier", "Transformer",
                "Raw Material"]
