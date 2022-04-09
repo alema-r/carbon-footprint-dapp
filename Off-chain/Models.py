@@ -14,16 +14,13 @@ class RawMaterial:
     Class mapping the structure of a raw material on the blockchain
     """
 
-    def __init__(self, name: str, lot: int, address, cf: int, isUsed=False, materialId: int = None ,time_of_insertion: datetime = None,
-                 time_of_use: datetime = None):
-        self.materialId = materialId
+    def __init__(self, name: str, lot: int, address, cf: int, is_used=False, material_id: int = None):
+        self.material_id = material_id
         self.name = name
         self.lot = lot
         self.address = address
         self.cf = cf
-        self.isUsed = isUsed
-        self.time_of_insertion = time_of_insertion
-        self.time_of_use = time_of_use
+        self.is_used = is_used
 
     @classmethod
     def fromBlockChain(cls, data: tuple, time_of_insertion=None, time_of_use=None):
@@ -68,13 +65,12 @@ class Product:
     """
     Class mapping the structure of a product on the blockchain
     """
-    def __init__(self, productId: int, name: str, address, CF: int, isEnded=False):
-        self.productId = productId
+    def __init__(self, product_id: int, name: str, address, cf: int, is_ended=False):
+        self.product_id = product_id
         self.name = name
         self.address = address
-        self.CF = CF
-        self.isEnded = isEnded
-        self.supplier = []
+        self.cf = cf
+        self.is_ended = is_ended
         self.transformations = []
         self.rawMaterials = []
 
@@ -118,10 +114,9 @@ class Transformation:
     Class mapping the structure of a transformation operation recorded on a blockchain
     """
 
-    def __init__(self, transformer, CF, date: datetime = None):
+    def __init__(self, transformer, cf):
         self.transformer = transformer
-        self.CF = CF
-        self.date = date
+        self.cf = cf
 
     @classmethod
     def from_event(cls, event: AttributeDict):
@@ -138,4 +133,4 @@ class Transformation:
         return cls(event.args.userAddress, event.args.cf)
 
     def __str__(self):
-        return f"{self.CF}\t{self.transformer}"
+        return f"{self.cf}\t{self.transformer}"

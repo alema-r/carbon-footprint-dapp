@@ -21,7 +21,7 @@ def get_updatable_user_products(user_address):
         `list[Product]`: the list of the products owned by the current user
     '''
     all_products = get_all_products()
-    return list(filter(lambda p: (p.address == user_address and not p.isEnded), all_products))
+    return list(filter(lambda p: (p.address == user_address and not p.is_ended), all_products))
 
 
 def new_product_name_input_validation(answers, current):
@@ -55,7 +55,7 @@ def add_transformation(user_address):
     user_products = get_updatable_user_products(user_address)
     product_id = inquirer.list_input(
         message="What product do you want to update?",
-        choices=[(product.name, product.productId) for product in user_products]
+        choices=[(product.name, product.product_id) for product in user_products]
     )
 
     #asks the user for the carbon footprint of the transformation
@@ -98,7 +98,7 @@ def transfer_product(user_address):
 
     product_id = inquirer.list_input(
         message="What product do you want to transfer? ",
-        choices=[(product.name, product.productId) for product in user_products]
+        choices=[(product.name, product.product_id) for product in user_products]
     )
 
     address_ok = False
@@ -139,7 +139,7 @@ def create_new_product():
     raw_materials = get_raw_material_not_used()
     raw_materials_to_use = inquirer.checkbox(
         message="Select a raw material to use",
-        choices=[(material.__str__(), material.materialId) for material in raw_materials]
+        choices=[(material.__str__(), material.material_id) for material in raw_materials]
     )
 
     #asks the user for confirmation

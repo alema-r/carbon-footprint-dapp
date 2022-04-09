@@ -20,21 +20,21 @@ role_dict = {
     },
     "Supplier": {
         "num": "1",
-        "actions": {
-            "Search one or more products": Filter.filterProducts,
-            "Add new raw materials": Supplier.insert_raw_material,
-            "Exit": bye,
-        },
+        "actions": [
+            ("Search one or more products", Filter.filterProducts),
+            ("Add new raw materials", Supplier.insert_raw_material),
+            ("Exit", bye),
+        ],
     },
     "Transformer": {
         "num": "2",
-        "actions": {
-            "Search one or more products": Filter.filterProducts,
-            "Create a new product": Transformer.create_new_product,
-            "Add a new operation": Transformer.add_transformation,
-            "Transfer the property of a product": Transformer.transfer_product,
-            "Exit": bye,
-        },
+        "actions": [
+            ("Search one or more products", Filter.filterProducts),
+            ("Create a new product", Transformer.create_new_product),
+            ("Add a new operation", Transformer.add_transformation),
+            ("Transfer the property of a product", Transformer.transfer_product),
+            ("Exit", bye),
+        ],
     },
 }
 
@@ -63,7 +63,7 @@ def main():
             )
             # if the user chooses to exit the program ends
             if choice == "Exit":
-                return
+                bye()
     action = "start"
     if connection.role == int(role_dict['Transformer']['num']):
         while action != "Exit":
@@ -71,10 +71,10 @@ def main():
                 message="What action do you want to perform?",
                 choices=role_dict['Transformer']["actions"]
             )
-            if action in list(role_dict['Transformer']["actions"].keys())[2:4]:
-                role_dict['Transformer']["actions"][action](address)
+            if action == Transformer.add_transformation or action == Transformer.transfer_product:
+                action(address)
             else:
-                role_dict['Transformer']["actions"][action]()
+                action()
     elif connection.role == int(role_dict["Supplier"]['num']):
         # Inizia il meccanismo di interazione con l'utente.
         # Nel main si metterà solo la gestione dell'interazione con l'utente e l'interfaccia

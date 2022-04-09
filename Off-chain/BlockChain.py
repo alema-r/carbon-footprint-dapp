@@ -31,9 +31,9 @@ def set_account_as_default(user_role: int, address: Address) -> Address:
         if account in web3.eth.accounts:
             web3.geth.personal.unlock_account(account, '')
             # Calling the method to check current account role inside user contract
-            real_role = get_user_role()
+            real_role = get_user_role(account)
             # If the account isnt registered inside the contract
-            if real_role == 0 & user_role != 0:
+            if real_role == 0 and user_role != 0:
                 # The user is created with the given role inside the
                 web3.eth.default_account = account
                 contracts.user_contract.functions.createUser(user_role).transact()
@@ -85,7 +85,6 @@ def create_raw_materials_on_blockchain(raw_materials):
             print(e)
         # And these are other generic exceptions
         else:
-            print(e)
             print("Errore nel caricamento delle materie prime, riprova")
 
 
@@ -193,8 +192,8 @@ def _(product: Product) -> Product:
     """
     # The info regarding the raw materials used and the transformations implemented
     # are taken from the events emitted on the blockchain
-    rm_events = event_logs.get_raw_materials_used_events(product.productId)
-    transformation_events = event_logs.get_transformations_events(product.productId)
+    rm_events = event_logs.get_raw_materials_used_events(product.product_id)
+    transformation_events = event_logs.get_transformations_events(product.product_id)
 
     # materials and transformation info is added to the product
     product.rawMaterials = [RawMaterial.from_event(event=ev) for ev in rm_events]

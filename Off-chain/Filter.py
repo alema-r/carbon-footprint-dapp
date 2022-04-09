@@ -30,7 +30,7 @@ def simpleFilter(result: list, criteria: dict) -> list:
     else:
         for e in elements:
             if criteria["operator"](getattr(e, criteria["field"]), criteria["value"]):
-                result.append(e.productId)
+                result.append(e.product_id)
     return result
 
 
@@ -123,7 +123,7 @@ def print_products(ids):
     products_printable = []
     for id in ids:
         p = BlockChain.get_product(id)
-        products_printable.append([p.productId, p.name, p.address, p.CF, p.isEnded])
+        products_printable.append([p.product_id, p.name, p.address, p.cf, p.is_ended])
 
     #products = BlockChain.get_all_products()
     #products_printable = [[p.productId, p.name, p.address, p.CF, p.isEnded] for p in products]
@@ -140,7 +140,7 @@ def detailed_print(id):
     """This function prints all the details regarding one product.
 
     Args:
-        id: productId of the product
+        id: Id of the product
     """
     product = BlockChain.get_product_details(id)
     product.__str__()
@@ -190,7 +190,7 @@ def filterProducts(results=[], filters=simpleFilter):
             message="ID: ",
             validate=id_input_validation
         ))
-        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "productId", "operator": op,
+        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "product_id", "operator": op,
                     "event": False}
     elif action == choices[1]:  # NAME
         value = inquirer.text(
@@ -212,7 +212,7 @@ def filterProducts(results=[], filters=simpleFilter):
             message="CF value: ",
             validate=carbon_fp_input_validation
         ))
-        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "CF", "operator": op,
+        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "cf", "operator": op,
                     "event": False}
     elif action == choices[4]:  # ISENDED
         choices = [("Yes", True), ("No", False)]
