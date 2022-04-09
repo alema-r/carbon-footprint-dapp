@@ -1,12 +1,9 @@
 import inquirer
-import re
-
-from web3 import Web3
 from Models import Product
 from BlockChain import add_transformation_on_blockchain, transfer_product_on_blockchain, create_new_product_on_blockchain, get_raw_material_not_used, get_all_products
 import validation
-from Models import RawMaterial
-
+from web3 import Web3
+import textwrap
 
 
 def get_updatable_user_products(user_address):
@@ -49,10 +46,10 @@ def add_transformation(user_address):
     )
 
     #asks the user for confirmation
+    if is_final:
+        print("BE CAREFUL, after this operation the product will be no longer modifiable")
     confirm = inquirer.confirm(
-        message=f"Do you want to add this transformation, with a carbon footprint of {carb_footprint}, to the selected \
-        product? BE CAREFUL, after this operation the product will be no longer modifiable" if is_final else f"Do you \
-        Do you want to add this transformation, with a carbon footprint of {carb_footprint}, to the selected product?"
+        message=f"Do you want to add this transformation, with a carbon footprint of {carb_footprint}, to the selected product?"
     )
 
     #if the user confirms the transaction is started.
@@ -80,16 +77,10 @@ def transfer_product(user_address):
         choices=[(product.name, product.product_id) for product in user_products]
     )
 
-    address_ok = False
-    #RIVEDERE
-    while not address_ok:
-        transfer_to = inquirer.text(
-            message="Insert the address of the transformer to who you want to transfer the product: ",
-        )
-        address_ok, checked_address = validation.address_validation(transfer_to, 2)
-        if not address_ok:
-            print("The specified address is not valid, please retry.")
-    
+    transfer_to = inquirer.text(
+        message="Insert the address of the transformer to who you want to transfer the product: ",
+        validate=validation.transformer_address_validation
+    )
     #asks the user for confirmation
     confirm = inquirer.confirm(
         message=f"Do you want to transfer the selected product to the address {transfer_to}?"
@@ -98,7 +89,7 @@ def transfer_product(user_address):
     #if the user confirms the transaction is started.
     if confirm:
         try:
-            transfer_product_on_blockchain(checked_address, product_id)
+            transfer_product_on_blockchain(Web3.toChecksumAddress(transfer_to), product_id)
         except Exception as e:
             print(e)
             print(

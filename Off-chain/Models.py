@@ -1,10 +1,4 @@
-'''
-Classe per la definizione del modello che devono avere i raw material.
-Questa struttura permette di avere anche delle materie prime che derivano da
-più lotti nel caso in cui sia un caso che vorremo contemplare in futuro.
-Ovviamente consente di avere anche più materie prime che derivano da un solo lotto
-'''
-from datetime import datetime
+
 from tabulate import tabulate
 from web3.datastructures import AttributeDict
 
@@ -23,19 +17,17 @@ class RawMaterial:
         self.is_used = is_used
 
     @classmethod
-    def fromBlockChain(cls, data: tuple, time_of_insertion=None, time_of_use=None):
+    def from_blockchain(cls, data: tuple):
         """
         Alternative constructor of RawMaterial class in order to simply instantiate objects with data retrieved from
         blockchain
         Args:
             data: (tuple) structure returned after calling smart contracts
-            time_of_insertion:
-            time_of_use:
 
         Returns:
             RawMaterial Object
         """
-        return cls(data[1], data[2], data[3], data[4], data[5], data[0], time_of_insertion, time_of_use)
+        return cls(data[1], data[2], data[3], data[4], data[5], data[0])
 
     @classmethod
     def from_event(cls, event: AttributeDict, used=False):
@@ -56,7 +48,8 @@ class RawMaterial:
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, RawMaterial):
-            return (self.materialId == __o.materialId) and (self.name == __o.name) and (self.lot == __o.lot) and (self.address == __o.address)
+            return (self.material_id == __o.material_id) and (self.name == __o.name) and (self.lot == __o.lot) and \
+                   (self.address == __o.address)
         else:
             return False
 
@@ -75,7 +68,7 @@ class Product:
         self.rawMaterials = []
 
     @classmethod
-    def fromBlockChain(cls, data: tuple):
+    def from_blockchain(cls, data: tuple):
         """
         Alternative constructor of Product class in order to simply instantiate objects with data retrieved from
         blockchain
@@ -87,26 +80,20 @@ class Product:
         return cls(data[0], data[1], data[2], data[3], data[4])
 
     def __str__(self):
-        print(f"Information about product No. {self.productId}")
-        print(f"Owner: {self.address}")
-        print(f"Name:{self.name}, Actual Carboon Footprint:{self.CF}")
-        print('These are raw materials used for this product:')
-        print()
         raw_materials_printable = [[raw.name, raw.lot, raw.cf, raw.address] for raw in self.rawMaterials]
-        table = tabulate(raw_materials_printable, headers=['Name', 'Lot', 'Carboon Footprint', 'Supplier'],
-                         tablefmt='tsv')
-        print(table)
-        print('------------------------------------------------------------------------------')
-        print('These are transformation done on this product:')
-        print()
-        transformations_printable =[[t.CF, t.transformer] for t in self.transformations]
-        table = tabulate(transformations_printable, headers=['Carboon Footprint', 'Transformer'],
-                         tablefmt='tsv')
-        print(table)
-        print('------------------------------------------------------------------------------')
-        print()
-        finished = f"Product is finished" if self.isEnded else "Product is still in the works"
-        return finished
+        table_raw_materials = tabulate(raw_materials_printable, headers=['Name', 'Lot', 'Carbon Footprint', 'Supplier'],
+                                       tablefmt='tsv')
+        transformations_printable = [[t.cf, t.transformer] for t in self.transformations]
+        table_transformation = tabulate(transformations_printable, headers=['Carbon Footprint', 'Transformer'],
+                                        tablefmt='tsv')
+        s = f"Information about product No. {self.product_id}\nOwner: {self.address}\n" +\
+            f"Name:{self.name}, Actual Carbon Footprint:{self.cf}\n" +\
+            "These are raw materials used for this product:\n\n" + table_raw_materials + \
+            "\n\n------------------------------------------------------------------------------\n\n" + \
+            "These are transformation done on this product:\n" + table_transformation + \
+            "\n\n------------------------------------------------------------------------------\n\n"
+        s += f"Product is finished\n" if self.is_ended else "Product is still in the works\n"
+        return s
 
 
 class Transformation:
@@ -125,7 +112,6 @@ class Transformation:
         retrieved from blockchain
         Args:
             event: (AttributeDict) dictionary containing event logs returned from blockchain
-            used: (bool) boolean parameter indicating whether raw material is used or not
 
         Returns:
             RawMaterial Object

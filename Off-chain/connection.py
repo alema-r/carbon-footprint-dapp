@@ -11,11 +11,12 @@ connection, refer to the same instance.
 '''
 
 import inquirer
+from inquirer.themes import load_theme_from_dict
+from theme_dict import theme
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
 BASE_URL = "http://127.0.0.1:2200"
-
 print("Welcome!")
 questions = [
     inquirer.List('role',
@@ -23,7 +24,8 @@ questions = [
                   choices=[("Client", 0), ("Supplier", 1), ("Transformer", 2)],
                   )
 ]
-answers = inquirer.prompt(questions)
+
+answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
 # getting user role to instantiate connection to the correct node
 role = answers['role']
 # creating the node address url with the given role

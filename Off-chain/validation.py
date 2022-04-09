@@ -1,7 +1,6 @@
 import inquirer
 from typing import Tuple
-
-import contracts
+import re
 from web3 import Web3
 import BlockChain
 
@@ -16,7 +15,7 @@ def supplier_address_validation(answers, current) -> Tuple[bool, any]:
     Returns:
         Bool: Returns True if addres is valide else returns false
     """
-    try: 
+    try:
         role = BlockChain.get_user_role(current)
     except:
         raise inquirer.errors.ValidationError('', reason="Invalid supplier address. Please try again")
@@ -25,6 +24,7 @@ def supplier_address_validation(answers, current) -> Tuple[bool, any]:
         return True
     else:
         raise inquirer.errors.ValidationError('', reason="Invalid supplier address. Please try again")
+
 
 def transformer_address_validation(answers, current) -> Tuple[bool, any]:
     """Function that validates an address
@@ -36,7 +36,7 @@ def transformer_address_validation(answers, current) -> Tuple[bool, any]:
     Returns:
         Bool: Returns True if address is valid else returns False
     """
-    try: 
+    try:
         role = BlockChain.get_user_role(current)
     except:
         raise inquirer.errors.ValidationError('', reason="Invalid transformer address. Please try again")
@@ -45,8 +45,6 @@ def transformer_address_validation(answers, current) -> Tuple[bool, any]:
         return True
     else:
         raise inquirer.errors.ValidationError('', reason="Invalid transformer address. Please try again")
-    
-    
 
 
 def carbon_fp_input_validation(answers, current):
@@ -64,11 +62,11 @@ def carbon_fp_input_validation(answers, current):
         Boolean: True if input is valid
     """
     try:
-        int_cf=int(current)
+        int_cf = int(current)
     except:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Carbon footprint must be a positive integer')
+        raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
     if int_cf <= 0:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: Carbon footprint must be a positive integer')
+        raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
     return True
 
 
@@ -93,6 +91,29 @@ def lot_input_validation(answers, current):
     if int_lot < 0:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
     return True
+
+
+def id_input_validation(answers, current):
+    """Functions that validates product's id
+    Args:
+        answers (Dictionary): Dictionary of given answers
+        current (Dictionary): Current given answer
+    Raises:
+        inquirer.errors.ValidationError: Raised if the id's value isn't an integer
+        inquirer.errors.ValidationError: Raised if id's value isn't greater than 0
+    Returns:
+        Boolean: True if the input is valid
+    """
+    if current != '':
+        try:
+            int_id = int(current)
+        except Exception:
+            raise inquirer.errors.ValidationError('', reason='Invalid input: ID must be an integer greater than 0')
+        if int_id < 0:
+            raise inquirer.errors.ValidationError('', reason='Invalid input: ID must be an integer greater than 0')
+        return True
+    return True
+
 
 def name_input_validation(answers, current):
     """Functions that validates raw material's name inserted by user

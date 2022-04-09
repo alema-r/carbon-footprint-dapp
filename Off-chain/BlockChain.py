@@ -49,7 +49,7 @@ def set_account_as_default(user_role: int, address: Address) -> Address:
         raise Exception("Error: it's impossible to verify your role and address, please try again")
 
 
-def get_user_role(address: Address=None) -> int:
+def get_user_role(address: Address = None) -> int:
     """
     Function used to validate user address and check if it corresponds to the given role. After
     validation function set the current user address as default web3 account in order to accomplish transactions
@@ -147,7 +147,7 @@ def get_product(product_id: int) -> Product:
     Returns: 
         `Product`: a product from the blockchain
     """
-    return Product.fromBlockChain(
+    return Product.from_blockchain(
         contracts.user_contract.functions.getProductById(product_id).call()
     )
 
@@ -163,7 +163,7 @@ def get_product_details(product: int) -> Product:
         product (`int`): the product id
 
     Returns
-        `Product`: a product from the blockchain, with all of the info
+        `Product`: a product from the blockchain, with all the info
     """
     # The information regarding the raw materials used and the transformations implemented
     # are taken from the events emitted on the blockchain
@@ -209,7 +209,7 @@ def get_raw_material_not_used() -> List[RawMaterial]:
     Returns:
         `list[RawMaterial]`: a list of all of the non-used raw materials
     """
-    rms = list(filter(lambda e: e.isUsed == False, get_all_raw_materials()))
+    rms = list(filter(lambda e: not e.is_used, get_all_raw_materials()))
     return rms
 
 
@@ -220,7 +220,7 @@ def get_all_raw_materials() -> List[RawMaterial]:
         `list[RawMaterial]`: a list of all of the raw materials    
     """
     return [
-        RawMaterial.fromBlockChain(rm)
+        RawMaterial.from_blockchain(rm)
         for rm in contracts.user_contract.functions.getRawMaterials().call()
     ]
 
@@ -240,7 +240,7 @@ def get_all_products() -> List[Product]:
         `list[Product]`: a list of all the products on the blockchain
     """
     return [
-        Product.fromBlockChain(product)
+        Product.from_blockchain(product)
         for product in contracts.user_contract.functions.getProducts().call()
     ]
 
