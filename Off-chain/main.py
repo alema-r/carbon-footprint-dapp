@@ -14,9 +14,9 @@ def bye():
 role_dict = {
     "Client": {
         "num": "0",
-        "actions": {"Search one or more products": Filter.filterProducts,
-                    "Exit": bye
-                    },
+        "actions": [("Search one or more products", Filter.filterProducts),
+                    ("Exit", bye)
+        ],
     },
     "Supplier": {
         "num": "1",
@@ -64,7 +64,10 @@ def main():
             # if the user chooses to exit the program ends
             if choice == "Exit":
                 bye()
+
+
     action = "start"
+    # If the chosen role is Transformer
     if connection.role == int(role_dict['Transformer']['num']):
         while action != "Exit":
             action = inquirer.list_input(
@@ -75,26 +78,26 @@ def main():
                 action(address)
             else:
                 action()
+        
+    # If the chosen role is Supplier
     elif connection.role == int(role_dict["Supplier"]['num']):
         # Inizia il meccanismo di interazione con l'utente.
         # Nel main si metterà solo la gestione dell'interazione con l'utente e l'interfaccia
-        # TODO: finire la l'interazione con l'utente
         while action != "Exit":
             action = inquirer.list_input(
                 message="What action do you want to perform?",
                 choices=role_dict["Supplier"]["actions"]
             )
-            if action == list(role_dict["Supplier"]["actions"].keys())[1]:
-                role_dict["Supplier"]["actions"][action](address)
-            else:
-                role_dict["Supplier"]["actions"][action]()
+            action()
+
+    # If the chosen role is Client
     else:
         while action != "Exit":
             action = inquirer.list_input(
                 message="What action do you want to perform?",
                 choices=role_dict["Client"]["actions"],
             )
-            role_dict["Client"]["actions"][action]()
+            action()
 
 
 if __name__ == "__main__":

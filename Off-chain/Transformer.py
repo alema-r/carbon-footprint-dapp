@@ -2,11 +2,11 @@ import inquirer
 import re
 
 from web3 import Web3
-
 from Models import Product
 from BlockChain import add_transformation_on_blockchain, transfer_product_on_blockchain, create_new_product_on_blockchain, get_raw_material_not_used, get_all_products
-from Utils import carbon_fp_input_validation, address_validation
+import validation
 from Models import RawMaterial
+
 
 
 def get_updatable_user_products(user_address):
@@ -22,27 +22,6 @@ def get_updatable_user_products(user_address):
     '''
     all_products = get_all_products()
     return list(filter(lambda p: (p.address == user_address and not p.is_ended), all_products))
-
-
-def new_product_name_input_validation(answers, current):
-    '''This function validates a name of a product.
-
-    Args:
-        answers
-        current
-
-    Returns:
-        `True`: if the name is valid
-
-    Raises:
-        `ValidationError`: if the name is invalid
-    '''
-    pattern = "^[a-zA-Z0-9 ]*$"
-    if bool(re.match(pattern, current.strip(' '))) and len(current) > 0:
-        return True
-    else:
-        raise inquirer.errors.ValidationError('', reason=f'Invalid input: Product\'s name is invalid. Please insert \
-        names with only letters and numbers or type almost one character')
 
 
 def add_transformation(user_address):
@@ -61,7 +40,7 @@ def add_transformation(user_address):
     #asks the user for the carbon footprint of the transformation
     carb_footprint = inquirer.text(
         message="Insert the carbon footprint value of this transformation: ",
-        validate=carbon_fp_input_validation
+        validate=validation.carbon_fp_input_validation
     )
 
     #asks the user if this is the final transformation of the selected product
@@ -107,7 +86,7 @@ def transfer_product(user_address):
         transfer_to = inquirer.text(
             message="Insert the address of the transformer to who you want to transfer the product: ",
         )
-        address_ok, checked_address = address_validation(transfer_to, 2)
+        address_ok, checked_address = validation.address_validation(transfer_to, 2)
         if not address_ok:
             print("The specified address is not valid, please retry.")
     
@@ -132,7 +111,7 @@ def create_new_product():
     #asks the name of the product
     product_name = inquirer.text(
         message="Type the name of the product you want to create: ",
-        validate=new_product_name_input_validation
+        validate=validation.name_input_validation
     )
 
     #The user selects the raw materials to use.

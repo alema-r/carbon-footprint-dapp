@@ -56,7 +56,7 @@ class RawMaterial:
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, RawMaterial):
-            return (self.materialId == __o.materialId) & (self.name == __o.name) & (self.lot == __o.lot) & (self.address == __o.address)
+            return (self.materialId == __o.materialId) and (self.name == __o.name) and (self.lot == __o.lot) and (self.address == __o.address)
         else:
             return False
 

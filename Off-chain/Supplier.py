@@ -1,31 +1,9 @@
 import inquirer
 from BlockChain import create_raw_materials_on_blockchain
-from Utils import carbon_fp_input_validation
+import validation
 from Models import RawMaterial
+from connection import web3
 import re
-
-
-def lot_input_validation(answers, current):
-    """Functions that validates lot
-
-    Args:
-        answers (Dictionary): Dictionary of given answers
-        current (Dictionary): Current given answer
-
-    Raises:
-        inquirer.errors.ValidationError: Raised if the lot's value isn't an integer
-        inquirer.errors.ValidationError: Raised if lot's value isn't positive
-
-    Returns:
-        Boolean: True if the input is valid
-    """
-    try:
-        int_lot = int(current)
-    except:
-        raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
-    if int_lot < 0:
-        raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
-    return True
 
 
 def input_validation(raw_material, raw_materials):
@@ -45,29 +23,8 @@ def input_validation(raw_material, raw_materials):
     return True, ''
 
 
-def raw_material_name_input_validation(answers, current):
-    """Functions that validates raw material's name inserted by user
 
-    Args:
-        answers (Dictionary): Dictionary of inserted answers
-        current (Dictionary): Current given answer
-
-    Raises:
-        inquirer.errors.ValidationError: Raised if raw material's name contains special characters
-        inquirer.errors.ValidationError: Raised if raw material's name is an empty string
-
-    Returns:
-        Boolean: True if the input is valid
-    """
-    pattern = "^[a-zA-Z0-9 ]*$"
-    if bool(re.match(pattern, current.strip(' '))) and len(current) > 0:
-        return True
-    else:
-        raise inquirer.errors.ValidationError('', reason=f'Invalid input: Raw material\'s name is invalid. Please \
-        insert names with only letters and numbers or type almost one character')
-
-
-def insert_raw_material(user_address):
+def insert_raw_material():
     """This function manages the interaction with a supplier in order to insert a new raw material on blockchain
 
     Args:
@@ -89,21 +46,21 @@ def insert_raw_material(user_address):
             questions = [
                 inquirer.Text('raw material',
                               message="Insert new raw material name",
-                              validate=raw_material_name_input_validation
+                              validate=validation.name_input_validation
                               ),
                 inquirer.Text('lot',
                               message="Insert raw material's lot",
-                              validate=lot_input_validation
+                              validate=validation.lot_input_validation
                               ),
                 inquirer.Text('carbon footprint',
                               message="Insert raw material carbon footprint",
-                              validate=carbon_fp_input_validation
+                              validate=validation.carbon_fp_input_validation
                               )
             ]
             # This line show all the questions coded above and the put the user's answers inside "answers" variable
             answers = inquirer.prompt(questions)
             # New raw material instance generated using user's inputs values
-            raw_material_to_check = RawMaterial(answers["raw material"], int(answers['lot']), user_address,
+            raw_material_to_check = RawMaterial(answers["raw material"], int(answers['lot']), web3.default_account,
                                                 int(answers['carbon footprint']))
             # The new raw material is validated. 
             valid, error_message = input_validation(raw_material_to_check, raw_materials)
