@@ -108,14 +108,12 @@ def id_input_validation(answers, current):
         Boolean: True if the input is valid
     """
     current_to_test = current.strip(' ')
-    if current_to_test != '':
-        try:
-            int_id = int(current_to_test)
-        except Exception:
-            raise inquirer.errors.ValidationError('', reason='Invalid input: ID must be an integer greater than 0')
-        if int_id < 0:
-            raise inquirer.errors.ValidationError('', reason='Invalid input: ID must be an integer greater than 0')
-        return True
+    try:
+        int_id = int(current_to_test)
+    except Exception:
+        raise inquirer.errors.ValidationError('', reason='Invalid input: ID must be an integer greater than 0')
+    if int_id < 0:
+        raise inquirer.errors.ValidationError('', reason='Invalid input: ID must be an integer greater than 0')
     return True
 
 
