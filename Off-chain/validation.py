@@ -16,7 +16,7 @@ def supplier_address_validation(answers, current):
         Bool: Returns True if address is valid else returns false
     """
     try:
-        address = Web3.toChecksumAddress(current)
+        address = Web3.toChecksumAddress(current.strip(' '))
         role = BlockChain.get_user_role(address)
     except Exception:
         raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
@@ -26,7 +26,7 @@ def supplier_address_validation(answers, current):
         raise inquirer.errors.ValidationError('', reason="Given address is not a supplier address. Please try again")
 
 
-def transformer_address_validation(answers, current) -> Tuple[bool, any]:
+def transformer_address_validation(answers, current):
     """Function that validates an address
 
     Args:
@@ -37,12 +37,12 @@ def transformer_address_validation(answers, current) -> Tuple[bool, any]:
         Bool: Returns True if address is valid else returns False
     """
     try:
-        address = Web3.toChecksumAddress(current)
+        address = Web3.toChecksumAddress(current.strip(' '))
         role = BlockChain.get_user_role(address)
     except:
         raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
 
-    if Web3.isAddress(current) and 1 == role:
+    if role == 2:
         return True
     else:
         raise inquirer.errors.ValidationError('', reason="Given address is not a transformer address. Please try again")
@@ -62,8 +62,9 @@ def carbon_fp_input_validation(answers, current):
     Returns:
         Boolean: True if input is valid
     """
+    current_to_test = current.strip(' ')
     try:
-        int_cf = int(current)
+        int_cf = int(current_to_test)
     except:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
     if int_cf <= 0:
@@ -85,8 +86,9 @@ def lot_input_validation(answers, current):
     Returns:
         Boolean: True if the input is valid
     """
+    current_to_test = current.strip(' ')
     try:
-        int_lot = int(current)
+        int_lot = int(current_to_test)
     except:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
     if int_lot < 0:
@@ -105,9 +107,10 @@ def id_input_validation(answers, current):
     Returns:
         Boolean: True if the input is valid
     """
-    if current != '':
+    current_to_test = current.strip(' ')
+    if current_to_test != '':
         try:
-            int_id = int(current)
+            int_id = int(current_to_test)
         except Exception:
             raise inquirer.errors.ValidationError('', reason='Invalid input: ID must be an integer greater than 0')
         if int_id < 0:

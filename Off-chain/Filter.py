@@ -1,15 +1,19 @@
 import operator
 from tabulate import tabulate
-import inquirer     #TEST
-import BlockChain   #TEST
-import event_logs   #TEST
-import Transformer  #TEST
-from web3 import Web3 #TEST
-from Utils import carbon_fp_input_validation #TEST
-from Supplier import raw_material_name_input_validation #TEST
+import inquirer
+from inquirer.themes import load_theme_from_dict
+from theme_dict import theme
+import BlockChain
+import event_logs
+from web3 import Web3
+import validation
 
 
-def simpleFilter(result: list, criteria: dict) -> list:
+def personalized_contains(a: str, b: str):
+    return a.lower().__contains__(b.lower())
+
+
+def simple_filter(result: list, criteria: dict) -> list:
     """This function applies a filter on the products list.
 
         Args:
@@ -25,7 +29,7 @@ def simpleFilter(result: list, criteria: dict) -> list:
     elements = criteria["elements"]()
     if criteria["event"]:
         for e in elements:
-            if criteria["operator"](e["args"][criteria["field"]], criteria["value"]):
+            if criteria["operator"](e["args"][criteria["field"]], criteria["value"]) and e['args']['pId'] not in result:
                 result.append(e["args"]["pId"])
     else:
         for e in elements:
@@ -34,7 +38,7 @@ def simpleFilter(result: list, criteria: dict) -> list:
     return result
 
 
-def orFilter(result, criteria):
+def or_filter(result, criteria):
     """This function implements the OR logic for multiple filter.
 
     Args:
@@ -48,11 +52,11 @@ def orFilter(result, criteria):
         'list[int]': list containing all the identifiers that either are in results or which product satisfies
             the filter
     """
-    simpleFilter(result, criteria)
+    simple_filter(result, criteria)
     return list(set(result))
 
 
-def andFilter(result, criteria):
+def and_filter(result, criteria):
     """This function implements the AND logic for multiple filter.
 
     Args:
@@ -66,52 +70,12 @@ def andFilter(result, criteria):
         'list[int]': list containing all the identifiers that are in results and which product satisfies
             the filter
     """
-    temp = simpleFilter([], criteria)
+    temp = simple_filter([], criteria)
     temp2 = result.copy()
     for e in temp2:
         if e not in temp:
             result.remove(e)
     return result
-
-''''''
-
-def id_input_validation(answers, current):
-    """Functions that validates product's id
-
-    Args:
-        answers (Dictionary): Dictionary of given answers
-        current (Dictionary): Current given answer
-
-    Raises:
-        inquirer.errors.ValidationError: Raised if the id's value isn't an integer
-        inquirer.errors.ValidationError: Raised if id's value isn't greater than 0
-
-    Returns:
-        Boolean: True if the input is valid
-    """
-    try:
-        int_id=int(current)
-    except:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: ID must be an integer greater than 0')
-    if int_id < 1:
-        raise inquirer.errors.ValidationError('', reason = 'Invalid input: ID must be an integer greater than 0')
-    return True
-
-
-def address_validation(answers, current):
-    """Functions that validates an address
-
-    Args:
-        answers (Dictionary): Dictionary of given answers
-        current (Dictionary): Current given answer
-
-    Raises:
-        inquirer.errors.ValidationError: Raised if the address value is not a valid EIP55 checksummed address
-
-    Returns:
-        Boolean: True if the input is valid
-    """
-    return Web3.isAddress(current) # per il controllo ruolo mappare la getRole con una funzione su blockchain
 
 
 def print_products(ids):
@@ -121,20 +85,12 @@ def print_products(ids):
         ids (List): list of identifiers of the products to print
     """
     products_printable = []
-    for id in ids:
-        p = BlockChain.get_product(id)
+    for pid in ids:
+        p = BlockChain.get_product(pid)
         products_printable.append([p.product_id, p.name, p.address, p.cf, p.is_ended])
-
-    #products = BlockChain.get_all_products()
-    #products_printable = [[p.productId, p.name, p.address, p.CF, p.isEnded] for p in products]
-
     table = tabulate(products_printable, headers=["Id", "Name", "Owner", "CF", "isEnded"], tablefmt="tsv")
     print(table)
 
-'''
-def print_all_products():
-    products = BlockChain.get_all_products()
-'''
 
 def detailed_print(id):
     """This function prints all the details regarding one product.
@@ -143,7 +99,7 @@ def detailed_print(id):
         id: Id of the product
     """
     product = BlockChain.get_product_details(id)
-    product.__str__()
+    print(product.__str__())
 
 
 def select_operator():
@@ -153,24 +109,26 @@ def select_operator():
         'operator': the operator selected by the user
     """
     choices = ["Equal", "Greater", "Greater equal", "Lower", "Lower equal"]
-    action = inquirer.list_input(
+    questions = [inquirer.List(
+        'op',
         message="Select an operator",
         choices=choices
-    )
-    if action == choices[0]:
+    )]
+    action = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+    if action['op'] == choices[0]:
         op = operator.eq
-    elif action == choices[1]:
+    elif action['op'] == choices[1]:
         op = operator.gt
-    elif action == choices[2]:
+    elif action['op'] == choices[2]:
         op = operator.ge
-    elif action == choices[3]:
+    elif action['op'] == choices[3]:
         op = operator.lt
-    elif action == choices[4]:
+    elif action['op'] == choices[4]:
         op = operator.le
     return op
 
 
-def filterProducts(results=[], filters=simpleFilter):
+def filter_products(results=[], filters=simple_filter):
     """This functions manages the filtering process
 
     Args:
@@ -178,93 +136,104 @@ def filterProducts(results=[], filters=simpleFilter):
         filters (Callable): filter function to call
     """
     criteria = {}
-    choices = ["Id", "Name", "Owner", "CF", "Ended", "Supplier", "Transformer",
+    choices = ["Name", "Owner", "CF", "Ended", "Supplier", "Transformer",
                "Raw Material"]
-    action = inquirer.list_input(
+    question = [inquirer.List(
+        "field",
         message="Select a field",
         choices=choices
-    )
-    if action == choices[0]:  # ID
+    )]
+    action = inquirer.prompt(question, theme=load_theme_from_dict(theme))
+    if action['field'] == choices[0]:  # NAME
+        questions = [inquirer.Text(
+            "name",
+            message="Name",
+            validate=validation.name_input_validation
+        )]
+        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+        criteria = {"elements": BlockChain.get_all_products, "value": value['name'].lower(), "field": "name",
+                    "operator": personalized_contains, "event": False}
+    elif action['field'] == choices[1]:  # OWNER
+        questions = [inquirer.Text(
+            "Owner",
+            message="Owner's address",
+            validate=validation.transformer_address_validation
+        )]
+        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+        criteria = {"elements": BlockChain.get_all_products, "value": Web3.toChecksumAddress(value['Owner']),
+                    "field": "address", "operator": operator.eq, "event": False}
+    elif action['field'] == choices[2]:  # CF
         op = select_operator()
-        value = int(inquirer.text(
-            message="ID: ",
-            validate=id_input_validation
-        ))
-        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "product_id", "operator": op,
+        questions = [inquirer.Text(
+            'CF',
+            message="CF value",
+            validate=validation.carbon_fp_input_validation
+        )]
+        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+        criteria = {"elements": BlockChain.get_all_products, "value": int(value['CF']), "field": "cf", "operator": op,
                     "event": False}
-    elif action == choices[1]:  # NAME
-        value = inquirer.text(
-            message="Name: ",
-            validate=Transformer.new_product_name_input_validation
-        )
-        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "name", "operator": operator.eq,  #OPERATOR CONTAINS?
-                    "event": False}
-    elif action == choices[2]:  # OWNER
-        value = inquirer.text(
-            message="Owner's address: ",
-            validate=address_validation  # Controllo ruolo?
-        )
-        criteria = {"elements": BlockChain.get_all_products, "value": Web3.toChecksumAddress(value), "field": "address",
-                    "operator": operator.eq, "event": False}
-    elif action == choices[3]:  # CF
-        op = select_operator()
-        value = int(inquirer.text(
-            message="CF value: ",
-            validate=carbon_fp_input_validation
-        ))
-        criteria = {"elements": BlockChain.get_all_products, "value": value, "field": "cf", "operator": op,
-                    "event": False}
-    elif action == choices[4]:  # ISENDED
+    elif action['field'] == choices[3]:  # ISENDED
         choices = [("Yes", True), ("No", False)]
-        action = inquirer.list_input(
+        questions = [inquirer.List(
+            'isEnded',
             message="Is it ended?",
             choices=choices
-        )
-        criteria = {"elements": BlockChain.get_all_products, "value": action, "field": "isEnded",
+        )]
+        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+        criteria = {"elements": BlockChain.get_all_products, "value": value['isEnded'], "field": "is_ended",
                     "operator": operator.eq, "event": False}
-    elif action == choices[5]:  # SUPPLIERS
-        value = inquirer.text(
-            message="Supplier's address: ",
-            validate=address_validation  # controllo ruolo supplier?
-        )
-        criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value, "field": "supplier",
+    elif action['field'] == choices[4]:  # SUPPLIERS
+        questions = [inquirer.Text(
+            'Supplier',
+            message="Supplier's address",
+            validate=validation.supplier_address_validation
+        )]
+        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+        criteria = {"elements": event_logs.get_raw_materials_used_events,
+                    "value": Web3.toChecksumAddress(value['Supplier']), "field": "supplier",
                     "operator": operator.eq, "event": True}
-    elif action == choices[6]:  # TRANSFORMERS
-        value = inquirer.text(
-            message="Transformer's address: ",
-            validate=address_validation  # controllo ruolo transformer?
-        )
-        criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value, "field": "transformer",
+    elif action['field'] == choices[5]:  # TRANSFORMERS
+        questions = [inquirer.Text(
+            'Transformer',
+            message="Transformer's address",
+            validate=validation.transformer_address_validation
+        )]
+        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+        criteria = {"elements": event_logs.get_raw_materials_used_events,
+                    "value": Web3.toChecksumAddress(value['Transformer']), "field": "transformer",
                     "operator": operator.eq, "event": True}
-    elif action == choices[7]:  # RAWMATERIALNAME
-        value = inquirer.text(
-            message="Raw Material name: ",
-            validate=raw_material_name_input_validation
-        )
-        criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value, "field": "name",              #OPERATOR CONTAINS?
-                    "operator": operator.eq, "event": True}
-
-    results = filters(results, criteria)
+    elif action['field'] == choices[6]:  # RAWMATERIALNAME
+        questions = [inquirer.Text(
+            'RawMaterial',
+            message="Raw Material name",
+            validate=validation.name_input_validation
+        )]
+        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+        criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value['RawMaterial'],
+                    "field": "name", "operator": personalized_contains, "event": True}
+    results = filters(results.copy(), criteria)
     if len(results) > 0:
-        print_products(results)
-    choices = ["View one product details", "Add another filter", "Exit"]
-    action = inquirer.list_input(
-        message="",
-        choices=choices
-    )
-    if action == choices[0]:
-        value = int(inquirer.text(
-            message="ID: ",
-            validate=id_input_validation
-        ))
-        detailed_print(value)  # FUNZIONE DI PRINT DETTAGLIATA
-    elif action == choices[1]:
-        choices = ["AND", "OR"]
-        action = inquirer.list_input(
-            message="Filter Logic: ",
+        choices = ["Print search results", "Add another filter(AND logic)", "Add another filter(OR logic)",
+                   "Exit"]
+        question = [inquirer.List(
+            'action',
+            message="Which action do you want to perform?",
             choices=choices
-        )
-        if action == choices[0]:
-            filterProducts(results, andFilter)
-        else:
-            filterProducts(results, orFilter)
+        )]
+        action = inquirer.prompt(question, theme=load_theme_from_dict(theme))
+        if action['action'] == choices[0]:
+            print_products(results)
+            question = [inquirer.Text(
+                'PID',
+                message="Insert a product ID to see product details or press enter to Exit",
+                validate=validation.id_input_validation
+            )]
+            value = inquirer.prompt(question, theme=load_theme_from_dict(theme))
+            if value['PID'] != '':
+                detailed_print(int(value['PID']))
+        elif action['action'] == choices[1]:
+            filter_products(results, and_filter)
+        elif action['action'] == choices[2]:
+            filter_products(results, or_filter)
+    else:
+        print("\nNo products match the specified filter\n")
