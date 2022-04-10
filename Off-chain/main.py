@@ -60,12 +60,13 @@ def main():
             print(e)
             # The program asks the user to try again or to exit
             questions = [inquirer.List(
+                'retry',
                 message="Select \"Try again\" to retry or \"Exit\" to close the application",
                 choices=["Try again", "Exit"]
             )]
             choice = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             # if the user chooses to exit the program ends
-            if choice == "Exit":
+            if choice['retry'] == "Exit":
                 bye()
 
     action = "start"

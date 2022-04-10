@@ -5,7 +5,7 @@ from web3 import Web3
 import BlockChain
 
 
-def supplier_address_validation(answers, current) -> Tuple[bool, any]:
+def supplier_address_validation(answers, current):
     """Function that validates an address
 
     Args:
@@ -13,17 +13,17 @@ def supplier_address_validation(answers, current) -> Tuple[bool, any]:
         current (Dictionary): Current given answers.
 
     Returns:
-        Bool: Returns True if addres is valide else returns false
+        Bool: Returns True if address is valid else returns false
     """
     try:
-        role = BlockChain.get_user_role(current)
-    except:
-        raise inquirer.errors.ValidationError('', reason="Invalid supplier address. Please try again")
-
-    if Web3.isAddress(current) and 1 == role:
+        address = Web3.toChecksumAddress(current)
+        role = BlockChain.get_user_role(address)
+    except Exception:
+        raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
+    if role == 1:
         return True
     else:
-        raise inquirer.errors.ValidationError('', reason="Invalid supplier address. Please try again")
+        raise inquirer.errors.ValidationError('', reason="Given address is not a supplier address. Please try again")
 
 
 def transformer_address_validation(answers, current) -> Tuple[bool, any]:
