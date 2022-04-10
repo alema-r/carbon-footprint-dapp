@@ -37,14 +37,15 @@ def transformer_address_validation(answers, current) -> Tuple[bool, any]:
         Bool: Returns True if address is valid else returns False
     """
     try:
-        role = BlockChain.get_user_role(current)
+        address = Web3.toChecksumAddress(current)
+        role = BlockChain.get_user_role(address)
     except:
-        raise inquirer.errors.ValidationError('', reason="Invalid transformer address. Please try again")
+        raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
 
     if Web3.isAddress(current) and 1 == role:
         return True
     else:
-        raise inquirer.errors.ValidationError('', reason="Invalid transformer address. Please try again")
+        raise inquirer.errors.ValidationError('', reason="Given address is not a transformer address. Please try again")
 
 
 def carbon_fp_input_validation(answers, current):
