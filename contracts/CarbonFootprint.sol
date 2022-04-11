@@ -93,6 +93,9 @@ contract CarbonFootprint is ERC721{
      * @param _cf Array with the rawmaterials' carboon footprint
      */
     function addRawMaterials(string[] calldata _rawMaterialName, uint256[] calldata _lot, uint256[] calldata _cf) public onlyOwner{
+        require(_rawMaterialName.length > 0, "No raw material names were provided. Insertion Failed");
+        require(_lot.length > 0, "No raw material lots provided. Insertion Failed");
+        require(_cf.length > 0, "No raw material carbon footprint provided. Insertion Failed");
         require(_rawMaterialName.length == _lot.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
         require(_rawMaterialName.length == _cf.length, "Il numero delle materie prime non corrisponde al numero delle carbon footprint");
         for(uint256 i = 0; i < _rawMaterialName.length; i++){
