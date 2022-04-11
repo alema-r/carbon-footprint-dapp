@@ -1,11 +1,13 @@
 import inquirer
 from inquirer.themes import load_theme_from_dict
+from yaml import load
 from theme_dict import theme
 from BlockChain import create_raw_materials_on_blockchain
 import validation
 from Models import RawMaterial
 from connection import web3
 import re
+from tabulate import tabulate
 
 
 def input_validation(raw_material, raw_materials):
@@ -27,11 +29,8 @@ def input_validation(raw_material, raw_materials):
 
 
 def insert_raw_material():
-    """This function manages the interaction with a supplier in order to insert a new raw material on blockchain
+    """This function manages the interaction with a supplier in order to insert new raw materials on blockchain
 
-    Args:
-        contract (Contract): User Contract address used to call his functions 
-        user_address (Address): Addres of the user (supplier) currently using the application 
     """
     raw_materials = []
     action = "start"
@@ -90,10 +89,43 @@ def insert_raw_material():
                 return
             # When the user select Done, the interactions ends and the new added raw materials are insertend inside the blockchain
             else:
-                try:
-                    if len(raw_materials) > 0:
-                        create_raw_materials_on_blockchain(raw_materials)
-                # If the inserting operation fails, an error is printed.
-                except Exception as e:
-                    print(e)
-                    print("Please insert raw materials again")
+                # If the user wants to insert raw materials on blockchain
+                if len(raw_materials) > 0:
+                    # Tabulate is used to print raw materials in a fancy way
+                    raw_materials_printable = []
+                    for raw in raw_materials:
+                        if len(raw.name) > 15:
+                            name = raw.name[:15].rstrip() + "..."
+                        else:
+                            name = raw.name
+                        
+                        raw_materials_printable.append([name, raw.lot, raw.cf, raw.address])
+                    table_raw_materials = tabulate(raw_materials_printable, headers=['Name', 'Lot', 'Carbon Footprint', 'Supplier'],
+                                       tablefmt='tsv')
+                    s = "Current inserted raw materials are:\n \n" + table_raw_materials +"\n"
+                    print(s) 
+
+                    # Asking the user for a confirm
+                    question = [
+                        inquirer.Confirm("confirm", message = "Do you want to insert listed raw materials? Press Y to confirm")
+                    ]
+
+                    answer = inquirer.prompt(question, theme = load_theme_from_dict(theme))
+
+                    if answer is not None and answer['confirm']:
+                        # if user confirm raw materials are added on blockchain
+                        inserted = create_raw_materials_on_blockchain(raw_materials)
+
+                        if inserted:
+                            # If raw materials are correctly added
+                            print("Raw materials correctly inserted on Blockchain")
+
+                        # If insertion fails or if it is succesfull list of raw materials are emptied anyway
+                        raw_materials = []
+
+                    elif answer is None:
+                        raw_materials = []
+                        # If the user doesn't confirm the insertion the while loop starts again
+                        action = "start"
+                    else:
+                        action = "start"

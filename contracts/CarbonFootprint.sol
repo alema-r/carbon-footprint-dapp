@@ -96,12 +96,12 @@ contract CarbonFootprint is ERC721{
         require(_rawMaterialName.length > 0, "No raw material names were provided. Insertion Failed");
         require(_lot.length > 0, "No raw material lots provided. Insertion Failed");
         require(_cf.length > 0, "No raw material carbon footprint provided. Insertion Failed");
-        require(_rawMaterialName.length == _lot.length, "Il numero delle materie prime non corrisponde al numero dei lotti");
-        require(_rawMaterialName.length == _cf.length, "Il numero delle materie prime non corrisponde al numero delle carbon footprint");
+        require(_rawMaterialName.length == _lot.length, "Raw material's number doesn't match lot's number");
+        require(_rawMaterialName.length == _cf.length, "Raw material's number doesn't match carbon footprint's number");
         for(uint256 i = 0; i < _rawMaterialName.length; i++){
             bytes32 RmHash = keccak256(bytes.concat(bytes(_rawMaterialName[i]), "-", bytes(Strings.toString(_lot[i])), "-", bytes20(tx.origin)));
             for(uint256 j = 0; j < allRawMaterials.length; j++){
-                require(RmHash != keccak256(bytes.concat(bytes(allRawMaterials[j].name), "-", bytes(Strings.toString(allRawMaterials[j].lot)), "-", bytes20(allRawMaterials[j].supplier))), "Hai gia' inserito questo lotto di questa materia prima");
+                require(RmHash != keccak256(bytes.concat(bytes(allRawMaterials[j].name), "-", bytes(Strings.toString(allRawMaterials[j].lot)), "-", bytes20(allRawMaterials[j].supplier))), "This lot of this raw material has been already inserted");
             }
             allRawMaterials.push(ProductLibrary.RawMaterial(materialId, _rawMaterialName[i], _lot[i], tx.origin, _cf[i], false));
             emit newRawMaterialLotAdded(tx.origin, materialId, _rawMaterialName[i], _lot[i], _cf[i]);

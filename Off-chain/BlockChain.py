@@ -64,7 +64,7 @@ def get_user_role(address: Address = None) -> int:
         return contracts.user_contract.functions.getRole(address).call()
 
 
-def create_raw_materials_on_blockchain(raw_materials):
+def create_raw_materials_on_blockchain(raw_materials) -> bool:
     """Functions that inserts a new raw materials on the blockchain
 
     Args:
@@ -77,15 +77,21 @@ def create_raw_materials_on_blockchain(raw_materials):
         contracts.user_contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list,
                                                              raw_materials_cf_list).transact()
 
+        return True
+
     except exceptions.SolidityError as e:
         # These are custom exceptions
-        if (e.__str__ == "Il numero delle materie prime non corrisponde al numero di lotti") or (
-                e.__str__ == "Il numero delle materie prime non corrisponde al numero delle carbon footprint") or (
-                e.__str__ == "Hai già inserito questo lotto di questa materia prima"):
+        if (e.__str__ == "No raw material names were provided. Insertion Failed") or (
+                e.__str__ == "No raw material lots provided. Insertion Failed") or (
+                e.__str__ == "No raw material carbon footprint provided. Insertion Failed") or (
+                e.__str__ == "Raw material's number doesn't match lot's number") or (
+                e.__str__ == "Raw material's number doesn't match carbon footprint's number") or (
+                e.__str__ == "This lot of this raw material has been already inserted"):
             print(e)
         # And these are other generic exceptions
         else:
-            print("Errore nel caricamento delle materie prime, riprova")
+            print("Insertion of raw materials failed. Please insert raw materials again")
+        return False
 
 
 def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
