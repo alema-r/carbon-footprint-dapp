@@ -3,10 +3,10 @@ Module used to retrieve events on the blockchain
 """
 from typing import List
 
-import contracts
 from functools import partial
 from web3.constants import ADDRESS_ZERO
 from web3.datastructures import AttributeDict
+import contracts
 
 
 transformation_events = partial(
@@ -25,15 +25,31 @@ transfer_events = partial(
     contracts.cf_contract.events.Transfer().createFilter, fromBlock=0x0
 )
 
+
 def get_finished_products_events() -> List[AttributeDict]:
+    """Retrieves all events about the termination of any product from the blockchain.
+
+    Returns:
+        List[AttributeDict]: a list of events
+    """
     return finished_products_events().get_all_entries()
 
+
 def get_minted_products_events() -> List[AttributeDict]:
-    return transfer_events(
-        argument_filters={"from": ADDRESS_ZERO}
-    ).get_all_entries()
+    """Retrieves all events about the creation of any product from the blockchain.
+
+    Returns:
+        List[AttributeDict]: a list of events
+    """
+    return transfer_events(argument_filters={"from": ADDRESS_ZERO}).get_all_entries()
+
 
 def get_transferred_products_events() -> List[AttributeDict]:
+    """Retrieves all events about the transfer of any products from the blockchain
+
+    Returns:
+        List[AttributeDict]: a list of events
+    """
     return list(
         filter(
             lambda e: e.args["from"] != ADDRESS_ZERO,
@@ -41,7 +57,17 @@ def get_transferred_products_events() -> List[AttributeDict]:
         )
     )
 
-def get_raw_materials_used_events(product_id: int=None) -> List[AttributeDict]:
+
+def get_raw_materials_used_events(product_id: int = None) -> List[AttributeDict]:
+    """Retrieves all events related to the use of any raw material from the blockchain.
+
+    Args:
+        product_id (int, optional): If specified, retrieves all raw materials used for this
+        particular product. Defaults to None.
+
+    Returns:
+        List[AttributeDict]: a list of events
+    """
     if product_id is not None:
         return list(
             filter(
@@ -52,7 +78,16 @@ def get_raw_materials_used_events(product_id: int=None) -> List[AttributeDict]:
     return raw_materials_used_events().get_all_entries()
 
 
-def get_transformations_events(product_id: int=None) -> List[AttributeDict]:
+def get_transformations_events(product_id: int = None) -> List[AttributeDict]:
+    """Retrieves all events related to any transformation from the blockchain.
+
+    Args:
+        product_id (int, optional): If specified, retrieves all transformations performed
+        on this particular product. Defaults to None.
+
+    Returns:
+        List[AttributeDict]: a list of events
+    """
     if product_id is not None:
         return list(
             filter(
