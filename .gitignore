@@ -1,2 +1,9 @@
 Off-chain/__pycache__/*
 Off-chain/address.json
+node_modules/*
+package-lock.json
+package.json
+connection.py
+solc_output/CFContract.json
+solc_output/errors.json
+compile.py
