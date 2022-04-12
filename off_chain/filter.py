@@ -2,11 +2,12 @@ import operator
 from tabulate import tabulate
 import inquirer
 from inquirer.themes import load_theme_from_dict
-from theme_dict import theme
-import BlockChain
-import event_logs
 from web3 import Web3
-import validation
+
+from . import blockchain
+from . import event_logs
+from .theme_dict import theme
+from . import validation
 
 
 def personalized_contains(a: str, b: str):
@@ -86,7 +87,7 @@ def print_products(ids):
     """
     products_printable = []
     for pid in ids:
-        p = BlockChain.get_product(pid)
+        p = blockchain.get_product(pid)
         products_printable.append([p.product_id, p.name, p.address, p.cf, p.is_ended])
     table = tabulate(products_printable, headers=["Id", "Name", "Owner", "CF", "isEnded"], tablefmt="tsv")
     print(table)
@@ -98,7 +99,7 @@ def detailed_print(id):
     Args:
         id: Id of the product
     """
-    product = BlockChain.get_product_details(id)
+    product = blockchain.get_product_details(id)
     print(product.__str__())
 
 
@@ -108,25 +109,21 @@ def select_operator():
     Returns:
         'operator': the operator selected by the user
     """
-    choices = ["Equal", "Greater", "Greater equal", "Lower", "Lower equal"]
+    choices = [
+        ("Equal", operator.eq), 
+        ("Greater", operator.gt), 
+        ("Greater equal", operator.ge), 
+        ("Lower", operator.lt), 
+        ("Lower equal", operator.le)
+    ]
     questions = [inquirer.List(
         'op',
         message="Select an operator",
         choices=choices
     )]
-    action = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-    if action is not None:
-        if action['op'] == choices[0]:
-            op = operator.eq
-        elif action['op'] == choices[1]:
-            op = operator.gt
-        elif action['op'] == choices[2]:
-            op = operator.ge
-        elif action['op'] == choices[3]:
-            op = operator.lt
-        elif action['op'] == choices[4]:
-            op = operator.le
-        return op
+    choice = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+    if choice is not None:
+        return choice['op']
     else:
         return None
 
@@ -160,7 +157,7 @@ def filter_products(results=None, filters=simple_filter):
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": BlockChain.get_all_products, "value": value['name'].lower(), "field": "name",
+                criteria = {"elements": blockchain.get_all_products, "value": value['name'].lower(), "field": "name",
                             "operator": personalized_contains, "event": False}
         elif action['field'] == choices[1]:  # OWNER
             questions = [inquirer.Text(
@@ -170,7 +167,7 @@ def filter_products(results=None, filters=simple_filter):
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": BlockChain.get_all_products, "value": Web3.toChecksumAddress(value['Owner']),
+                criteria = {"elements": blockchain.get_all_products, "value": Web3.toChecksumAddress(value['Owner']),
                             "field": "address", "operator": operator.eq, "event": False}
         elif action['field'] == choices[2]:  # CF
             op = select_operator()
@@ -182,7 +179,7 @@ def filter_products(results=None, filters=simple_filter):
                 )]
                 value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
                 if value is not None:
-                    criteria = {"elements": BlockChain.get_all_products, "value": int(value['CF']), "field": "cf",
+                    criteria = {"elements": blockchain.get_all_products, "value": int(value['CF']), "field": "cf",
                                 "operator": op, "event": False}
         elif action['field'] == choices[3]:  # ISENDED
             choices = [("Yes", True), ("No", False)]
@@ -193,7 +190,7 @@ def filter_products(results=None, filters=simple_filter):
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": BlockChain.get_all_products, "value": value['isEnded'], "field": "is_ended",
+                criteria = {"elements": blockchain.get_all_products, "value": value['isEnded'], "field": "is_ended",
                             "operator": operator.eq, "event": False}
         elif action['field'] == choices[4]:  # SUPPLIERS
             questions = [inquirer.Text(

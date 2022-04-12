@@ -12,9 +12,10 @@ connection, refer to the same instance.
 
 import inquirer
 from inquirer.themes import load_theme_from_dict
-from theme_dict import theme
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
+
+from .theme_dict import theme
 
 BASE_URL = "http://127.0.0.1:2200"
 print("Welcome!")

@@ -1,10 +1,10 @@
 import inquirer
 from inquirer.themes import load_theme_from_dict
-from theme_dict import theme
-from Models import Product
-from BlockChain import add_transformation_on_blockchain, transfer_product_on_blockchain, create_new_product_on_blockchain, get_raw_material_not_used, get_all_products
-import validation
-from web3 import Web3
+from web3 import Web3, exceptions
+
+from . import blockchain
+from .theme_dict import theme
+from . import validation
 
 
 def get_updatable_user_products(user_address):
@@ -18,7 +18,7 @@ def get_updatable_user_products(user_address):
     Returns:
         `list[Product]`: the list of the products owned by the current user
     '''
-    all_products = get_all_products()
+    all_products = blockchain.get_all_products()
     return list(filter(lambda p: (p.address == user_address and not p.is_ended), all_products))
 
 
@@ -34,7 +34,7 @@ def add_transformation(user_address):
     user_products = get_updatable_user_products(user_address)
     questions = [
         inquirer.List(
-            "productId",
+            "product_id",
             message="What product do you want to update?",
             choices=[(product.name, product.product_id) for product in user_products],
             carousel=True
@@ -62,9 +62,9 @@ def add_transformation(user_address):
         # if the user confirms the transaction is started.
         if confirm['confirm'] and confirm is not None:
             try:
-                add_transformation_on_blockchain(
-                    int(answers['CF']), answers['product'], answers['final'])
-            except Exception as e:
+                blockchain.add_transformation_on_blockchain(
+                    int(answers['CF']), answers['product_id'], answers['final'])
+            except exceptions.SolidityError as e:
                 print(e)
                 print(
                     "Something went wrong while trying to add the transformation to the blockchain... Please retry.")
@@ -82,7 +82,7 @@ def transfer_product(user_address):
           "by pressing Ctrl+C")
     questions = [
         inquirer.List(
-            "productId",
+            "product_id",
             message="What product do you want to transfer?",
             choices=[(product.name, product.product_id) for product in user_products],
             carousel=True
@@ -105,8 +105,8 @@ def transfer_product(user_address):
         # if the user confirms the transaction is started.
         if confirm_answer["confirm"]:
             try:
-                transfer_product_on_blockchain(Web3.toChecksumAddress(answers['transformer']), answers["productId"])
-            except Exception as e:
+                blockchain.transfer_product_on_blockchain(Web3.toChecksumAddress(answers['transformer']), answers["product_id"])
+            except exceptions.SolidityError as e:
                 print(e)
                 print(
                     "Something went wrong while trying to trasfer the ownership of the product... Please retry.")
@@ -124,9 +124,9 @@ def create_new_product():
                 validate=validation.name_input_validation
             ),
         inquirer.Checkbox(
-            "rawMaterials", #The user selects the raw materials to use.
+            "raw_materials", #The user selects the raw materials to use.
             message="Select a raw material to use",
-            choices=[(material.__str__(), material.material_id) for material in get_raw_material_not_used()],
+            choices=[(material.__str__(), material.material_id) for material in blockchain.get_raw_material_not_used()],
         )
     ]
     answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
@@ -140,8 +140,8 @@ def create_new_product():
         # if the user confirms the transaction is started.
         if confirm_answer['confirm'] and confirm_answer is not None:
             try:
-                create_new_product_on_blockchain(
-                    answers['name'], answers['rawMaterials'])
-            except Exception as e:
+                blockchain.create_new_product_on_blockchain(
+                    answers['name'], answers['raw_materials'])
+            except exceptions.SolidityError as e:
                 print(e)
                 print("Please insert the new product again...")

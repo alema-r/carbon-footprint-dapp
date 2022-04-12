@@ -1,13 +1,12 @@
 import inquirer
 from inquirer.themes import load_theme_from_dict
-from yaml import load
-from theme_dict import theme
-from BlockChain import create_raw_materials_on_blockchain
-import validation
-from Models import RawMaterial
-from connection import web3
-import re
 from tabulate import tabulate
+
+from . import blockchain
+from . import connection
+from .models import RawMaterial
+from .theme_dict import theme
+from . import validation
 
 
 def input_validation(raw_material, raw_materials):
@@ -71,7 +70,7 @@ def insert_raw_material():
                 answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
                 # New raw material instance generated using user's inputs values
                 if answers is not None:
-                    raw_material_to_check = RawMaterial(answers["raw material"], int(answers['lot']), web3.eth.default_account,
+                    raw_material_to_check = RawMaterial(answers["raw material"], int(answers['lot']), connection.web3.eth.default_account,
                                                         int(answers['carbon footprint']))
                     # The new raw material is validated.
                     valid, error_message = input_validation(raw_material_to_check, raw_materials)
@@ -114,7 +113,7 @@ def insert_raw_material():
 
                     if answer is not None and answer['confirm']:
                         # if user confirm raw materials are added on blockchain
-                        inserted = create_raw_materials_on_blockchain(raw_materials)
+                        inserted = blockchain.create_raw_materials_on_blockchain(raw_materials)
 
                         if inserted:
                             # If raw materials are correctly added

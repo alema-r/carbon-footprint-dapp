@@ -9,10 +9,11 @@ contracts, refer to the same instance.
 """
 import os
 import json
-import connection
+
+from . import connection
 
 # getting the current directory of working
-os.chdir(str(os.getcwd())+"/Off-chain/")
+os.chdir(str(os.getcwd())+"/off_chain/")
 # getting the address in which the contract is deployed
 with open("address.json", "r") as file:
     contract_address_string = json.load(file)["address"]

@@ -1,4 +1,3 @@
-
 from tabulate import tabulate
 from web3.datastructures import AttributeDict
 
