@@ -1,15 +1,12 @@
-import os
 import json
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
-# getting the current working directory
-os.chdir(str(os.getcwd())+"/Off-chain/")
 # getting the address of the contracts in the address JSON file
-with open("address.json", "r") as file:
+with open("Off-chain/address.json", "r") as file:
     address = json.load(file)["address"]
 # getting the user contract interface in order to build user contract instance
-with open("../solc_output/UserContract.json", "r") as user_compiled:
+with open("solc_output/UserContract.json", "r") as user_compiled:
     user_interface = json.load(user_compiled)
 
 # creating web3 connection to deploy contracts on the blockchain
