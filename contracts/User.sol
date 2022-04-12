@@ -63,7 +63,7 @@ contract User{
      * @return The role of the address specified.
      */
 	function getRole(address wallet) public view returns(Role){
-        require(wallet != address(0), "Indirizzo non valido.");
+        require(wallet != address(0), "Invalid address");
         return _users[wallet];
     }
 
@@ -72,7 +72,7 @@ contract User{
      * @param role The role to set. (1=Supplier, 2=Transformer).
      */
 	function createUser(uint8 role) external {
-        require(_users[msg.sender] == defaultChoice, "L'utente ha gia' un ruolo");
+        require(_users[msg.sender] == defaultChoice, "The user already has a role");
         _users[msg.sender] = Role(role);
         emit newUser(msg.sender, _users[msg.sender]);
     }
@@ -146,7 +146,7 @@ contract User{
      * @param tokenId The id of the product to be transferred.
      */ 
 	function transferCP(address recipient, uint256 tokenId) external  {
-        require(getRole(recipient) == transformer, "Il ruolo del destinatario deve essere: Trasformatore.");
+        require(getRole(recipient) == transformer, "Recipient's role must be: Transformer");
         CFContract.transferProduct(recipient, tokenId);
     }
 	
