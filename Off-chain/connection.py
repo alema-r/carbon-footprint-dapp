@@ -21,17 +21,20 @@ print("Welcome!")
 questions = [
     inquirer.List('role',
                   message="Specify your role",
-                  choices=[("Client", 0), ("Supplier", 1), ("Transformer", 2)],
+                  choices=[("Client", 0), ("Supplier", 1), ("Transformer", 2), ("Exit", -1)],
                   )
 ]
 
 answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-# getting user role to instantiate connection to the correct node
-role = answers['role']
-# creating the node address url with the given role
-url = BASE_URL + str(role)
-# creates web3 connection to the selected node
-web3 = Web3(Web3.HTTPProvider(url))
-# injects proof of authority middleware to complete transactions
-web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-
+if answers is not None and answers['role'] != -1:
+    # getting user role to instantiate connection to the correct node
+    role = answers['role']
+    # creating the node address url with the given role
+    url = BASE_URL + str(role)
+    # creates web3 connection to the selected node
+    web3 = Web3(Web3.HTTPProvider(url))
+    # injects proof of authority middleware to complete transactions
+    web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+else:
+    print("Goodbye have a nice day")
+    exit(0)

@@ -79,10 +79,11 @@ def main():
                 choices=role_dict['Transformer']["actions"],
             )]
             action = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-            if action == Transformer.add_transformation or action == Transformer.transfer_product:
-                action["action"](address)
-            else:
-                action["action"]()
+            if action is not None:
+                if action["action"] == Transformer.add_transformation or action['action'] == Transformer.transfer_product:
+                    action["action"](address)
+                else:
+                    action["action"]()
 
     # If the chosen role is Supplier
     elif connection.role == int(role_dict["Supplier"]['num']):
@@ -95,7 +96,8 @@ def main():
                 choices=role_dict["Supplier"]["actions"],
             )]
             action = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-            action["action"]()
+            if action is not None:
+                action["action"]()
 
     # If the chosen role is Client
     else:
@@ -106,7 +108,8 @@ def main():
                 choices=role_dict["Client"]["actions"],
             )]
             action = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-            action["action"]()
+            if action is not None:
+                action["action"]()
 
 
 if __name__ == "__main__":

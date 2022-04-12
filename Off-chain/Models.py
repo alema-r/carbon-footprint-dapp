@@ -44,7 +44,26 @@ class RawMaterial:
         return cls(event.args.name, event.args.lot, event.args.supplier, event.args.cf, used)
 
     def __str__(self):
-        return f"{self.name}\t{self.lot}\t{self.cf}\t{self.address}"
+        if len(self.name) < 25:
+            length = len(self.name)
+            padding = ''.join([' ' for i in range(length, 30)])
+            name = self.name + padding
+        else:
+            padding = ''.join([' ' for i in range(0, 5)])
+            name = self.name + padding
+        if len(str(self.lot)) < 6:
+            padding = "".join([' ' for i in range(len(str(self.lot)), 6)])
+            lot = str(self.lot) + padding
+        else:
+            padding = "".join([' ' for i in range(0, 3)])
+            lot = str(self.lot) + padding
+        if len(str(self.cf)) < 6:
+            padding = "".join([' ' for i in range(len(str(self.cf)), 6)])
+            cf = str(self.cf) + padding
+        else:
+            padding = "".join([' ' for i in range(0, 3)])
+            cf = str(self.cf) + padding
+        return f"{name}{lot}{cf}{self.address}"
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, RawMaterial):

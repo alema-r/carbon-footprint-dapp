@@ -115,125 +115,143 @@ def select_operator():
         choices=choices
     )]
     action = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-    if action['op'] == choices[0]:
-        op = operator.eq
-    elif action['op'] == choices[1]:
-        op = operator.gt
-    elif action['op'] == choices[2]:
-        op = operator.ge
-    elif action['op'] == choices[3]:
-        op = operator.lt
-    elif action['op'] == choices[4]:
-        op = operator.le
-    return op
+    if action is not None:
+        if action['op'] == choices[0]:
+            op = operator.eq
+        elif action['op'] == choices[1]:
+            op = operator.gt
+        elif action['op'] == choices[2]:
+            op = operator.ge
+        elif action['op'] == choices[3]:
+            op = operator.lt
+        elif action['op'] == choices[4]:
+            op = operator.le
+        return op
+    else:
+        return None
 
 
-def filter_products(results=[], filters=simple_filter):
+def filter_products(results=None, filters=simple_filter):
     """This functions manages the filtering process
 
     Args:
         results (List): list of productId that are currently the result of the filtering process
         filters (Callable): filter function to call
     """
+    if results is None:
+        results = []
     criteria = {}
     choices = ["Name", "Owner", "CF", "Ended", "Supplier", "Transformer",
                "Raw Material"]
+    print("Follow the instructions to search products and view details. You can cancel any operation at any moment "
+          "by pressing Ctrl+C")
     question = [inquirer.List(
         "field",
         message="Select a field",
         choices=choices
     )]
     action = inquirer.prompt(question, theme=load_theme_from_dict(theme))
-    if action['field'] == choices[0]:  # NAME
-        questions = [inquirer.Text(
-            "name",
-            message="Name",
-            validate=validation.name_input_validation
-        )]
-        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-        criteria = {"elements": BlockChain.get_all_products, "value": value['name'].lower(), "field": "name",
-                    "operator": personalized_contains, "event": False}
-    elif action['field'] == choices[1]:  # OWNER
-        questions = [inquirer.Text(
-            "Owner",
-            message="Owner's address",
-            validate=validation.transformer_address_validation
-        )]
-        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-        criteria = {"elements": BlockChain.get_all_products, "value": Web3.toChecksumAddress(value['Owner']),
-                    "field": "address", "operator": operator.eq, "event": False}
-    elif action['field'] == choices[2]:  # CF
-        op = select_operator()
-        questions = [inquirer.Text(
-            'CF',
-            message="CF value",
-            validate=validation.carbon_fp_input_validation
-        )]
-        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-        criteria = {"elements": BlockChain.get_all_products, "value": int(value['CF']), "field": "cf", "operator": op,
-                    "event": False}
-    elif action['field'] == choices[3]:  # ISENDED
-        choices = [("Yes", True), ("No", False)]
-        questions = [inquirer.List(
-            'isEnded',
-            message="Is it ended?",
-            choices=choices
-        )]
-        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-        criteria = {"elements": BlockChain.get_all_products, "value": value['isEnded'], "field": "is_ended",
-                    "operator": operator.eq, "event": False}
-    elif action['field'] == choices[4]:  # SUPPLIERS
-        questions = [inquirer.Text(
-            'Supplier',
-            message="Supplier's address",
-            validate=validation.supplier_address_validation
-        )]
-        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-        criteria = {"elements": event_logs.get_raw_materials_used_events,
-                    "value": Web3.toChecksumAddress(value['Supplier']), "field": "supplier",
-                    "operator": operator.eq, "event": True}
-    elif action['field'] == choices[5]:  # TRANSFORMERS
-        questions = [inquirer.Text(
-            'Transformer',
-            message="Transformer's address",
-            validate=validation.transformer_address_validation
-        )]
-        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-        criteria = {"elements": event_logs.get_raw_materials_used_events,
-                    "value": Web3.toChecksumAddress(value['Transformer']), "field": "transformer",
-                    "operator": operator.eq, "event": True}
-    elif action['field'] == choices[6]:  # RAWMATERIALNAME
-        questions = [inquirer.Text(
-            'RawMaterial',
-            message="Raw Material name",
-            validate=validation.name_input_validation
-        )]
-        value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-        criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value['RawMaterial'],
-                    "field": "name", "operator": personalized_contains, "event": True}
-    results = filters(results.copy(), criteria)
-    if len(results) > 0:
-        choices = ["Print search results", "Add another filter(AND logic)", "Add another filter(OR logic)",
-                   "Exit"]
-        question = [inquirer.List(
-            'action',
-            message="Which action do you want to perform?",
-            choices=choices
-        )]
-        action = inquirer.prompt(question, theme=load_theme_from_dict(theme))
-        if action['action'] == choices[0]:
-            print_products(results)
-            question = [inquirer.Text(
-                'PID',
-                message="Insert a product ID to see product details or press enter to Exit",
-                validate=validation.id_input_validation
+    if action is not None:
+        if action['field'] == choices[0]:  # NAME
+            questions = [inquirer.Text(
+                "name",
+                message="Name",
+                validate=validation.name_input_validation
             )]
-            value = inquirer.prompt(question, theme=load_theme_from_dict(theme))
-            if value['PID'] != '':
-                detailed_print(int(value['PID']))
-        elif action['action'] == choices[1]:
-            filter_products(results, and_filter)
-        elif action['action'] == choices[2]:
-            filter_products(results, or_filter)
-    else:
-        print("\nNo products match the specified filter\n")
+            value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+            if value is not None:
+                criteria = {"elements": BlockChain.get_all_products, "value": value['name'].lower(), "field": "name",
+                            "operator": personalized_contains, "event": False}
+        elif action['field'] == choices[1]:  # OWNER
+            questions = [inquirer.Text(
+                "Owner",
+                message="Owner's address",
+                validate=validation.transformer_address_validation
+            )]
+            value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+            if value is not None:
+                criteria = {"elements": BlockChain.get_all_products, "value": Web3.toChecksumAddress(value['Owner']),
+                            "field": "address", "operator": operator.eq, "event": False}
+        elif action['field'] == choices[2]:  # CF
+            op = select_operator()
+            if op is not None:
+                questions = [inquirer.Text(
+                    'CF',
+                    message="CF value",
+                    validate=validation.carbon_fp_input_validation
+                )]
+                value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+                if value is not None:
+                    criteria = {"elements": BlockChain.get_all_products, "value": int(value['CF']), "field": "cf",
+                                "operator": op, "event": False}
+        elif action['field'] == choices[3]:  # ISENDED
+            choices = [("Yes", True), ("No", False)]
+            questions = [inquirer.List(
+                'isEnded',
+                message="Is it ended?",
+                choices=choices
+            )]
+            value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+            if value is not None:
+                criteria = {"elements": BlockChain.get_all_products, "value": value['isEnded'], "field": "is_ended",
+                            "operator": operator.eq, "event": False}
+        elif action['field'] == choices[4]:  # SUPPLIERS
+            questions = [inquirer.Text(
+                'Supplier',
+                message="Supplier's address",
+                validate=validation.supplier_address_validation
+            )]
+            value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+            if value is not None:
+                criteria = {"elements": event_logs.get_raw_materials_used_events,
+                            "value": Web3.toChecksumAddress(value['Supplier']), "field": "supplier",
+                            "operator": operator.eq, "event": True}
+        elif action['field'] == choices[5]:  # TRANSFORMERS
+            questions = [inquirer.Text(
+                'Transformer',
+                message="Transformer's address",
+                validate=validation.transformer_address_validation
+            )]
+            value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+            if value is not None:
+                criteria = {"elements": event_logs.get_raw_materials_used_events,
+                            "value": Web3.toChecksumAddress(value['Transformer']), "field": "transformer",
+                            "operator": operator.eq, "event": True}
+        elif action['field'] == choices[6]:  # RAWMATERIALNAME
+            questions = [inquirer.Text(
+                'RawMaterial',
+                message="Raw Material name",
+                validate=validation.name_input_validation
+            )]
+            value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+            if value is not None:
+                criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value['RawMaterial'],
+                            "field": "name", "operator": personalized_contains, "event": True}
+        if criteria:
+            results = filters(results, criteria)
+        if len(results) > 0:
+            choices = ["Print search results", "Add another filter(AND logic)", "Add another filter(OR logic)",
+                       "Exit"]
+            question = [inquirer.List(
+                'action',
+                message="Which action do you want to perform?",
+                choices=choices
+            )]
+            action = inquirer.prompt(question, theme=load_theme_from_dict(theme))
+            if action is not None:
+                if action['action'] == choices[0]:
+                    print_products(results)
+                    question = [inquirer.Text(
+                        'PID',
+                        message="Insert a product ID to see product details",
+                        validate=validation.id_input_validation
+                    )]
+                    value = inquirer.prompt(question, theme=load_theme_from_dict(theme))
+                    if value is not None:
+                        detailed_print(int(value['PID']))
+                elif action['action'] == choices[1]:
+                    filter_products(results, and_filter)
+                elif action['action'] == choices[2]:
+                    filter_products(results, or_filter)
+        elif criteria:
+            print("\nNo products match the specified filter\n")
