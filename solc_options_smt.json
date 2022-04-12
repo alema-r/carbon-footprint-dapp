@@ -27,6 +27,19 @@
 					"evm.bytecode"
 				]
 			}
+		},
+		"modelChecker": {
+			"contracts": {
+				"contracts/CarbonFootprint.sol": [
+					"CarbonFootprint"
+				],
+				"contracts/User.sol": [
+					"User"
+				]
+			},
+            "showUnproved": true,
+			"engine": "all",
+			"timeout": 0
 		}
 	}
 }
