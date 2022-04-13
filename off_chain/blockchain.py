@@ -83,14 +83,14 @@ def create_raw_materials_on_blockchain(raw_materials) -> bool:
                                                              raw_materials_cf_list).transact()
         return True
 
-    except exceptions.SolidityError as e:
+    except exceptions as e:
         # These are custom exceptions
-        if (e.__str__ == "No raw material names were provided. Insertion Failed") or (
-                e.__str__ == "No raw material lots provided. Insertion Failed") or (
-                e.__str__ == "No raw material carbon footprint provided. Insertion Failed") or (
-                e.__str__ == "Raw material's number doesn't match lot's number") or (
-                e.__str__ == "Raw material's number doesn't match carbon footprint's number") or (
-                e.__str__ == "This lot of this raw material has been already inserted"):
+        if (str(e) == "execution reverted: No raw material names were provided. Insertion Failed") or (
+                str(e) == "execution reverted: No raw material lots provided. Insertion Failed") or (
+                str(e) == "execution reverted: No raw material carbon footprint provided. Insertion Failed") or (
+                str(e) == "execution reverted: Raw material's number doesn't match lot's number") or (
+                str(e) == "execution reverted: Raw material's number doesn't match carbon footprint's number") or (
+                str(e) == "execution reverted: This lot of this raw material has been already inserted"):
             print(e)
         # And these are other generic exceptions
         else:
@@ -110,10 +110,10 @@ def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
         contracts.user_contract.functions.addTransformation(
             carb_foot, product_id, is_the_final).transact()
         return True
-    except exceptions.SolidityError as e:
-        if (e.__str__ == "Product doesn't exist") or (
-                e.__str__ == "Product is not modifiable anymore") or (
-                e.__str__ == "To add a transformation to a product you must be the product owner"):
+    except exceptions as e:
+        if (str(e) == "execution reverted: Product doesn't exist") or (
+                str(e) == "execution reverted: Product is not modifiable anymore") or (
+                str(e) == "execution reverted: To add a transformation to a product you must be the product owner"):
             print(e)
         # And these are other generic exceptions
         else:
@@ -135,9 +135,9 @@ def transfer_product_on_blockchain(transfer_to, product_id):
         contracts.user_contract.functions.transferCP(
             transfer_to, product_id).transact()
         return True
-    except exceptions.SolidityError as e:
-        if (e.__str__ == "Product doesn't exist") or (
-                e.__str__ == "Product is not modifiable anymore"):
+    except exceptions as e:
+        if (str(e) == "execution reverted: Product doesn't exist") or (
+                str(e) == "execution reverted: Product is not modifiable anymore"):
             print(e)
         # And these are other generic exceptions
         else:
@@ -159,8 +159,8 @@ def create_new_product_on_blockchain(product_name, raw_material_ids):
         contracts.user_contract.functions.createProduct(
             product_name, raw_material_ids).transact()
         return True
-    except exceptions.SolidityError as e:
-        if (e.__str__ == "Inserted raw material's lot has been already used"):
+    except exceptions as e:
+        if (str(e) == "execution reverted: Inserted raw material's lot has been already used"):
             print(e)
         else:
             print("Creation failed. Please try again.")
