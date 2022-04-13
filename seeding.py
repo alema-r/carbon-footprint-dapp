@@ -20,7 +20,7 @@ def seeding(role):
     # injects proof of authority middleware in order to accomplish transaction
     web3.middleware_onion.inject(geth_poa_middleware, layer=0)
     # retrieving address of deployment and abi of the user contract in order to build it
-    with open("off_chain/address.json", "r") as file:
+    with open("address.json", "r") as file:
         address = json.load(file)["address"]
     with open("solc_output/UserContract.json", "r") as user_compiled:
         user_interface = json.load(user_compiled)

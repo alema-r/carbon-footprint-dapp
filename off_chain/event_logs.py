@@ -8,22 +8,34 @@ from web3.datastructures import AttributeDict
 
 from . import contracts
 
+transformation_events = None
+raw_materials_used_events = None
+finished_products_events = None
+new_raw_material_lot_added_events_filter = None
+transfer_events = None
 
-transformation_events = partial(
-    contracts.cf_contract.events.newCFAdded().createFilter, fromBlock=0x0
-)
-raw_materials_used_events = partial(
-    contracts.cf_contract.events.rawMaterialIsUsed().createFilter, fromBlock=0x0
-)
-finished_products_events = partial(
-    contracts.cf_contract.events.productIsFinished().createFilter, fromBlock=0x0
-)
-new_raw_material_lot_added_events_filter = partial(
-    contracts.cf_contract.events.newRawMaterialLotAdded().createFilter, fromBlock=0x0
-)
-transfer_events = partial(
-    contracts.cf_contract.events.Transfer().createFilter, fromBlock=0x0
-)
+
+def building_filters():
+    global transformation_events
+    transformation_events = partial(
+        contracts.cf_contract.events.newCFAdded().createFilter, fromBlock=0x0
+    )
+    global raw_materials_used_events
+    raw_materials_used_events = partial(
+        contracts.cf_contract.events.rawMaterialIsUsed().createFilter, fromBlock=0x0
+    )
+    global finished_products_events
+    finished_products_events = partial(
+        contracts.cf_contract.events.productIsFinished().createFilter, fromBlock=0x0
+    )
+    global new_raw_material_lot_added_events_filter
+    new_raw_material_lot_added_events_filter = partial(
+        contracts.cf_contract.events.newRawMaterialLotAdded().createFilter, fromBlock=0x0
+    )
+    global transfer_events
+    transfer_events = partial(
+        contracts.cf_contract.events.Transfer().createFilter, fromBlock=0x0
+    )
 
 
 def get_finished_products_events() -> List[AttributeDict]:

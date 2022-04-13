@@ -9,7 +9,7 @@ from . import event_logs
 from .models import Product, RawMaterial, Transformation
 
 
-def set_account_as_default(user_role: int, address: Address) -> Address:
+def set_account_as_default(user_role: int, address: str) -> Address:
     """
     Function used to check if user address corresponds to the given role and set current user address as
     default web3 account in order to accomplish transactions
@@ -81,7 +81,6 @@ def create_raw_materials_on_blockchain(raw_materials) -> bool:
             raw_material.cf for raw_material in raw_materials]
         contracts.user_contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list,
                                                              raw_materials_cf_list).transact()
-
         return True
 
     except exceptions.SolidityError as e:

@@ -65,8 +65,7 @@ class RawMaterial:
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, RawMaterial):
-            return (self.material_id == __o.material_id) and (self.name == __o.name) and (self.lot == __o.lot) and \
-                   (self.address == __o.address)
+            return (self.name == __o.name) and (self.lot == __o.lot) and (self.address == __o.address)
         else:
             return False
 
@@ -98,7 +97,7 @@ class Product:
 
     def __str__(self):
         raw_materials_printable = [[raw.name[:22]+"..." if len(
-            raw.name > 25) else raw.name, raw.lot, raw.cf, raw.address] for raw in self.rawMaterials]
+            raw.name) > 25 else raw.name, raw.lot, raw.cf, raw.address] for raw in self.rawMaterials]
         table_raw_materials = tabulate(raw_materials_printable, headers=['Name', 'Lot', 'Carbon Footprint', 'Supplier'],
                                        tablefmt='tsv')
         transformations_printable = [[t.cf, t.transformer] for t in self.transformations]

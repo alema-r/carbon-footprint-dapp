@@ -4,7 +4,7 @@ import inquirer
 from inquirer.themes import load_theme_from_dict
 
 from off_chain.theme_dict import theme
-from off_chain import blockchain, connection, filter, supplier, transformer
+from off_chain import blockchain, connection, filter, supplier, transformer, contracts, event_logs
 
 
 def bye():
@@ -41,6 +41,25 @@ role_dict = {
 
 
 def main():
+    print("Welcome!")
+    questions = [
+        inquirer.List('role',
+                      message="Specify your role",
+                      choices=[("Client", 0), ("Supplier", 1), ("Transformer", 2), ("Exit", -1)],
+                      )
+    ]
+
+    answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+    if answers is not None and answers['role'] != -1:
+        # getting user role to instantiate connection to the correct node
+        role = answers['role']
+        connection.connection(role)
+        contracts.building_contracts()
+        event_logs.building_filters()
+
+    else:
+        print("Goodbye have a nice day")
+        exit(0)
     while True:
         # Asks the user to declare his address
         questions = [
@@ -51,7 +70,7 @@ def main():
         answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
         # Here it tries to connect to blockchain
         try:
-            address = blockchain.set_account_as_default(connection.role, answers['address'])
+            address = blockchain.set_account_as_default(role, answers['address'])
             # if everything is ok the while loop ends
             break
         # if something goes wrong an exception is thrown
@@ -70,7 +89,7 @@ def main():
 
     action = "start"
     # If the chosen role is Transformer
-    if connection.role == int(role_dict['Transformer']['num']):
+    if role == int(role_dict['Transformer']['num']):
         while action != "Exit":
             questions = [inquirer.List(
                 "action",
@@ -85,7 +104,7 @@ def main():
                     action["action"]()
 
     # If the chosen role is Supplier
-    elif connection.role == int(role_dict["Supplier"]['num']):
+    elif role == int(role_dict["Supplier"]['num']):
         # Inizia il meccanismo di interazione con l'utente.
         # Nel main si metterà solo la gestione dell'interazione con l'utente e l'interfaccia
         while action != "Exit":

@@ -3,7 +3,7 @@ from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
 # getting the address of the contracts in the address JSON file
-with open("off_chain/address.json", "r") as file:
+with open("address.json", "r") as file:
     address = json.load(file)["address"]
 # getting the user contract interface in order to build user contract instance
 with open("solc_output/UserContract.json", "r") as user_compiled:
