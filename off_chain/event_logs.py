@@ -2,11 +2,11 @@
 Module used to retrieve events on the blockchain
 """
 from typing import List
-
 from functools import partial
 from web3.constants import ADDRESS_ZERO
 from web3.datastructures import AttributeDict
-import contracts
+
+from . import contracts
 
 
 transformation_events = partial(

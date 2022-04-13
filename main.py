@@ -1,11 +1,10 @@
+import sys
+
 import inquirer
 from inquirer.themes import load_theme_from_dict
-from theme_dict import theme
-from BlockChain import set_account_as_default
-import connection
-import Supplier
-import Transformer
-import Filter
+
+from off_chain.theme_dict import theme
+from off_chain import blockchain, connection, filter, supplier, transformer
 
 
 def bye():
@@ -16,25 +15,25 @@ def bye():
 role_dict = {
     "Client": {
         "num": "0",
-        "actions": [("Search one or more products", Filter.filter_products),
+        "actions": [("Search one or more products", filter.filter_products),
                     ("Exit", bye)
         ],
     },
     "Supplier": {
         "num": "1",
         "actions": [
-            ("Search one or more products", Filter.filter_products),
-            ("Add new raw materials", Supplier.insert_raw_material),
+            ("Search one or more products", filter.filter_products),
+            ("Add new raw materials", supplier.insert_raw_material),
             ("Exit", bye),
         ],
     },
     "Transformer": {
         "num": "2",
         "actions": [
-            ("Search one or more products", Filter.filter_products),
-            ("Create a new product", Transformer.create_new_product),
-            ("Add a new operation", Transformer.add_transformation),
-            ("Transfer the property of a product", Transformer.transfer_product),
+            ("Search one or more products", filter.filter_products),
+            ("Create a new product", transformer.create_new_product),
+            ("Add a new operation", transformer.add_transformation),
+            ("Transfer the property of a product", transformer.transfer_product),
             ("Exit", bye),
         ],
     },
@@ -52,7 +51,7 @@ def main():
         answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
         # Here it tries to connect to blockchain
         try:
-            address = set_account_as_default(connection.role, answers['address'])
+            address = blockchain.set_account_as_default(connection.role, answers['address'])
             # if everything is ok the while loop ends
             break
         # if something goes wrong an exception is thrown
@@ -79,10 +78,11 @@ def main():
                 choices=role_dict['Transformer']["actions"],
             )]
             action = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-            if action == Transformer.add_transformation or action == Transformer.transfer_product:
-                action["action"](address)
-            else:
-                action["action"]()
+            if action is not None:
+                if action["action"] == transformer.add_transformation or action['action'] == transformer.transfer_product:
+                    action["action"](address)
+                else:
+                    action["action"]()
 
     # If the chosen role is Supplier
     elif connection.role == int(role_dict["Supplier"]['num']):
@@ -95,7 +95,8 @@ def main():
                 choices=role_dict["Supplier"]["actions"],
             )]
             action = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-            action["action"]()
+            if action is not None:
+                action["action"]()
 
     # If the chosen role is Client
     else:
@@ -106,7 +107,8 @@ def main():
                 choices=role_dict["Client"]["actions"],
             )]
             action = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-            action["action"]()
+            if action is not None:
+                action["action"]()
 
 
 if __name__ == "__main__":

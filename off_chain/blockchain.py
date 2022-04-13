@@ -1,12 +1,12 @@
+from functools import singledispatch
 from eth_typing import Address
 from typing import List
-
-import contracts
-import event_logs
-from functools import singledispatch
-from Models import Product, RawMaterial, Transformation
 from web3 import exceptions
-from connection import web3
+
+from . import connection
+from . import contracts
+from . import event_logs
+from .models import Product, RawMaterial, Transformation
 
 
 def set_account_as_default(user_role: int, address: Address) -> Address:
@@ -26,21 +26,21 @@ def set_account_as_default(user_role: int, address: Address) -> Address:
     """
     try:
         # Checking for correct account format
-        account = web3.toChecksumAddress(address)
+        account = connection.web3.toChecksumAddress(address)
         # If the account is inside the list of known accounts of the block
-        if account in web3.eth.accounts:
-            web3.geth.personal.unlock_account(account, '')
+        if account in connection.web3.eth.accounts:
+            connection.web3.geth.personal.unlock_account(account, '')
             # Calling the method to check current account role inside user contract
             real_role = get_user_role(account)
             # If the account isnt registered inside the contract
             if real_role == 0 and user_role != 0:
                 # The user is created with the given role inside the
-                web3.eth.default_account = account
+                connection.web3.eth.default_account = account
                 contracts.user_contract.functions.createUser(
                     user_role).transact()
             else:
                 # The account is setted as the default account
-                web3.eth.default_account = account
+                connection.web3.eth.default_account = account
             return account
         # If the account isnt inside the current block's list of accounts
         else:

@@ -1,9 +1,8 @@
-import os
+import json
 import sys
 
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
-import json
 
 baseURL = "http://127.0.0.1:2200"
 
@@ -20,12 +19,10 @@ def seeding(role):
     web3 = Web3(Web3.HTTPProvider(baseURL + str(role)))
     # injects proof of authority middleware in order to accomplish transaction
     web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-    # getting the current work directory
-    os.chdir(str(os.getcwd()) + "/Off-chain/")
     # retrieving address of deployment and abi of the user contract in order to build it
-    with open("address.json", "r") as file:
+    with open("off_chain/address.json", "r") as file:
         address = json.load(file)["address"]
-    with open("../solc_output/UserContract.json", "r") as user_compiled:
+    with open("solc_output/UserContract.json", "r") as user_compiled:
         user_interface = json.load(user_compiled)
     # converting address into checksum address
     contract_address = web3.toChecksumAddress(address)
@@ -33,17 +30,16 @@ def seeding(role):
     user_contract = web3.eth.contract(
         address=contract_address, abi=user_interface["abi"]
     )
-    # if there is only one account on the node we create another account ande we unlock it
+    # if there is only one account on the node we create another account
     if len(web3.geth.personal.list_wallets()) <= 1:
         # creating new account on blockchain
-        address_1 = web3.geth.personal.new_account('')
-        # unlocking new account on blockchain
-        web3.geth.personal.unlock_account(address_1, '')
+        web3.geth.personal.new_account('')
     # getting all accounts on the current node
     addresses = web3.geth.personal.list_accounts()
     if role == 1:
         for address in addresses:
             #  if supplier is not registered, we create the account inside the state of the contract
+            web3.geth.personal.unlock_account(address, '')
             if user_contract.functions.getRole(address).call() == 0:
                 # set account as web3 default account in order to accomplish transactions
                 web3.eth.default_account = address
@@ -65,6 +61,7 @@ def seeding(role):
                 web3.eth.wait_for_transaction_receipt(tx_hash)
     elif role == 2:
         for address in addresses:
+            web3.geth.personal.unlock_account(address, '')
             # same logic as supplier applied to transformer
             if user_contract.functions.getRole(address).call() == 0:
                 web3.eth.default_account = address

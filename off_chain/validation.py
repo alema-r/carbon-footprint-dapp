@@ -1,8 +1,8 @@
 import inquirer
-from typing import Tuple
-import re
 from web3 import Web3
-import BlockChain
+import re
+
+from . import blockchain
 
 
 def supplier_address_validation(answers, current):
@@ -17,7 +17,7 @@ def supplier_address_validation(answers, current):
     """
     try:
         address = Web3.toChecksumAddress(current.strip(' '))
-        role = BlockChain.get_user_role(address)
+        role = blockchain.get_user_role(address)
     except Exception:
         raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
     if role == 1:
@@ -38,7 +38,7 @@ def transformer_address_validation(answers, current):
     """
     try:
         address = Web3.toChecksumAddress(current.strip(' '))
-        role = BlockChain.get_user_role(address)
+        role = blockchain.get_user_role(address)
     except:
         raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
 
