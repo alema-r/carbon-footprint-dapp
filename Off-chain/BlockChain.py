@@ -36,7 +36,8 @@ def set_account_as_default(user_role: int, address: Address) -> Address:
             if real_role == 0 and user_role != 0:
                 # The user is created with the given role inside the
                 web3.eth.default_account = account
-                contracts.user_contract.functions.createUser(user_role).transact()
+                contracts.user_contract.functions.createUser(
+                    user_role).transact()
             else:
                 # The account is setted as the default account
                 web3.eth.default_account = account
@@ -46,7 +47,8 @@ def set_account_as_default(user_role: int, address: Address) -> Address:
             # An error is raised
             raise Exception
     except Exception as e:
-        raise Exception("Error: it's impossible to verify your role and address, please try again")
+        raise Exception(
+            "Error: it's impossible to verify your role and address, please try again")
 
 
 def get_user_role(address: Address = None) -> int:
@@ -71,9 +73,12 @@ def create_raw_materials_on_blockchain(raw_materials) -> bool:
         raw_materials (`list[RawMaterial]`): List of raw materials that must be inserted
     """
     try:
-        raw_materials_name_list = [raw_material.name for raw_material in raw_materials]
-        raw_materials_lot_list = [raw_material.lot for raw_material in raw_materials]
-        raw_materials_cf_list = [raw_material.cf for raw_material in raw_materials]
+        raw_materials_name_list = [
+            raw_material.name for raw_material in raw_materials]
+        raw_materials_lot_list = [
+            raw_material.lot for raw_material in raw_materials]
+        raw_materials_cf_list = [
+            raw_material.cf for raw_material in raw_materials]
         contracts.user_contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list,
                                                              raw_materials_cf_list).transact()
 
@@ -96,25 +101,30 @@ def create_raw_materials_on_blockchain(raw_materials) -> bool:
 
 def add_transformation_on_blockchain(carb_foot, product_id, is_the_final):
     """This function connects to the blockchain to add a new transformation
-    
+
     Args:
         carb_foot (`int`): the value of the carbon footprint 
         product_id (`int`): the id of the product to which a new transformation needs to be added
         is_the_final (`bool`): boolean that indicates if this is the final transformation of the production chain
-    
-    Raises:
-        `Exception`: if the operations fails
     """
     try:
         contracts.user_contract.functions.addTransformation(
             carb_foot, product_id, is_the_final).transact()
-    except:
-        raise Exception
+        return True
+    except exceptions.SolidityError as e:
+        if (e.__str__ == "Product doesn't exist") or (
+                e.__str__ == "Product is not modifiable anymore") or (
+                e.__str__ == "To add a transformation to a product you must be the product owner"):
+            print(e)
+        # And these are other generic exceptions
+        else:
+            print("Insertion of transformation failed. Please try again")
+        return False
 
 
 def transfer_product_on_blockchain(transfer_to, product_id):
     """This function connects to the blockchain to transfer the ownership of a product
-    
+
     Args:
         transfer_to (`ChecksumAddres`): the adress of the user to whom the product ownership needs to be transfered
         product_id (`int`): the id of the product to transfer
@@ -123,14 +133,22 @@ def transfer_product_on_blockchain(transfer_to, product_id):
         `Exception`: if the operations fails
     """
     try:
-        contracts.user_contract.functions.transferCP(transfer_to, product_id).transact()
-    except Exception as e:
-        raise e
+        contracts.user_contract.functions.transferCP(
+            transfer_to, product_id).transact()
+        return True
+    except exceptions.SolidityError as e:
+        if (e.__str__ == "Product doesn't exist") or (
+                e.__str__ == "Product is not modifiable anymore"):
+            print(e)
+        # And these are other generic exceptions
+        else:
+            print("Transfer failed. Please try again")
+        return False
 
 
 def create_new_product_on_blockchain(product_name, raw_material_ids):
     """This function connects to the blockchain to add a new product
-    
+
     Args:
         product_name (`str`): the name of the product to create
         raw_material_ids (`list[int]`): Ids of the raw materials to use for the product
@@ -139,9 +157,15 @@ def create_new_product_on_blockchain(product_name, raw_material_ids):
         `Exception`: if the operations fails
     """
     try:
-        contracts.user_contract.functions.createProduct(product_name, raw_material_ids).transact()
-    except:
-        raise Exception
+        contracts.user_contract.functions.createProduct(
+            product_name, raw_material_ids).transact()
+        return True
+    except exceptions.SolidityError as e:
+        if (e.__str__ == "Inserted raw material's lot has been already used"):
+            print(e)
+        else:
+            print("Creation failed. Please try again.")
+        return False
 
 
 def get_product(product_id: int) -> Product:
@@ -178,7 +202,8 @@ def get_product_details(product: int) -> Product:
 
     # The Product object is taken form the blockchain and the materials and transformation info is added
     product = get_product(product)
-    product.rawMaterials = [RawMaterial.from_event(event=ev) for ev in rm_events]
+    product.rawMaterials = [
+        RawMaterial.from_event(event=ev) for ev in rm_events]
     product.transformations = [
         Transformation.from_event(event=ev) for ev in transformation_events
     ]
@@ -189,7 +214,7 @@ def get_product_details(product: int) -> Product:
 def _(product: Product) -> Product:
     """Overload of the `get_product_details` function.
     Gets informations about raw material used and transformations performed on the specified product.
-    
+
     Args:
         product (`Product`): the product object without the requested info
 
@@ -199,10 +224,12 @@ def _(product: Product) -> Product:
     # The info regarding the raw materials used and the transformations implemented
     # are taken from the events emitted on the blockchain
     rm_events = event_logs.get_raw_materials_used_events(product.product_id)
-    transformation_events = event_logs.get_transformations_events(product.product_id)
+    transformation_events = event_logs.get_transformations_events(
+        product.product_id)
 
     # materials and transformation info is added to the product
-    product.rawMaterials = [RawMaterial.from_event(event=ev) for ev in rm_events]
+    product.rawMaterials = [
+        RawMaterial.from_event(event=ev) for ev in rm_events]
     product.transformations = [
         Transformation.from_event(event=ev) for ev in transformation_events
     ]
@@ -211,7 +238,7 @@ def _(product: Product) -> Product:
 
 def get_raw_material_not_used() -> List[RawMaterial]:
     """This function fetches and returns a list of non-used raw materials from the blockchain
-    
+
     Returns:
         `list[RawMaterial]`: a list of all of the non-used raw materials
     """
@@ -221,7 +248,7 @@ def get_raw_material_not_used() -> List[RawMaterial]:
 
 def get_all_raw_materials() -> List[RawMaterial]:
     """This function fetches and returns the list of all of the raw materials saved on the blockchain
-    
+
     Returns:
         `list[RawMaterial]`: a list of all of the raw materials    
     """

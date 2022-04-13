@@ -44,7 +44,8 @@ class RawMaterial:
         return cls(event.args.name, event.args.lot, event.args.supplier, event.args.cf, used)
 
     def __str__(self):
-        return f"{self.name}\t{self.lot}\t{self.cf}\t{self.address}"
+        name = self.name[:22]+"..." if len(self.name > 25) else self.name
+        return f"{name}\t{self.lot}\t{self.cf}\t{self.address}"
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, RawMaterial):
@@ -80,7 +81,8 @@ class Product:
         return cls(data[0], data[1], data[2], data[3], data[4])
 
     def __str__(self):
-        raw_materials_printable = [[raw.name, raw.lot, raw.cf, raw.address] for raw in self.rawMaterials]
+        raw_materials_printable = [[raw.name[:22]+"..." if len(
+            raw.name > 25) else raw.name, raw.lot, raw.cf, raw.address] for raw in self.rawMaterials]
         table_raw_materials = tabulate(raw_materials_printable, headers=['Name', 'Lot', 'Carbon Footprint', 'Supplier'],
                                        tablefmt='tsv')
         transformations_printable = [[t.cf, t.transformer] for t in self.transformations]

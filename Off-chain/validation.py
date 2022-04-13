@@ -131,7 +131,7 @@ def name_input_validation(answers, current):
     Returns:
         Boolean: True if the input is valid
     """
-    pattern = "^[a-zA-Z0-9 ]{2,}$"
+    pattern = "^[a-zA-Z0-9 ]{2,50}$"
     if bool(re.match(pattern, current.strip(' '))):
         return True
     else:

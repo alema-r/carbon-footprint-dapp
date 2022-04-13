@@ -94,8 +94,8 @@ def insert_raw_material():
                     # Tabulate is used to print raw materials in a fancy way
                     raw_materials_printable = []
                     for raw in raw_materials:
-                        if len(raw.name) > 15:
-                            name = raw.name[:15].rstrip() + "..."
+                        if len(raw.name) > 25:
+                            name = raw.name[:22].rstrip() + "..."
                         else:
                             name = raw.name
                         
