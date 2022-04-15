@@ -7,13 +7,14 @@ class RawMaterial:
     Class mapping the structure of a raw material on the blockchain
     """
 
-    def __init__(self, name: str, lot: int, address, cf: int, is_used=False, material_id: int = None):
+    def __init__(self, name: str, lot: int, address, cf: int, is_used=False, material_id: int = None, transformer_address=None):
         self.material_id = material_id
         self.name = name
         self.lot = lot
         self.address = address
         self.cf = cf
         self.is_used = is_used
+        self.transformer_address = transformer_address
 
     @classmethod
     def from_blockchain(cls, data: tuple):
@@ -26,7 +27,7 @@ class RawMaterial:
         Returns:
             RawMaterial Object
         """
-        return cls(data[1], data[2], data[3], data[4], data[5], data[0])
+        return cls(data[1], data[2], data[3], data[5], data[6], data[0], data[4])
 
     @classmethod
     def from_event(cls, event: AttributeDict, used=False):

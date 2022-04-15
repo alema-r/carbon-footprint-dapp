@@ -7,17 +7,16 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./ProductLibrary.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-
 /**
  * @title ERC721 contract to manage all products.
  * @notice Each product is actually an NFT.
  * @dev All functions should be called from the proxy contract `User`.
  */
-contract CarbonFootprint is ERC721{
+contract CarbonFootprint is ERC721 {
     // The address of the owner
     address public owner;
 
-	// Variable that represents the id of a product
+    // Variable that represents the id of a product
     uint256 private productId = 1;
 
     //Variable that represents the if of a raw material
@@ -30,7 +29,7 @@ contract CarbonFootprint is ERC721{
     ProductLibrary.RawMaterial[] private allRawMaterials;
 
     // Rivedere questo mapping nel caso in cui i prodotti possano avere lo stesso nome
-    mapping(uint => uint) private RmToProduct;
+    mapping(uint256 => uint256) private RmToProduct;
 
     // Evento da emettere sulla blockchain quando viene aggiornata una carbon footprint
     /**
@@ -39,20 +38,63 @@ contract CarbonFootprint is ERC721{
      * @param cf The carbon footprint added.
      * @param pId The id of the updated product.
      */
-	event newCFAdded(address userAddress, uint256 cf, uint256 pId);
-    event newRawMaterialLotAdded(address userAddress, uint256 mId, string name, uint256 lot, uint256 cf);
+    event newCFAdded(address userAddress, uint256 cf, uint256 pId);
+
+    /**
+     * @notice Event used to track each raw material addition.
+     * @param supplierAddress The address of the supplier that adds the raw materials
+     * @param transformerAddress The address of the trnasformer who receives the raw materials
+     * @param mId The id of the raw material added
+     * @param name The name of the raw material
+     * @param lot The lot number
+     * @param cf The carbon footprint of the raw material
+     */
+    event newRawMaterialLotAdded(
+        address supplierAddress,
+        address transformerAddress,
+        uint256 mId,
+        string name,
+        uint256 lot,
+        uint256 cf
+    );
+
+    /**
+    @notice Event used to track the completion of a product
+    @param userAddress The address of the transformer who completed the process
+    @param pId The id of the completed product
+    @param cf The total carbon footprint of the product
+     */
     event productIsFinished(address userAddress, uint256 pId, uint256 cf);
-    event rawMaterialIsUsed(address transformer, address supplier, uint256 pId, string name, uint256 lot, uint256 cf);
+
+    /**
+    @notice Event used to track when a raw material is used
+    @param transformer The address of the transformer that used the raw material
+    @param supplier The address of the supplier who supplied the raw material
+    @param pId The id of the product for which the raw material was used
+    @param mId The id of the used raw material
+    @param name The name of the used raw material
+    @param lot The lot number of the used raw material
+    @param cf The carbon footprint of the used raw material
+     */
+    event rawMaterialIsUsed(
+        address transformer,
+        address supplier,
+        uint256 pId,
+        uint256 mId,
+        string name,
+        uint256 lot,
+        uint256 cf
+    );
 
     /**
      * @notice Initializes the contract and sets the `owner` to `msg.sender`.
      * @dev See {ERC721-constructor}
      */
-	constructor() ERC721("CarbonFootprintMonitor", "CFM"){
+    constructor() ERC721("CarbonFootprintMonitor", "CFM") {
         owner = msg.sender;
     }
 
-    modifier onlyOwner{
+    modifier onlyOwner() {
         require(msg.sender == owner, "Error! Anomalous invocation");
         _;
     }
@@ -61,51 +103,133 @@ contract CarbonFootprint is ERC721{
      * @notice Returns all the products present in `allProducts`.
      * @return An array of `ProductLibrary.Product`.
      */
-	function getAllProducts() public onlyOwner view returns (ProductLibrary.Product[] memory){
+    function getAllProducts()
+        public
+        view
+        onlyOwner
+        returns (ProductLibrary.Product[] memory)
+    {
         return allProducts;
     }
+
     /**
      * @notice Returns all the rawmaterials present in `allRawMaterials`.
      * @return An array of `ProductLibrary.RawMaterial`.
      */
-	function getAllRawMaterials() public onlyOwner view returns (ProductLibrary.RawMaterial[] memory){
+    function getAllRawMaterials()
+        public
+        view
+        onlyOwner
+        returns (ProductLibrary.RawMaterial[] memory)
+    {
         return allRawMaterials;
     }
 
     /**
      * @notice Returns the product with the specified `pId` id.
-     * @dev Since `productId` is initialized to 0 and it is incremented by 1 
-     * each time a new product is created, the id of a product matches 
+     * @dev Since `productId` is initialized to 0 and it is incremented by 1
+     * each time a new product is created, the id of a product matches
      * the position in the `allProducts` array.
      * @param pId The id of the product.
      * @return A `ProductLibrary.Product` object.
      */
-	function getProductById(uint256 pId) public onlyOwner view returns (ProductLibrary.Product memory){
+    function getProductById(uint256 pId)
+        public
+        view
+        onlyOwner
+        returns (ProductLibrary.Product memory)
+    {
         require(pId < productId, "Product doesn't exists");
-        return allProducts[pId-1];
+        return allProducts[pId - 1];
     }
 
     /**
      * @notice Creates a new rawmaterial with a specified name, lot and carboon footprint. It is called by the supplier who provides the rawm aterial
      * Then after checking the rawmaterial does not exist yet, it adds it to `allRawmaterial` and emits a `newRawMaterialLotAdded` event.
-	 * @param _rawMaterialName Array with names of the rawmaterial provided.
-	 * @param _lot Array with the rawmaterials' lot 
+     * @param _rawMaterialName Array with names of the rawmaterial provided.
+     * @param _lot Array with the rawmaterials' lot
      * @param _cf Array with the rawmaterials' carboon footprint
+     * @param _transformerAddress Address of the transformer who receives the raw material
      */
-    function addRawMaterials(string[] calldata _rawMaterialName, uint256[] calldata _lot, uint256[] calldata _cf) public onlyOwner{
-        require(_rawMaterialName.length > 0, "No raw material names were provided. Insertion Failed");
-        require(_lot.length > 0, "No raw material lots provided. Insertion Failed");
-        require(_cf.length > 0, "No raw material carbon footprint provided. Insertion Failed");
-        require(_rawMaterialName.length == _lot.length, "Raw material's number doesn't match lot's number");
-        require(_rawMaterialName.length == _cf.length, "Raw material's number doesn't match carbon footprint's number");
-        for(uint256 i = 0; i < _rawMaterialName.length; i++){
-            bytes32 RmHash = keccak256(bytes.concat(bytes(_rawMaterialName[i]), "-", bytes(Strings.toString(_lot[i])), "-", bytes20(tx.origin)));
-            for(uint256 j = 0; j < allRawMaterials.length; j++){
-                require(RmHash != keccak256(bytes.concat(bytes(allRawMaterials[j].name), "-", bytes(Strings.toString(allRawMaterials[j].lot)), "-", bytes20(allRawMaterials[j].supplier))), "This lot of this raw material has been already inserted");
+    function addRawMaterials(
+        string[] calldata _rawMaterialName,
+        uint256[] calldata _lot,
+        uint256[] calldata _cf,
+        address[] calldata _transformerAddress
+    ) public onlyOwner {
+        require(
+            _rawMaterialName.length > 0,
+            "No raw material names were provided. Insertion failed."
+        );
+        require(
+            _lot.length > 0,
+            "No raw material lots provided. Insertion failed."
+        );
+        require(
+            _cf.length > 0,
+            "No raw material carbon footprint provided. Insertion failed."
+        );
+        require(
+            _transformerAddress.length > 0,
+            "No transformer provided. Insertion failed."
+        );
+        require(
+            _rawMaterialName.length == _lot.length,
+            "The number of raw materials doesn't match the number of lots. Insertion failed."
+        );
+        require(
+            _rawMaterialName.length == _cf.length,
+            "The number of raw materials doesn't match the number of carbon footprints. Insertion failed."
+        );
+        require(
+            _rawMaterialName.length == _transformerAddress.length,
+            "The number of raw materials doesn't match the number of transformers. Insertion failed."
+        );
+        for (uint256 i = 0; i < _rawMaterialName.length; i++) {
+            bytes32 RmHash = keccak256(
+                bytes.concat(
+                    bytes(_rawMaterialName[i]),
+                    "-",
+                    bytes(Strings.toString(_lot[i])),
+                    "-",
+                    bytes20(tx.origin)
+                )
+            );
+            for (uint256 j = 0; j < allRawMaterials.length; j++) {
+                require(
+                    RmHash !=
+                        keccak256(
+                            bytes.concat(
+                                bytes(allRawMaterials[j].name),
+                                "-",
+                                bytes(Strings.toString(allRawMaterials[j].lot)),
+                                "-",
+                                bytes20(allRawMaterials[j].supplier)
+                            )
+                        ),
+                    "This lot of this raw material has been already inserted"
+                );
             }
-            allRawMaterials.push(ProductLibrary.RawMaterial(materialId, _rawMaterialName[i], _lot[i], tx.origin, _cf[i], false));
-            emit newRawMaterialLotAdded(tx.origin, materialId, _rawMaterialName[i], _lot[i], _cf[i]);
-            materialId++;      
+            allRawMaterials.push(
+                ProductLibrary.RawMaterial(
+                    materialId,
+                    _rawMaterialName[i],
+                    _lot[i],
+                    tx.origin,
+                    _transformerAddress,
+                    _cf[i],
+                    false
+                )
+            );
+            emit newRawMaterialLotAdded(
+                tx.origin,
+                _transformerAddress,
+                materialId,
+                _rawMaterialName[i],
+                _lot[i],
+                _cf[i]
+            );
+            materialId++;
         }
     }
 
@@ -113,44 +237,72 @@ contract CarbonFootprint is ERC721{
      * @notice Creates a product with specified product name, and specify rawmaterials transformer will use for the product.
      * Then it adds it to `allProducts` and emits a `newCFAddded` event.
      * @dev See {ERC721-_safeMint}
-	 * @param _productName The name of the product.
-	 * @param _index Array of indexes of the Rawmaterials in allRawMaterials
+     * @param _productName The name of the product.
+     * @param _index Array of indexes of the Rawmaterials in allRawMaterials
      */
-	function mintProduct(
+    function mintProduct(
         string calldata _productName,
-		uint256[] calldata _index
-	) 
-		public onlyOwner
-	{       
+        uint256[] calldata _index
+    ) public onlyOwner {
         uint256 cf = 0;
-        for(uint256 i = 0; i < _index.length; i++){
-            require(allRawMaterials[_index[i]].isUsed == false, "Inserted raw material's lot has been already used");
+        for (uint256 i = 0; i < _index.length; i++) {
+            require(
+                allRawMaterials[_index[i]].isUsed == false,
+                "Inserted raw material's lot has already been used. Creation failed."
+            );
+            require(
+                allRawMaterials[_index[i]].transformer == tx.origin,
+                "A selected raw material is not property of the current user. Creation failed."
+            );
             assert(RmToProduct[_index[i]] == 0);
             RmToProduct[_index[i]] = productId;
             allRawMaterials[_index[i]].isUsed = true;
             cf += allRawMaterials[_index[i]].CF;
-            emit rawMaterialIsUsed(tx.origin, allRawMaterials[_index[i]].supplier,productId, allRawMaterials[_index[i]].name, allRawMaterials[_index[i]].lot, allRawMaterials[_index[i]].CF);
+            emit rawMaterialIsUsed(
+                tx.origin,
+                allRawMaterials[_index[i]].supplier,
+                productId,
+                allRawMaterials[_index[i]].materialId,
+                allRawMaterials[_index[i]].name,
+                allRawMaterials[_index[i]].lot,
+                allRawMaterials[_index[i]].CF
+            );
         }
         _safeMint(tx.origin, productId);
-        allProducts.push(ProductLibrary.Product(productId, _productName, tx.origin, cf, false));
+        allProducts.push(
+            ProductLibrary.Product(
+                productId,
+                _productName,
+                tx.origin,
+                cf,
+                false
+            )
+        );
         productId++;
     }
 
     /**
      * @notice Adds a carbon footprint to the specified product
      * @param partialCF The carbon footprint to be added.
-     * @param pId The id of the product to be modified. 
+     * @param pId The id of the product to be modified.
      * @param isEnded Specify if this is the last transformation or not.
      */
-	function addCF(uint256 partialCF, uint256 pId, bool isEnded) public onlyOwner{
-        require(pId < productId, "Product doesn't exists");
-        ProductLibrary.Product storage productToUpdate = allProducts[pId-1];
-        require(productToUpdate.ended == false, "Product is no more editable");
-        require(productToUpdate.currentOwner == tx.origin, "To add a carbon footprint to a product you must be the product owner");
+    function addCF(
+        uint256 partialCF,
+        uint256 pId,
+        bool isEnded
+    ) public onlyOwner {
+        require(pId < productId, "The product doesn't exists. Operation failed.");
+        ProductLibrary.Product storage productToUpdate = allProducts[pId - 1];
+        require(productToUpdate.ended == false, "The product is not modifiable anymore. Operation failed.");
+        require(
+            productToUpdate.currentOwner == tx.origin,
+            "To add a carbon footprint to a product you must be its owner. Operation failed."
+        );
         assert(productToUpdate.productId < productId);
-	productToUpdate.CF += partialCF;
+        productToUpdate.CF += partialCF;
         emit newCFAdded(tx.origin, partialCF, pId);
-        if(isEnded){
+        if (isEnded) {
             productToUpdate.ended = true;
             emit productIsFinished(tx.origin, pId, productToUpdate.CF);
         }
@@ -163,13 +315,13 @@ contract CarbonFootprint is ERC721{
      * {ERC721-_safeTransfer}.
      * @param recipient The address to transfer the product property to
      * @param pId The id of the product to be transferred.
-     */ 
-	function transferProduct(address recipient, uint256 pId) public onlyOwner{
-        require(pId < productId, "Product doesn't exist");
-        require(pId > 0, "Product doesn't exist");
-        ProductLibrary.Product storage productToUpdate = allProducts[pId-1];
-        require(productToUpdate.ended == false, "Product is no more editable");
+     */
+    function transferProduct(address recipient, uint256 pId) public onlyOwner {
+        require(pId < productId, "The product doesn't exist. Transfer failed.");
+        require(pId > 0, "The product doesn't exist. Transfer failed.");
+        ProductLibrary.Product storage productToUpdate = allProducts[pId - 1];
+        require(productToUpdate.ended == false, "The product is not modifiable anymore. Transfer failed.");
         _safeTransfer(tx.origin, recipient, pId, "");
-        productToUpdate.currentOwner = recipient; 
+        productToUpdate.currentOwner = recipient;
     }
 }

@@ -20,20 +20,24 @@ class Supplier(BlockChain):
                 raw_material.lot for raw_material in raw_materials]
             raw_materials_cf_list = [
                 raw_material.cf for raw_material in raw_materials]
+            raw_material_transformers_list = [
+                raw_material.transformer_address for raw_material in raw_materials]
             self.user_contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list,
-                                                            raw_materials_cf_list).transact()
+                                                            raw_materials_cf_list, raw_material_transformers_list).transact()
             return True
 
         except exceptions as e:
             # These are custom exceptions
-            if (str(e) == "execution reverted: No raw material names were provided. Insertion Failed") or (
-                    str(e) == "execution reverted: No raw material lots provided. Insertion Failed") or (
-                    str(e) == "execution reverted: No raw material carbon footprint provided. Insertion Failed") or (
-                    str(e) == "execution reverted: Raw material's number doesn't match lot's number") or (
-                    str(e) == "execution reverted: Raw material's number doesn't match carbon footprint's number") or (
-                    str(e) == "execution reverted: This lot of this raw material has been already inserted"):
+            if (str(e) == "No raw material names were provided. Insertion failed") or (
+                    str(e) == "No raw material lots provided. Insertion failed") or (
+                    str(e) == "No raw material carbon footprint provided. Insertion failed") or (
+                    str(e) == "No transformer provided. Insertion failed") or (
+                    str(e) == "The number of raw materials doesn't match the number of lots. Insertion failed.") or (
+                    str(e) == "The number of raw materials doesn't match the number of carbon footprints. Insertion failed.") or (
+                    str(e) == "Raw material's number doesn't match the number of transformers. Insertion failed."):
                 print(e)
             # And these are other generic exceptions
             else:
-                print("Insertion of raw materials failed. Please insert raw materials again")
+                print(
+                    "Insertion of raw materials failed. Please insert raw materials again")
             return False

@@ -36,9 +36,9 @@ class Transformer(BlockChain):
                 carb_foot, product_id, is_the_final).transact()
             return True
         except exceptions as e:
-            if (str(e) == "execution reverted: Product doesn't exist") or (
-                    str(e) == "execution reverted: Product is not modifiable anymore") or (
-                    str(e) == "execution reverted: To add a transformation to a product you must be the product owner"):
+            if (str(e) == "The product doesn't exists. Operation failed.") or (
+                    str(e) == "The product is not modifiable anymore. Operation failed.") or (
+                    str(e) == "To add a carbon footprint to a product you must be its owner. Operation failed."):
                 print(e)
             # And these are other generic exceptions
             else:
@@ -60,8 +60,8 @@ class Transformer(BlockChain):
                 transfer_to, product_id).transact()
             return True
         except exceptions as e:
-            if (str(e) == "execution reverted: Product doesn't exist") or (
-                    str(e) == "execution reverted: Product is not modifiable anymore"):
+            if (str(e) == "The product doesn't exist. Transfer failed.") or (
+                    str(e) == "The product is not modifiable anymore. Transfer failed."):
                 print(e)
             # And these are other generic exceptions
             else:
@@ -83,7 +83,8 @@ class Transformer(BlockChain):
                 product_name, raw_material_ids).transact()
             return True
         except exceptions as e:
-            if str(e) == "execution reverted: Inserted raw material's lot has been already used":
+            if (str(e) == "Inserted raw material's lot has already been used. Creation failed.") or (
+                    str(e) == "A selected raw material is not property of the current user. Creation failed."):
                 print(e)
             else:
                 print("Creation failed. Please try again.")

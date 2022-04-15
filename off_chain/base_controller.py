@@ -145,13 +145,14 @@ class BlockChain:
             for rm in self.user_contract.functions.getRawMaterials().call()
         ]
 
-    def get_raw_material_not_used(self) -> List[RawMaterial]:
-        """This function fetches and returns a list of non-used raw materials from the blockchain
-
+    def get_usable_raw_materials(self, transformer_address) -> List[RawMaterial]:
+        """This function fetches and returns a list of non-used raw materials that belong to the current user from the blockchain
+        Args:
+            transformer_address(`ChecksumAddress`): the address of the current user
         Returns:
             `list[RawMaterial]`: a list of all the non-used raw materials
         """
-        rms = list(filter(lambda e: not e.is_used, self.get_all_raw_materials()))
+        rms = list(filter(lambda e: not e.is_used and e.transformer_address==transformer_address, self.get_all_raw_materials()))
         return rms
 
     def get_all_products(self) -> List[Product]:
