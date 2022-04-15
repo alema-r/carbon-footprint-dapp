@@ -49,17 +49,17 @@ class RawMaterial:
             name = self.name + padding
         else:
             name = self.name[:22]+"...     "
-        if len(str(self.lot)) < 6:
-            padding = "".join([' ' for i in range(len(str(self.lot)), 6)])
+        if len(str(self.lot)) <= 6:
+            padding = "".join([' ' for i in range(len(str(self.lot)), 11)])
             lot = str(self.lot) + padding
         else:
-            padding = "".join([' ' for i in range(0, 3)])
+            padding = "".join([' ' for i in range(0, 5)])
             lot = str(self.lot) + padding
         if len(str(self.cf)) < 6:
-            padding = "".join([' ' for i in range(len(str(self.cf)), 6)])
+            padding = "".join([' ' for i in range(len(str(self.cf)), 11)])
             cf = str(self.cf) + padding
         else:
-            padding = "".join([' ' for i in range(0, 3)])
+            padding = "".join([' ' for i in range(0, 5)])
             cf = str(self.cf) + padding
         return f"{name}{lot}{cf}{self.address}"
 

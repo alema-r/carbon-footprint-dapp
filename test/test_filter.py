@@ -1,23 +1,18 @@
 import operator
-import os
 import unittest
 
 from hexbytes import HexBytes
-
-from off_chain.blockchain import set_account_as_default
-import off_chain.connection as connection
-import off_chain.contracts as contracts
 from off_chain.filter import simple_filter, and_filter, or_filter, personalized_contains
 from off_chain.models import Product
 
 
 def get_products():
-    return [Product(1, 'Prodotto1', '0x0fbdc686b912d7722dc86510934589e0aaf3b55a', 45, True),
-            Product(2, 'Prodotto2', '0x30Fd3731FE1Deee29f9325c19e22C2A71099240b', 70, True),
-            Product(3, 'Product1', '0x30Fd3731FE1Deee29f9325c19e22C2A71099240b', 45, False),
-            Product(4, 'Prodotto3', '0x0fbdc686b912d7722dc86510934589e0aaf3b55a', 68, True),
-            Product(5, 'Product2', '0x30Fd3731FE1Deee29f9325c19e22C2A71099240b', 48, False),
-            Product(6, 'Nome', '0x0fbdc686b912d7722dc86510934589e0aaf3b55a', 60, False)]
+    return [Product('Prodotto1', '0x0fbdc686b912d7722dc86510934589e0aaf3b55a', 45, True, 1),
+            Product('Prodotto2', '0x30Fd3731FE1Deee29f9325c19e22C2A71099240b', 70, True, 2),
+            Product('Product1', '0x30Fd3731FE1Deee29f9325c19e22C2A71099240b', 45, False, 3),
+            Product('Prodotto3', '0x0fbdc686b912d7722dc86510934589e0aaf3b55a', 68, True, 4),
+            Product('Product2', '0x30Fd3731FE1Deee29f9325c19e22C2A71099240b', 48, False, 5),
+            Product('Nome', '0x0fbdc686b912d7722dc86510934589e0aaf3b55a', 60, False, 6)]
 
 
 def get_events():
