@@ -2,10 +2,8 @@ import inquirer
 from web3 import Web3
 import re
 
-from . import base_controller
 
-
-def supplier_address_validation(answers, current):
+def address_validation(answers, current):
     """Function that validates an address
 
     Args:
@@ -16,44 +14,18 @@ def supplier_address_validation(answers, current):
         Bool: Returns True if address is valid else returns false
     """
     try:
-        address = Web3.toChecksumAddress(current.strip(' '))
-        role = blockchain.get_user_role(address)
+        Web3.toChecksumAddress(current.strip(' '))
     except Exception:
         raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
-    if role == 1:
-        return True
-    else:
-        raise inquirer.errors.ValidationError('', reason="Given address is not a supplier address. Please try again")
-
-
-def transformer_address_validation(answers, current):
-    """Function that validates an address
-
-    Args:
-        answers (Dictionary): All given answers
-        current (Dictionary): Current given answers.
-
-    Returns:
-        Bool: Returns True if address is valid else returns False
-    """
-    try:
-        address = Web3.toChecksumAddress(current.strip(' '))
-        role = blockchain.get_user_role(address)
-    except:
-        raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
-
-    if role == 2:
-        return True
-    else:
-        raise inquirer.errors.ValidationError('', reason="Given address is not a transformer address. Please try again")
+    return True
 
 
 def carbon_fp_input_validation(answers, current):
     """Functions that validates inserted carbon footprint value
 
     Args:
-        answers (Dictionary): Dictinary of given answers
-        current (Dictionary): Currenct given answer
+        answers (Dictionary): Dictionary of given answers
+        current (Dictionary): Current given answer
 
     Raises:
         inquirer.errors.ValidationError: Raised if given carbon footprint isn't an integer
@@ -65,7 +37,7 @@ def carbon_fp_input_validation(answers, current):
     current_to_test = current.strip(' ')
     try:
         int_cf = int(current_to_test)
-    except:
+    except Exception:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
     if int_cf <= 0:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
@@ -89,7 +61,7 @@ def lot_input_validation(answers, current):
     current_to_test = current.strip(' ')
     try:
         int_lot = int(current_to_test)
-    except:
+    except Exception:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
     if int_lot < 0:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
@@ -125,7 +97,7 @@ def name_input_validation(answers, current):
         current (Dictionary): Current given answer
 
     Raises:
-        inquirer.errors.ValidationError: Raised if raw material's name contains special characters
+        inquirer.errors.ValidationError: Raised if raw material's name contains specials characters
         inquirer.errors.ValidationError: Raised if raw material's name is an empty string
 
     Returns:
