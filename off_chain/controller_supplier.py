@@ -31,6 +31,8 @@ class Supplier(BlockChain):
                     str(e) == "execution reverted: No raw material carbon footprint provided. Insertion Failed") or (
                     str(e) == "execution reverted: Raw material's number doesn't match lot's number") or (
                     str(e) == "execution reverted: Raw material's number doesn't match carbon footprint's number") or (
+                    str(e) == "execution reverted: One or more raw material has an empty name") or (
+                    str(e) == "execution reverted: One or more raw material has a carbon footprint value equal to 0" ) or (
                     str(e) == "execution reverted: This lot of this raw material has been already inserted"):
                 print(e)
             # And these are other generic exceptions

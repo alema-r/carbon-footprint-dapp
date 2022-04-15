@@ -4,15 +4,14 @@ import inquirer
 import inquirer.errors
 import off_chain.validation as validation
 import off_chain.connection as connection
-import off_chain.contracts as contracts
-import off_chain.blockchain as blockchain
+import off_chain.controller_supplier as supplier
 
 
 class ValidationTest(unittest.TestCase):
     def setUp(self) -> None:
-        connection.connection(1)
-        contracts.building_contracts()
-        blockchain.set_account_as_default(1, "0xca843569e3427144cead5e4d5999a3d0ccf92b8e")
+        self.web3 = connection.connection(1)
+        self.sup = supplier.Supplier(web3=self.web3)
+        self.sup.set_account_as_default(web3 = self.web3, user_role = 1, address="0xca843569e3427144cead5e4d5999a3d0ccf92b8e")
         self.correct_supplier_address = "0xca843569e3427144cead5e4d5999a3d0ccf92b8e"
         self.correct_transformer_address = "0x0fbdc686b912d7722dc86510934589e0aaf3b55a"
         self.client_address = "0xf62aa436fc524e574bfeba5b6ad8159bcff407a5"
@@ -44,14 +43,12 @@ class ValidationTest(unittest.TestCase):
         self.assertTrue(validation.supplier_address_validation(dict(), "0xca843569e3427144cead5e4d5999a3d0ccf92b8e"))
         with self.assertRaises(inquirer.errors.ValidationError):
             validation.supplier_address_validation(dict(), self.incorrect_address)
-            validation.supplier_address_validation(dict(), self.client_address)
 
 
     def test_transformer_address_validation(self):
         self.assertTrue(validation.transformer_address_validation(dict(), "0x0fbdc686b912d7722dc86510934589e0aaf3b55a"))
         with self.assertRaises(inquirer.errors.ValidationError):
             validation.supplier_address_validation(dict(), self.incorrect_address)
-            validation.supplier_address_validation(dict(), self.client_address)
 
     def test_carbon_fp_input_validation(self):
         self.assertTrue(validation.carbon_fp_input_validation(dict(), str(self.valid_cf)))

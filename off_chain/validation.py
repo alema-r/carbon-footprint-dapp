@@ -16,14 +16,10 @@ def supplier_address_validation(answers, current):
         Bool: Returns True if address is valid else returns false
     """
     try:
-        address = Web3.toChecksumAddress(current.strip(' '))
-        role = blockchain.get_user_role(address)
+        Web3.toChecksumAddress(current.strip(' '))
     except Exception:
         raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
-    if role == 1:
-        return True
-    else:
-        raise inquirer.errors.ValidationError('', reason="Given address is not a supplier address. Please try again")
+    return True
 
 
 def transformer_address_validation(answers, current):
@@ -37,16 +33,10 @@ def transformer_address_validation(answers, current):
         Bool: Returns True if address is valid else returns False
     """
     try:
-        address = Web3.toChecksumAddress(current.strip(' '))
-        role = blockchain.get_user_role(address)
+        Web3.toChecksumAddress(current.strip(' '))
     except:
         raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
-
-    if role == 2:
-        return True
-    else:
-        raise inquirer.errors.ValidationError('', reason="Given address is not a transformer address. Please try again")
-
+    return True
 
 def carbon_fp_input_validation(answers, current):
     """Functions that validates inserted carbon footprint value
