@@ -46,7 +46,7 @@ class RawMaterial:
         if len(self.name) <= 25:
             length = len(self.name)
             padding = ''.join([' ' for i in range(length, 30)])
-            name = self.name
+            name = self.name + padding
         else:
             name = self.name[:22]+"...     "
         if len(str(self.lot)) < 6:
@@ -74,7 +74,7 @@ class Product:
     """
     Class mapping the structure of a product on the blockchain
     """
-    def __init__(self, product_id: int, name: str, address, cf: int, is_ended=False):
+    def __init__(self, name: str, address, cf: int, is_ended=False, product_id: int = None):
         self.product_id = product_id
         self.name = name
         self.address = address
@@ -93,7 +93,7 @@ class Product:
         Returns:
             Product Object
         """
-        return cls(data[0], data[1], data[2], data[3], data[4])
+        return cls(data[1], data[2], data[3], data[4], data[0])
 
     def __str__(self):
         raw_materials_printable = [[raw.name[:22]+"..." if len(
@@ -137,3 +137,4 @@ class Transformation:
 
     def __str__(self):
         return f"{self.cf}\t{self.transformer}"
+

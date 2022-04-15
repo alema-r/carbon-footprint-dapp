@@ -2,7 +2,7 @@ import inquirer
 from web3 import Web3
 import re
 
-from . import blockchain
+from . import base_controller
 
 
 def supplier_address_validation(answers, current):
