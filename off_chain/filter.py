@@ -4,10 +4,10 @@ import inquirer
 from inquirer.themes import load_theme_from_dict
 from web3 import Web3
 
-from . import blockchain
-from . import event_logs
-from .theme_dict import theme
-from . import validation
+from off_chain import base_controller
+from off_chain.base_controller import BlockChain
+from off_chain.theme_dict import theme
+from off_chain import validation
 
 
 def personalized_contains(a: str, b: str):
@@ -79,27 +79,29 @@ def and_filter(result, criteria):
     return result
 
 
-def print_products(ids):
+def print_products(block_chain: BlockChain, ids):
     """This function prints a table containing products basic information.
 
     Args:
+        block_chain (BlockChain): instance of base controller to interact with blockchain
         ids (List): list of identifiers of the products to print
     """
     products_printable = []
     for pid in ids:
-        p = blockchain.get_product(pid)
+        p = block_chain.get_product(pid)
         products_printable.append([p.product_id, p.name, p.address, p.cf, p.is_ended])
     table = tabulate(products_printable, headers=["Id", "Name", "Owner", "CF", "isEnded"], tablefmt="tsv")
     print(table)
 
 
-def detailed_print(id):
+def detailed_print(block_chain: BlockChain, pid):
     """This function prints all the details regarding one product.
 
     Args:
-        id: Id of the product
+        block_chain (BlockChain): instance of base controller to interact with blockchain
+        pid: ID of the product
     """
-    product = blockchain.get_product_details(id)
+    product = block_chain.get_product_details(pid)
     print(product.__str__())
 
 
@@ -110,10 +112,10 @@ def select_operator():
         'operator': the operator selected by the user
     """
     choices = [
-        ("Equal", operator.eq), 
-        ("Greater", operator.gt), 
-        ("Greater equal", operator.ge), 
-        ("Lower", operator.lt), 
+        ("Equal", operator.eq),
+        ("Greater", operator.gt),
+        ("Greater equal", operator.ge),
+        ("Lower", operator.lt),
         ("Lower equal", operator.le)
     ]
     questions = [inquirer.List(
@@ -128,13 +130,15 @@ def select_operator():
         return None
 
 
-def filter_products(results=None, filters=simple_filter):
+def filter_products(web3: Web3, results=None, filters=simple_filter):
     """This functions manages the filtering process
 
     Args:
+        web3 (Web3): instance of web3 connection to the blockchain
         results (List): list of productId that are currently the result of the filtering process
         filters (Callable): filter function to call
     """
+    block_chain = base_controller.BlockChain(web3)
     if results is None:
         results = []
     criteria = {}
@@ -157,17 +161,20 @@ def filter_products(results=None, filters=simple_filter):
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": blockchain.get_all_products, "value": value['name'].lower(), "field": "name",
+                criteria = {"elements": block_chain.get_all_products, "value": value['name'].lower(), "field": "name",
                             "operator": personalized_contains, "event": False}
         elif action['field'] == choices[1]:  # OWNER
             questions = [inquirer.Text(
                 "Owner",
                 message="Owner's address",
-                validate=validation.transformer_address_validation
+                validate=validation.address_validation
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+            while value is not None and block_chain.get_user_role(Web3.toChecksumAddress(value['Owner'])) != 2:
+                print("Given address is not a transformer address. Please try again")
+                value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": blockchain.get_all_products, "value": Web3.toChecksumAddress(value['Owner']),
+                criteria = {"elements": block_chain.get_all_products, "value": Web3.toChecksumAddress(value['Owner']),
                             "field": "address", "operator": operator.eq, "event": False}
         elif action['field'] == choices[2]:  # CF
             op = select_operator()
@@ -179,9 +186,9 @@ def filter_products(results=None, filters=simple_filter):
                 )]
                 value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
                 if value is not None:
-                    criteria = {"elements": blockchain.get_all_products, "value": int(value['CF']), "field": "cf",
+                    criteria = {"elements": block_chain.get_all_products, "value": int(value['CF']), "field": "cf",
                                 "operator": op, "event": False}
-        elif action['field'] == choices[3]:  # ISENDED
+        elif action['field'] == choices[3]:  # IS ENDED
             choices = [("Yes", True), ("No", False)]
             questions = [inquirer.List(
                 'isEnded',
@@ -190,31 +197,37 @@ def filter_products(results=None, filters=simple_filter):
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": blockchain.get_all_products, "value": value['isEnded'], "field": "is_ended",
+                criteria = {"elements": block_chain.get_all_products, "value": value['isEnded'], "field": "is_ended",
                             "operator": operator.eq, "event": False}
         elif action['field'] == choices[4]:  # SUPPLIERS
             questions = [inquirer.Text(
                 'Supplier',
                 message="Supplier's address",
-                validate=validation.supplier_address_validation
+                validate=validation.address_validation
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+            while value is not None and block_chain.get_user_role(Web3.toChecksumAddress(value['Supplier'])) != 1:
+                print("Given address is not a supplier address. Please try again")
+                value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": event_logs.get_raw_materials_used_events,
+                criteria = {"elements": block_chain.event_logs.get_raw_materials_used_events,
                             "value": Web3.toChecksumAddress(value['Supplier']), "field": "supplier",
                             "operator": operator.eq, "event": True}
         elif action['field'] == choices[5]:  # TRANSFORMERS
             questions = [inquirer.Text(
                 'Transformer',
                 message="Transformer's address",
-                validate=validation.transformer_address_validation
+                validate=validation.address_validation
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
+            while value is not None and block_chain.get_user_role(Web3.toChecksumAddress(value['Transformer'])) != 2:
+                print("Given address is not a transformer address. Please try again")
+                value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": event_logs.get_raw_materials_used_events,
+                criteria = {"elements": block_chain.event_logs.get_raw_materials_used_events,
                             "value": Web3.toChecksumAddress(value['Transformer']), "field": "transformer",
                             "operator": operator.eq, "event": True}
-        elif action['field'] == choices[6]:  # RAWMATERIALNAME
+        elif action['field'] == choices[6]:  # RAW MATERIAL NAME
             questions = [inquirer.Text(
                 'RawMaterial',
                 message="Raw Material name",
@@ -222,8 +235,9 @@ def filter_products(results=None, filters=simple_filter):
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": event_logs.get_raw_materials_used_events, "value": value['RawMaterial'],
-                            "field": "name", "operator": personalized_contains, "event": True}
+                criteria = {"elements": block_chain.event_logs.get_raw_materials_used_events,
+                            "value": value['RawMaterial'], "field": "name", "operator": personalized_contains,
+                            "event": True}
         if criteria:
             results = filters(results, criteria)
         if len(results) > 0:
@@ -237,7 +251,7 @@ def filter_products(results=None, filters=simple_filter):
             action = inquirer.prompt(question, theme=load_theme_from_dict(theme))
             if action is not None:
                 if action['action'] == choices[0]:
-                    print_products(results)
+                    print_products(block_chain, results)
                     question = [inquirer.Text(
                         'PID',
                         message="Insert a product ID to see product details",
@@ -245,10 +259,10 @@ def filter_products(results=None, filters=simple_filter):
                     )]
                     value = inquirer.prompt(question, theme=load_theme_from_dict(theme))
                     if value is not None:
-                        detailed_print(int(value['PID']))
+                        detailed_print(block_chain, int(value['PID']))
                 elif action['action'] == choices[1]:
-                    filter_products(results, and_filter)
+                    filter_products(web3, results, and_filter)
                 elif action['action'] == choices[2]:
-                    filter_products(results, or_filter)
+                    filter_products(web3, results, or_filter)
         elif criteria:
             print("\nNo products match the specified filter\n")
