@@ -2,10 +2,8 @@ import inquirer
 from web3 import Web3
 import re
 
-from . import base_controller
 
-
-def supplier_address_validation(answers, current):
+def address_validation(answers, current):
     """Function that validates an address
 
     Args:
@@ -22,28 +20,12 @@ def supplier_address_validation(answers, current):
     return True
 
 
-def transformer_address_validation(answers, current):
-    """Function that validates an address
-
-    Args:
-        answers (Dictionary): All given answers
-        current (Dictionary): Current given answers.
-
-    Returns:
-        Bool: Returns True if address is valid else returns False
-    """
-    try:
-        Web3.toChecksumAddress(current.strip(' '))
-    except:
-        raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
-    return True
-
 def carbon_fp_input_validation(answers, current):
     """Functions that validates inserted carbon footprint value
 
     Args:
-        answers (Dictionary): Dictinary of given answers
-        current (Dictionary): Currenct given answer
+        answers (Dictionary): Dictionary of given answers
+        current (Dictionary): Current given answer
 
     Raises:
         inquirer.errors.ValidationError: Raised if given carbon footprint isn't an integer
@@ -55,7 +37,7 @@ def carbon_fp_input_validation(answers, current):
     current_to_test = current.strip(' ')
     try:
         int_cf = int(current_to_test)
-    except:
+    except Exception:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
     if int_cf <= 0:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
@@ -79,7 +61,7 @@ def lot_input_validation(answers, current):
     current_to_test = current.strip(' ')
     try:
         int_lot = int(current_to_test)
-    except:
+    except Exception:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
     if int_lot < 0:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
@@ -115,7 +97,7 @@ def name_input_validation(answers, current):
         current (Dictionary): Current given answer
 
     Raises:
-        inquirer.errors.ValidationError: Raised if raw material's name contains special characters
+        inquirer.errors.ValidationError: Raised if raw material's name contains specials characters
         inquirer.errors.ValidationError: Raised if raw material's name is an empty string
 
     Returns:

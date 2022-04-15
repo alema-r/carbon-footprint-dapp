@@ -224,8 +224,8 @@ def filter_products(web3: Web3, results=None, filters=simple_filter):
                 print("Given address is not a transformer address. Please try again")
                 value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": block_chain.event_logs.get_raw_materials_used_events,
-                            "value": Web3.toChecksumAddress(value['Transformer']), "field": "transformer",
+                criteria = {"elements": block_chain.event_logs.get_transformations_events,
+                            "value": Web3.toChecksumAddress(value['Transformer']), "field": "userAddress",
                             "operator": operator.eq, "event": True}
         elif action['field'] == choices[6]:  # RAW MATERIAL NAME
             questions = [inquirer.Text(

@@ -1,4 +1,4 @@
-from web3 import exceptions, Web3
+from web3 import Web3
 
 from off_chain.base_controller import BlockChain
 
@@ -20,11 +20,13 @@ class Supplier(BlockChain):
                 raw_material.lot for raw_material in raw_materials]
             raw_materials_cf_list = [
                 raw_material.cf for raw_material in raw_materials]
+            raw_material_transformers_list = [
+                raw_material.transformer_address for raw_material in raw_materials]
             self.user_contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list,
-                                                            raw_materials_cf_list).transact()
+                                                            raw_materials_cf_list, raw_material_transformers_list).transact()
             return True
 
-        except exceptions as e:
+        except Exception as e:
             # These are custom exceptions
             if (str(e) == "execution reverted: No raw material names were provided. Insertion Failed") or (
                     str(e) == "execution reverted: No raw material lots provided. Insertion Failed") or (
@@ -37,5 +39,6 @@ class Supplier(BlockChain):
                 print(e)
             # And these are other generic exceptions
             else:
-                print("Insertion of raw materials failed. Please insert raw materials again")
+                print(
+                    "Insertion of raw materials failed. Please insert raw materials again")
             return False

@@ -11,7 +11,7 @@ def add_transformation(web3: Web3):
     """This function lets the transformer user add a new transformation to the production chain of a product that they own.
 
     Args:
-        web3 (Web3): the address of the current user
+        web3 (Web3): used to access the address of the current user
     """
     transformer = Transformer(web3)
     print("Follow the instructions to add a transformation to a product. You can cancel operation in any moment "
@@ -60,7 +60,7 @@ def transfer_product(web3: Web3):
     """This function lets the transformer user transfer the property of a product to another transformer
 
     Args:
-        web3 (Web3): the address of the current user
+        web3 (Web3): used to access the address of the current user
     """
     transformer = Transformer(web3)
     # get products associated with user address
@@ -106,6 +106,9 @@ def transfer_product(web3: Web3):
 
 def create_new_product(web3: Web3):
     """This function lets the transformer create a new product, by selecting the necessary raw materials
+
+    Args:
+        web3 (Web3): used to access the address of the current user
     """
     transformer = Transformer(web3)
     print("Follow the instructions to create new product. You can cancel operation in any moment "
@@ -120,7 +123,7 @@ def create_new_product(web3: Web3):
             "raw_materials",  # The user selects the raw materials to use.
             message="Select a raw material to use",
             choices=[(material.__str__(), material.material_id)
-                     for material in transformer.get_raw_material_not_used()],
+                     for material in transformer.get_usable_raw_materials(web3.eth.default_account)],
         )
     ]
     answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))

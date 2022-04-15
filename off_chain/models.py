@@ -1,3 +1,4 @@
+from eth_typing import ChecksumAddress
 from tabulate import tabulate
 from web3.datastructures import AttributeDict
 
@@ -7,13 +8,14 @@ class RawMaterial:
     Class mapping the structure of a raw material on the blockchain
     """
 
-    def __init__(self, name: str, lot: int, address, cf: int, is_used=False, material_id: int = None):
+    def __init__(self, name: str, lot: int, address, cf: int, is_used=False, material_id: int = None, transformer_address: ChecksumAddress=None):
         self.material_id = material_id
         self.name = name
         self.lot = lot
         self.address = address
         self.cf = cf
         self.is_used = is_used
+        self.transformer_address = transformer_address
 
     @classmethod
     def from_blockchain(cls, data: tuple):
@@ -26,7 +28,7 @@ class RawMaterial:
         Returns:
             RawMaterial Object
         """
-        return cls(data[1], data[2], data[3], data[4], data[5], data[0])
+        return cls(data[1], data[2], data[3], data[5], data[6], data[0], data[4])
 
     @classmethod
     def from_event(cls, event: AttributeDict, used=False):
@@ -49,17 +51,17 @@ class RawMaterial:
             name = self.name + padding
         else:
             name = self.name[:22]+"...     "
-        if len(str(self.lot)) < 6:
-            padding = "".join([' ' for i in range(len(str(self.lot)), 6)])
+        if len(str(self.lot)) <= 6:
+            padding = "".join([' ' for i in range(len(str(self.lot)), 11)])
             lot = str(self.lot) + padding
         else:
-            padding = "".join([' ' for i in range(0, 3)])
+            padding = "".join([' ' for i in range(0, 5)])
             lot = str(self.lot) + padding
         if len(str(self.cf)) < 6:
-            padding = "".join([' ' for i in range(len(str(self.cf)), 6)])
+            padding = "".join([' ' for i in range(len(str(self.cf)), 11)])
             cf = str(self.cf) + padding
         else:
-            padding = "".join([' ' for i in range(0, 3)])
+            padding = "".join([' ' for i in range(0, 5)])
             cf = str(self.cf) + padding
         return f"{name}{lot}{cf}{self.address}"
 

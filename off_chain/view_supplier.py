@@ -51,8 +51,8 @@ def insert_raw_material(web3: Web3):
                 choices=["Add raw material", "Cancel insertion"]
             )]
         action = inquirer.prompt(question, theme=load_theme_from_dict(theme))
-        # List of input the user should insert if he chooses to add new raw material
         if action is not None:
+            # List of inputs that the user should insert if they choose to add a new raw material
             if action['action'] == "Add raw material":
                 questions = [
                     inquirer.Text('raw material',
@@ -68,21 +68,34 @@ def insert_raw_material(web3: Web3):
                                   validate=validation.carbon_fp_input_validation
                                   )
                 ]
+                transformer_choice = [
+                    inquirer.Text(
+                        "transformer",
+                        message="Insert the address of the transformer that will receive the raw material",
+                        validate=validation.address_validation,
+                    )]
                 # This line show all the questions coded above and the put the user's answers inside "answers" variable
                 answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
-                # New raw material instance generated using user's inputs values
                 if answers is not None:
-                    raw_material_to_check = RawMaterial(answers["raw material"], int(answers['lot']),
-                                                        web3.eth.default_account, int(answers['carbon footprint']))
-                    # The new raw material is validated.
-                    valid, error_message = input_validation(raw_material_to_check, raw_materials)
-                    # If the new raw material is valid it is appended in the raw materials list
-                    if valid:
-                        raw_materials.append(raw_material_to_check)
-                        print("New raw material correctly inserted")
-                    # If the added raw material is not valid an error message is shown to the user
-                    else:
-                        print(f"Invalid input: {error_message}")
+                    #The user inputs the address of the transformer. This then gets validated.
+                    answers_transformer = inquirer.prompt(
+                        transformer_choice, theme=load_theme_from_dict(theme))
+                    while answers_transformer is not None and supplier.get_user_role(Web3.toChecksumAddress(answers_transformer["transformer"])) != 2:
+                        print("Given address is not a transformer address. Please try again")
+                        answers_transformer = inquirer.prompt(transformer_choice, theme=load_theme_from_dict(theme))
+                    if answers_transformer is not None:
+                        # New raw material instance generated using user's inputs values
+                        raw_material_to_check = RawMaterial(answers["raw material"], int(answers['lot']),
+                                                            web3.eth.default_account, int(answers['carbon footprint'], transformer_address=transformer_choice["transformer"]))
+                        # The new raw material is validated.
+                        valid, error_message = input_validation(raw_material_to_check, raw_materials)
+                        # If the new raw material is valid it is appended in the raw materials list
+                        if valid:
+                            raw_materials.append(raw_material_to_check)
+                            print("New raw material correctly inserted")
+                        # If the added raw material is not valid an error message is shown to the user
+                        else:
+                            print(f"Invalid input: {error_message}")
 
             # If the user chooses to Cancel the operation all inserted inputs are destroyed and the functions ends
             elif action['action'] == "Cancel insertion":
@@ -101,9 +114,9 @@ def insert_raw_material(web3: Web3):
                         else:
                             name = raw.name
 
-                        raw_materials_printable.append([name, raw.lot, raw.cf, raw.address])
+                        raw_materials_printable.append([name, raw.lot, raw.cf, raw.address, raw.transformer_address])
                     table_raw_materials = tabulate(raw_materials_printable, headers=['Name', 'Lot', 'Carbon Footprint',
-                                                                                     'Supplier'], tablefmt='tsv')
+                                                                                     'Supplier', 'Transformer'], tablefmt='tsv')
                     s = "Current inserted raw materials are:\n \n" + table_raw_materials + "\n"
                     print(s)
 

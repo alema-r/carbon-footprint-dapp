@@ -21,6 +21,7 @@ library ProductLibrary{
         string name;
         uint256 lot;
         address supplier;
+        address transformer;
         uint256 CF;
         bool isUsed;
     }
