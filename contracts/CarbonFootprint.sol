@@ -99,6 +99,9 @@ contract CarbonFootprint is ERC721{
         require(_rawMaterialName.length == _lot.length, "Raw material's number doesn't match lot's number");
         require(_rawMaterialName.length == _cf.length, "Raw material's number doesn't match carbon footprint's number");
         for(uint256 i = 0; i < _rawMaterialName.length; i++){
+            //controllare gli spazi è un pò problematico quindi eviterei
+            require(bytes(_rawMaterialName[i]).length > 0, "One or more raw material has an empty name");
+            require(_cf[i] > 0, "One or more raw material has a carbon footprint value equal to 0");
             bytes32 RmHash = keccak256(bytes.concat(bytes(_rawMaterialName[i]), "-", bytes(Strings.toString(_lot[i])), "-", bytes20(tx.origin)));
             for(uint256 j = 0; j < allRawMaterials.length; j++){
                 require(RmHash != keccak256(bytes.concat(bytes(allRawMaterials[j].name), "-", bytes(Strings.toString(allRawMaterials[j].lot)), "-", bytes20(allRawMaterials[j].supplier))), "This lot of this raw material has been already inserted");
@@ -123,6 +126,7 @@ contract CarbonFootprint is ERC721{
 		public onlyOwner
 	{       
         uint256 cf = 0;
+        require(bytes(_productName).length > 0, "Product's name can't be empty");
         for(uint256 i = 0; i < _index.length; i++){
             require(allRawMaterials[_index[i]].isUsed == false, "Inserted raw material's lot has been already used");
             assert(RmToProduct[_index[i]] == 0);
