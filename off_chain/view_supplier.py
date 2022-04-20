@@ -85,14 +85,20 @@ def insert_raw_material(web3: Web3):
                         answers_transformer = inquirer.prompt(transformer_choice, theme=load_theme_from_dict(theme))
                     if answers_transformer is not None:
                         # New raw material instance generated using user's inputs values
-                        raw_material_to_check = RawMaterial(answers["raw material"], int(answers['lot']),
-                                                            web3.eth.default_account, int(answers['carbon footprint'], transformer_address=transformer_choice["transformer"]))
+                        raw_material_to_check = RawMaterial(
+                            answers["raw material"],
+                            int(answers["lot"]),
+                            web3.eth.default_account,
+                            int(answers["carbon footprint"]),
+                            transformer_address=Web3.toChecksumAddress(answers_transformer["transformer"])
+                        )
+
                         # The new raw material is validated.
                         valid, error_message = input_validation(raw_material_to_check, raw_materials)
                         # If the new raw material is valid it is appended in the raw materials list
                         if valid:
                             raw_materials.append(raw_material_to_check)
-                            print("New raw material correctly inserted")
+                            print("New raw material is valid and ready to be inserted")
                         # If the added raw material is not valid an error message is shown to the user
                         else:
                             print(f"Invalid input: {error_message}")

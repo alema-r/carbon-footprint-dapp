@@ -1,7 +1,7 @@
 from typing import List
 
 from eth_typing import ChecksumAddress
-from web3 import Web3
+from web3 import Web3, exceptions
 
 from off_chain.base_controller import BlockChain
 
@@ -35,14 +35,13 @@ class Transformer(BlockChain):
             self.user_contract.functions.addTransformation(
                 carb_foot, product_id, is_the_final).transact()
             return True
+
+        except exceptions.ContractLogicError as e:
+            print(e)
+            return False
+        
         except Exception as e:
-            if (str(e) == "The product doesn't exists. Operation failed.") or (
-                    str(e) == "The product is not modifiable anymore. Operation failed.") or (
-                    str(e) == "To add a carbon footprint to a product you must be its owner. Operation failed."):
-                print(e)
-            # And these are other generic exceptions
-            else:
-                print("Insertion of transformation failed. Please try again")
+            print("Insertion of transformation failed. Please try again")
             return False
 
     def transfer_product_on_blockchain(self, transfer_to: ChecksumAddress, product_id: int):
@@ -59,15 +58,15 @@ class Transformer(BlockChain):
             self.user_contract.functions.transferCP(
                 transfer_to, product_id).transact()
             return True
-        except Exception as e:
-            if (str(e) == "The product doesn't exist. Transfer failed.") or (
-                    str(e) == "The product is not modifiable anymore. Transfer failed." or 
-                    str(e) == "You cannot transfer the product to yourself. Transfer failed"):
-                print(e)
-            # And these are other generic exceptions
-            else:
-                print("Transfer failed. Please try again")
+        
+        except exceptions.ContractLogicError as e:
+            print(e)
             return False
+        
+        except Exception as e:
+            print("Transfer failed. Please try again")
+            return False
+    
 
     def create_new_product_on_blockchain(self, product_name: str, raw_material_ids: List[int]):
         """This function connects to the blockchain to add a new product
@@ -83,10 +82,12 @@ class Transformer(BlockChain):
             self.user_contract.functions.createProduct(
                 product_name, raw_material_ids).transact()
             return True
-        except Exception as e:
-            if (str(e) == "Inserted raw material's lot has already been used. Creation failed.") or (
-                    str(e) == "A selected raw material is not property of the current user. Creation failed."):
-                print(e)
-            else:
-                print("Creation failed. Please try again.")
+        
+        except exceptions.ContractLogicError as e:
+            print(e)
             return False
+        
+        except Exception as e:
+            print("Creation failed. Please try again.")
+            return False
+        
