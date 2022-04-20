@@ -1,4 +1,4 @@
-from web3 import exceptions, Web3
+from web3 import Web3
 
 from off_chain.base_controller import BlockChain
 
@@ -26,7 +26,7 @@ class Supplier(BlockChain):
                                                             raw_materials_cf_list, raw_material_transformers_list).transact()
             return True
 
-        except exceptions as e:
+        except Exception as e:
             # These are custom exceptions
             if (str(e) == "No raw material names were provided. Insertion failed") or (
                     str(e) == "No raw material lots provided. Insertion failed") or (
