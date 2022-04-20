@@ -37,8 +37,9 @@
 					"User"
 				]
 			},
-            "showUnproved": true,
-			"engine": "all",
+            "showUnproved": false,
+			"engine": "bmc",
+			"solvers": ["z3","smtlib2"],
 			"timeout": 0
 		}
 	}

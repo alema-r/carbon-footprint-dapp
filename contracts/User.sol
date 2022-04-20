@@ -35,9 +35,9 @@ contract User {
     address private owner;
 
     /**
-    @notice Event used to track when a new user is registered
-    @param userAddress The address of the new user
-    @param role The role of the new user
+     * @notice Event used to track when a new user is registered
+     * @param userAddress The address of the new user
+     * @param role The role of the new user
      */
     event newUser(address userAddress, Role role);
 
@@ -115,15 +115,15 @@ contract User {
      * @param name The array of the raw materials' name.
      * @param lot The array of the raw materials' lot.
      * @param cf The array of the raw materials' carbon footprint.
-     * @param transformer The array of the transformer that will receive the respective lots of raw materials.
+     * @param transformerAddress The array of the transformer that will receive the respective lots of raw materials.
      */
     function createRawMaterials(
         string[] calldata name,
         uint256[] calldata lot,
         uint256[] calldata cf,
-        address[] calldata transformer
+        address[] calldata transformerAddress
     ) external onlySupplier {
-        CFContract.addRawMaterials(name, lot, cf, transformer);
+        CFContract.addRawMaterials(name, lot, cf, transformerAddress);
     }
 
     /**
