@@ -1,5 +1,3 @@
-import os
-import sys
 import io
 import unittest
 
@@ -7,17 +5,15 @@ from web3 import Web3
 from off_chain.models import RawMaterial
 import off_chain.connection as connection
 import off_chain.controller_supplier as supplier
-import off_chain.base_controller as controller
 import unittest.mock
 
 class SupplierTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        os.chdir(str(os.getcwd())+"/../")
         cls.web3 = connection.connection(1)
         cls.sup = supplier.Supplier(web3=cls.web3)
         cls.transformer_address = Web3.toChecksumAddress("0x0fbdc686b912d7722dc86510934589e0aaf3b55a")
-        cls.sup.set_account_as_default(user_role = 1, address="0xca843569e3427144cead5e4d5999a3d0ccf92b8e")
+        cls.sup.set_account_as_default(user_role=1, address="0xca843569e3427144cead5e4d5999a3d0ccf92b8e")
         cls.client_address = Web3.toChecksumAddress("0xed9d02e382b34818e88b88a309c7fe71e65f419d")
         cls.raw_materials_list = []
 
@@ -43,7 +39,7 @@ class SupplierTest(unittest.TestCase):
     # Test to check a correctly added raw material
     def test_create_raw_materials(self):
         self.assertTrue(self.sup.create_raw_materials_on_blockchain(self.raw_materials_list))
-        self.assertEquals(self.raw_materials_list, self.sup.get_all_raw_materials())
+        self.assertListEqual(self.raw_materials_list, self.sup.get_all_raw_materials())
     
     
     # Misuse case test to check errore returned from Blockchain
