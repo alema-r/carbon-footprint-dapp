@@ -10,20 +10,17 @@ from off_chain.models import Product, RawMaterial, Transformation
 
 class BlockChain:
     def __init__(self, web3: Web3):
+        self.web3 = web3
         self.user_contract = contracts.build_user_contract(web3)
         self.event_logs = event_logs.EventLogs(contracts.build_cf_contract(self.user_contract, web3))
 
-    def set_account_as_default(self, web3: Web3, user_role: int, address: str) -> ChecksumAddress:
+    def set_account_as_default(self, user_role: int, address: str) -> None:
         """
         Function used to check if user address corresponds to the given role and set current user address as
         default web3 account in order to accomplish transactions
         Args:
-            web3: (Web3): instance of web3 connection to the blockchain
             user_role: (int): the integer identifier of the role chose by the current user
             address: (Address): address of current logged user
-
-        Returns:
-            address: (Address): validated address of the current user
 
         Raises:
             Exception: Custom general error raised if a non planned error occurs
@@ -31,22 +28,21 @@ class BlockChain:
         """
         try:
             # Checking for correct account format
-            account = web3.toChecksumAddress(address)
+            account = self.web3.toChecksumAddress(address)
             # If the account is inside the list of known accounts of the block
-            if account in web3.eth.accounts:
-                web3.geth.personal.unlock_account(account, '')
+            if account in self.web3.eth.accounts:
+                self.web3.geth.personal.unlock_account(account, '')
                 # Calling the method to check current account role inside user contract
                 real_role = self.get_user_role(account)
                 # If the account isn't registered inside the contract
                 if real_role == 0 and user_role != 0:
                     # The user is created with the given role inside the
-                    web3.eth.default_account = account
+                    self.web3.eth.default_account = account
                     self.user_contract.functions.createUser(
                         user_role).transact()
                 else:
                     # The account is set as the default account
-                    web3.eth.default_account = account
-                return account
+                    self.web3.eth.default_account = account
             # If the account isn't inside the current block's list of accounts
             else:
                 # An error is raised

@@ -97,6 +97,12 @@ class Product:
         """
         return cls(data[1], data[2], data[3], data[4], data[0])
 
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, Product):
+            return self.product_id == __o.product_id
+        else:
+            return False
+
     def __str__(self):
         raw_materials_printable = [[raw.name[:22]+"..." if len(
             raw.name) > 25 else raw.name, raw.lot, raw.cf, raw.address] for raw in self.rawMaterials]

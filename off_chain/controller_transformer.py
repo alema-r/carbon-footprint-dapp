@@ -32,8 +32,9 @@ class Transformer(BlockChain):
             is_the_final (bool): boolean that indicates if this is the final transformation of the production chain
         """
         try:
-            self.user_contract.functions.addTransformation(
+            tx_hash = self.user_contract.functions.addTransformation(
                 carb_foot, product_id, is_the_final).transact()
+            self.web3.eth.wait_for_transaction_receipt(tx_hash)
             return True
 
         except exceptions.ContractLogicError as e:
@@ -55,8 +56,9 @@ class Transformer(BlockChain):
             `Exception`: if the operations fails
         """
         try:
-            self.user_contract.functions.transferCP(
+            tx_hash = self.user_contract.functions.transferCP(
                 transfer_to, product_id).transact()
+            self.web3.eth.wait_for_transaction_receipt(tx_hash)
             return True
         
         except exceptions.ContractLogicError as e:
@@ -79,8 +81,9 @@ class Transformer(BlockChain):
             Exception: if the operations fails
         """
         try:
-            self.user_contract.functions.createProduct(
+            tx_hash = self.user_contract.functions.createProduct(
                 product_name, raw_material_ids).transact()
+            self.web3.eth.wait_for_transaction_receipt(tx_hash)
             return True
         
         except exceptions.ContractLogicError as e:

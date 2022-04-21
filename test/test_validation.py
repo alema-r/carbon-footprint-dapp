@@ -3,16 +3,11 @@ import unittest
 import inquirer
 import inquirer.errors
 import off_chain.validation as validation
-import off_chain.connection as connection
-import off_chain.controller_supplier as supplier
 
 
 class ValidationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.web3 = connection.connection(1)
-        cls.sup = supplier.Supplier(web3=cls.web3)
-        cls.sup.set_account_as_default(web3 = cls.web3, user_role = 1, address="0xca843569e3427144cead5e4d5999a3d0ccf92b8e")
         cls.correct_supplier_address = "0xca843569e3427144cead5e4d5999a3d0ccf92b8e"
         cls.correct_transformer_address = "0x0fbdc686b912d7722dc86510934589e0aaf3b55a"
         cls.client_address = "0xf62aa436fc524e574bfeba5b6ad8159bcff407a5"
@@ -26,7 +21,7 @@ class ValidationTest(unittest.TestCase):
         cls.invalid_lot = 10-20
         cls.invalid_lot1 = "-10"
         cls.invalid_lot2 = "prova"
-        cls.invalido_lot3 = "   "
+        cls.invalid_lot3 = "   "
         cls.valid_id = 1
         cls.invalid_id = 10-20
         cls.invalid_id1 = "-10"

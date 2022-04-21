@@ -71,7 +71,7 @@ def main():
         if answers is not None:
             # Here it tries to connect to blockchain
             try:
-                address = block_chain.set_account_as_default(web3, role, answers['address'])
+                block_chain.set_account_as_default(role, answers['address'])
                 # if everything is ok the while loop ends
                 break
             # if something goes wrong an exception is thrown

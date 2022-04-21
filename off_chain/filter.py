@@ -11,7 +11,7 @@ from off_chain import validation
 
 
 def personalized_contains(a: str, b: str):
-    return a.lower() in b.lower()
+    return b.lower() in a.lower()
 
 
 def simple_filter(result: list, criteria: dict) -> list:
@@ -160,7 +160,7 @@ def filter_products(web3: Web3, results=None, filters=simple_filter):
             )]
             value = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
             if value is not None:
-                criteria = {"elements": block_chain.get_all_products, "value": value['name'].lower(), "field": "name",
+                criteria = {"elements": block_chain.get_all_products, "value": value['name'], "field": "name",
                             "operator": personalized_contains, "event": False}
         elif action['field'] == choices[1]:  # OWNER
             questions = [inquirer.Text(
