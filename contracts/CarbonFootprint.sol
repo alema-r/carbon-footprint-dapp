@@ -19,7 +19,7 @@ contract CarbonFootprint is ERC721 {
     // Variable that represents the id of a product
     uint256 private productId = 1;
 
-    //Variable that represents the if of a raw material
+    // Variable that represents the id of a raw material
     uint256 private materialId = 0;
 
     // Array that contains all products present in the contract.
@@ -28,10 +28,9 @@ contract CarbonFootprint is ERC721 {
     // Array that contains all rawmaterials present in the contract.
     ProductLibrary.RawMaterial[] private allRawMaterials;
 
-    // Rivedere questo mapping nel caso in cui i prodotti possano avere lo stesso nome
+    // Mapping used to track which raw materials has been used on which product.
     mapping(uint256 => uint256) private RmToProduct;
 
-    // Evento da emettere sulla blockchain quando viene aggiornata una carbon footprint
     /**
      * @notice Event used to track each carbon footprint addition.
      * @param userAddress The address of the user that adds the carbon footprint
@@ -59,22 +58,22 @@ contract CarbonFootprint is ERC721 {
     );
 
     /**
-    @notice Event used to track the completion of a product
-    @param userAddress The address of the transformer who completed the process
-    @param pId The id of the completed product
-    @param cf The total carbon footprint of the product
+     * @notice Event used to track the completion of a product
+     * @param userAddress The address of the transformer who completed the process
+     * @param pId The id of the completed product
+     * @param cf The total carbon footprint of the product
      */
     event productIsFinished(address userAddress, uint256 pId, uint256 cf);
 
     /**
-    @notice Event used to track when a raw material is used
-    @param transformer The address of the transformer that used the raw material
-    @param supplier The address of the supplier who supplied the raw material
-    @param pId The id of the product for which the raw material was used
-    @param mId The id of the used raw material
-    @param name The name of the used raw material
-    @param lot The lot number of the used raw material
-    @param cf The carbon footprint of the used raw material
+     * @notice Event used to track when a raw material is used
+     * @param transformer The address of the transformer that used the raw material
+     * @param supplier The address of the supplier who supplied the raw material
+     * @param pId The id of the product for which the raw material was used
+     * @param mId The id of the used raw material
+     * @param name The name of the used raw material
+     * @param lot The lot number of the used raw material
+     * @param cf The carbon footprint of the used raw material
      */
     event rawMaterialIsUsed(
         address transformer,
@@ -127,9 +126,9 @@ contract CarbonFootprint is ERC721 {
 
     /**
      * @notice Returns the product with the specified `pId` id.
-     * @dev Since `productId` is initialized to 0 and it is incremented by 1
+     * @dev Since `productId` is initialized to 1 and it is incremented by 1
      * each time a new product is created, the id of a product matches
-     * the position in the `allProducts` array.
+     * the position in the `allProducts` array shifted by 1.
      * @param pId The id of the product.
      * @return A `ProductLibrary.Product` object.
      */
@@ -139,7 +138,7 @@ contract CarbonFootprint is ERC721 {
         onlyOwner
         returns (ProductLibrary.Product memory)
     {
-        require(pId < productId, "Product doesn't exists");
+        require(pId < productId && pId > 0, "Product doesn't exists");
         return allProducts[pId - 1];
     }
 
@@ -209,7 +208,7 @@ contract CarbonFootprint is ERC721 {
                                 bytes20(allRawMaterials[j].supplier)
                             )
                         ),
-                    "This lot of this raw material has been already inserted"
+                    "This lot of this raw material has been already inserted. Insertion failed."
                 );
             }
             allRawMaterials.push(
@@ -248,7 +247,12 @@ contract CarbonFootprint is ERC721 {
     ) public onlyOwner {
         uint256 cf = 0;
         require(bytes(_productName).length > 0, "Product's name can't be empty");
+        require(_index.length > 0, "No raw material selected. Creation failed");
         for (uint256 i = 0; i < _index.length; i++) {
+            require(
+                _index[i] < allRawMaterials.length,
+                "Invalid raw material selected. Creation failed."
+            );
             require(
                 allRawMaterials[_index[i]].isUsed == false,
                 "Inserted raw material's lot has already been used. Creation failed."
@@ -257,7 +261,7 @@ contract CarbonFootprint is ERC721 {
                 allRawMaterials[_index[i]].transformer == tx.origin,
                 "A selected raw material is not property of the current user. Creation failed."
             );
-            assert(RmToProduct[_index[i]] == 0);
+            //assert(RmToProduct[_index[i]] == 0);
             RmToProduct[_index[i]] = productId;
             allRawMaterials[_index[i]].isUsed = true;
             cf += allRawMaterials[_index[i]].CF;
@@ -295,14 +299,15 @@ contract CarbonFootprint is ERC721 {
         uint256 pId,
         bool isEnded
     ) public onlyOwner {
-        require(pId < productId, "The product doesn't exists. Operation failed.");
+        require(partialCF > 0, "You cannot add a carbon footprint lower than 1.");
+        require(pId < productId && pId > 0, "The product doesn't exists. Operation failed.");
         ProductLibrary.Product storage productToUpdate = allProducts[pId - 1];
         require(productToUpdate.ended == false, "The product is not modifiable anymore. Operation failed.");
         require(
             productToUpdate.currentOwner == tx.origin,
             "To add a carbon footprint to a product you must be its owner. Operation failed."
         );
-        assert(productToUpdate.productId < productId);
+        //assert(productToUpdate.productId < productId);
         productToUpdate.CF += partialCF;
         emit newCFAdded(tx.origin, partialCF, pId);
         if (isEnded) {
@@ -322,6 +327,7 @@ contract CarbonFootprint is ERC721 {
     function transferProduct(address recipient, uint256 pId) public onlyOwner {
         require(pId < productId, "The product doesn't exist. Transfer failed.");
         require(pId > 0, "The product doesn't exist. Transfer failed.");
+        require(recipient != tx.origin, "You cannot transfer the product to yourself. Transfer failed");
         ProductLibrary.Product storage productToUpdate = allProducts[pId - 1];
         require(productToUpdate.ended == false, "The product is not modifiable anymore. Transfer failed.");
         _safeTransfer(tx.origin, recipient, pId, "");

@@ -1,4 +1,4 @@
-from web3 import Web3
+from web3 import exceptions, Web3
 
 from off_chain.base_controller import BlockChain
 
@@ -14,18 +14,33 @@ class Supplier(BlockChain):
             raw_materials (`list[RawMaterial]`): List of raw materials that must be inserted
         """
         try:
-            raw_materials_name_list = [
-                raw_material.name for raw_material in raw_materials]
-            raw_materials_lot_list = [
-                raw_material.lot for raw_material in raw_materials]
-            raw_materials_cf_list = [
-                raw_material.cf for raw_material in raw_materials]
-            raw_material_transformers_list = [
-                raw_material.transformer_address for raw_material in raw_materials]
-            self.user_contract.functions.createRawMaterials(raw_materials_name_list, raw_materials_lot_list,
-                                                            raw_materials_cf_list, raw_material_transformers_list).transact()
+            rm_name_list = []
+            rm_lot_list = []
+            rm_cf_list = []
+            rm_tr_list = []
+            for raw_mat in raw_materials:
+                rm_name_list.append(raw_mat.name)
+                rm_lot_list.append(raw_mat.lot)
+                rm_cf_list.append(raw_mat.cf)
+                rm_tr_list.append(raw_mat.transformer_address)
+            
+            self.user_contract.functions.createRawMaterials(
+                rm_name_list,
+                rm_lot_list,
+                rm_cf_list,
+                rm_tr_list,
+            ).transact()
             return True
+            
+        except exceptions.ContractLogicError as e:
+            print(e)
+            return False
 
+        except Exception:
+            print("Insertion of raw materials failed. Please insert raw materials again")
+            return False
+
+        '''
         except Exception as e:
             # These are custom exceptions
             if (str(e) == "execution reverted: No raw material names were provided. Insertion Failed") or (
@@ -41,4 +56,4 @@ class Supplier(BlockChain):
             else:
                 print(
                     "Insertion of raw materials failed. Please insert raw materials again")
-            return False
+        '''

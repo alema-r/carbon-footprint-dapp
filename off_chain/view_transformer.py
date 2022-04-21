@@ -14,10 +14,16 @@ def add_transformation(web3: Web3):
         web3 (Web3): used to access the address of the current user
     """
     transformer = Transformer(web3)
-    print("Follow the instructions to add a transformation to a product. You can cancel operation in any moment "
-          "by pressing Ctrl+C")
     # gets the products associated with the current user
     user_products = transformer.get_updatable_user_products(web3.eth.default_account)
+    
+    if len(user_products) == 0:
+        print("You don't have any product to update\n")
+        return
+    
+    print("Follow the instructions to add a transformation to a product. You can cancel operation in any moment "
+          "by pressing Ctrl+C")
+    
     questions = [
         inquirer.List(
             "product_id",
@@ -65,6 +71,11 @@ def transfer_product(web3: Web3):
     transformer = Transformer(web3)
     # get products associated with user address
     user_products = transformer.get_updatable_user_products(web3.eth.default_account)
+    
+    if len(user_products) == 0:
+        print("You don't have any product to transfer\n")
+        return
+    
     print("Follow the instructions to complete transfer process. You can cancel operation in any moment "
           "by pressing Ctrl+C")
     product_choice = [

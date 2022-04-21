@@ -11,7 +11,7 @@ from off_chain import validation
 
 
 def personalized_contains(a: str, b: str):
-    return a.lower().__contains__(b.lower())
+    return a.lower() in b.lower()
 
 
 def simple_filter(result: list, criteria: dict) -> list:
@@ -142,8 +142,7 @@ def filter_products(web3: Web3, results=None, filters=simple_filter):
     if results is None:
         results = []
     criteria = {}
-    choices = ["Name", "Owner", "CF", "Ended", "Supplier", "Transformer",
-               "Raw Material"]
+    choices = ["Name", "Owner", "CF", "Ended", "Supplier", "Transformer", "Raw Material"]
     print("Follow the instructions to search products and view details. You can cancel any operation at any moment "
           "by pressing Ctrl+C")
     question = [inquirer.List(
