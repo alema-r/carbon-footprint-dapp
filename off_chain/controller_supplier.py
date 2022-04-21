@@ -24,12 +24,13 @@ class Supplier(BlockChain):
                 rm_cf_list.append(raw_mat.cf)
                 rm_tr_list.append(raw_mat.transformer_address)
             
-            self.user_contract.functions.createRawMaterials(
+            tx_hash = self.user_contract.functions.createRawMaterials(
                 rm_name_list,
                 rm_lot_list,
                 rm_cf_list,
                 rm_tr_list,
             ).transact()
+            self.web3.eth.wait_for_transaction_receipt(tx_hash)
             return True
             
         except exceptions.ContractLogicError as e:
@@ -39,21 +40,3 @@ class Supplier(BlockChain):
         except Exception:
             print("Insertion of raw materials failed. Please insert raw materials again")
             return False
-
-        '''
-        except Exception as e:
-            # These are custom exceptions
-            if (str(e) == "execution reverted: No raw material names were provided. Insertion Failed") or (
-                    str(e) == "execution reverted: No raw material lots provided. Insertion Failed") or (
-                    str(e) == "execution reverted: No raw material carbon footprint provided. Insertion Failed") or (
-                    str(e) == "execution reverted: Raw material's number doesn't match lot's number") or (
-                    str(e) == "execution reverted: Raw material's number doesn't match carbon footprint's number") or (
-                    str(e) == "execution reverted: One or more raw material has an empty name") or (
-                    str(e) == "execution reverted: One or more raw material has a carbon footprint value equal to 0" ) or (
-                    str(e) == "execution reverted: This lot of this raw material has been already inserted"):
-                print(e)
-            # And these are other generic exceptions
-            else:
-                print(
-                    "Insertion of raw materials failed. Please insert raw materials again")
-        '''

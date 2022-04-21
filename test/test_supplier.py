@@ -13,10 +13,11 @@ import unittest.mock
 class SupplierTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        os.chdir(str(os.getcwd())+"/../")
         cls.web3 = connection.connection(1)
         cls.sup = supplier.Supplier(web3=cls.web3)
         cls.transformer_address = Web3.toChecksumAddress("0x0fbdc686b912d7722dc86510934589e0aaf3b55a")
-        cls.sup.set_account_as_default(web3 = cls.web3, user_role = 1, address="0xca843569e3427144cead5e4d5999a3d0ccf92b8e")
+        cls.sup.set_account_as_default(user_role = 1, address="0xca843569e3427144cead5e4d5999a3d0ccf92b8e")
         cls.client_address = Web3.toChecksumAddress("0xed9d02e382b34818e88b88a309c7fe71e65f419d")
         cls.raw_materials_list = []
 
