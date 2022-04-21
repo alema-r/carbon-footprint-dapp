@@ -123,6 +123,9 @@ contract User {
         uint256[] calldata cf,
         address[] calldata transformerAddress
     ) external onlySupplier {
+        for (uint256 i = 0; i < transformerAddress.length; i++){
+            require(getRole(transformerAddress[i]) == transformer, "One or more inserted addresses are not transformer addresses");
+        }
         CFContract.addRawMaterials(name, lot, cf, transformerAddress);
     }
 
