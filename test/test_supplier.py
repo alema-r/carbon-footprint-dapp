@@ -13,7 +13,6 @@ import unittest.mock
 class SupplierTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        #os.chdir(str(os.getcwd())+"/../")
         cls.web3 = connection.connection(1)
         cls.sup = supplier.Supplier(web3=cls.web3)
         cls.transformer_address = Web3.toChecksumAddress("0x0fbdc686b912d7722dc86510934589e0aaf3b55a")
@@ -43,7 +42,8 @@ class SupplierTest(unittest.TestCase):
     # Test to check a correctly added raw material
     def test_create_raw_materials(self):
         self.assertTrue(self.sup.create_raw_materials_on_blockchain(self.raw_materials_list))
-        self.assertEquals(self.raw_materials_list, self.sup.get_all_raw_materials())
+        for raw_material in self.raw_materials_list:
+            self.assertIn(raw_material , self.sup.get_all_raw_materials())
     
     
     # Misuse case test to check errore returned from Blockchain
