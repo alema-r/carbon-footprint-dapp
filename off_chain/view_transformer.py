@@ -28,7 +28,7 @@ def add_transformation(web3: Web3):
         inquirer.List(
             "product_id",
             message="What product do you want to update?",
-            choices=[(product.name, product.product_id)
+            choices=[(str(product.product_id) + ' - ' + product.name, product.product_id)
                      for product in user_products],
             carousel=True
         ),
@@ -82,8 +82,7 @@ def transfer_product(web3: Web3):
         inquirer.List(
             "product_id",
             message="What product do you want to transfer?",
-            choices=[(product.name[:22]+"..." if len(product.name) > 25
-                      else product.name, product.product_id) for product in user_products],
+            choices=[(str(product.product_id) + ' - ' + product.name, product.product_id) for product in user_products],
             carousel=True
         )]
     transformer_choice = [
