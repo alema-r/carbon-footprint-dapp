@@ -1,5 +1,6 @@
 import inquirer
 from inquirer.themes import load_theme_from_dict
+from requests import exceptions as requests_exceptions
 from web3 import Web3
 
 from off_chain.controller_transformer import Transformer
@@ -13,7 +14,11 @@ def add_transformation(web3: Web3):
     Args:
         web3 (Web3): used to access the address of the current user
     """
-    transformer = Transformer(web3)
+    try:
+        transformer = Transformer(web3)
+    except requests_exceptions.ConnectionError:
+        print("Could not connect to the blockchain. Try again")
+        return
     # gets the products associated with the current user
     user_products = transformer.get_updatable_user_products(web3.eth.default_account)
     
@@ -68,7 +73,11 @@ def transfer_product(web3: Web3):
     Args:
         web3 (Web3): used to access the address of the current user
     """
-    transformer = Transformer(web3)
+    try:
+        transformer = Transformer(web3)
+    except requests_exceptions.ConnectionError:
+        print("Could not connect to the blockchain. Try again")
+        return
     # get products associated with user address
     user_products = transformer.get_updatable_user_products(web3.eth.default_account)
     
@@ -120,7 +129,12 @@ def create_new_product(web3: Web3):
     Args:
         web3 (Web3): used to access the address of the current user
     """
-    transformer = Transformer(web3)
+    try:
+        transformer = Transformer(web3)
+    except requests_exceptions.ConnectionError:
+        print("Could not connect to the blockchain. Try again")
+        return
+
     print("Follow the instructions to create new product. You can cancel operation in any moment "
           "by pressing Ctrl+C")
     questions = [

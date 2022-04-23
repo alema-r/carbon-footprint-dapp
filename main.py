@@ -41,13 +41,16 @@ role_dict = {
 def main():
     print("Welcome!")
     questions = [
-        inquirer.List('role',
-                      message="Specify your role",
-                      choices=[("Client", int(role_dict["Client"]['num'])),
-                               ("Supplier", int(role_dict["Supplier"]['num'])),
-                               ("Transformer", int(role_dict["Transformer"]['num'])),
-                               ("Exit", -1)],
-                      )
+        inquirer.List(
+            "role",
+            message="Specify your role",
+            choices=[
+                ("Client", int(role_dict["Client"]["num"])),
+                ("Supplier", int(role_dict["Supplier"]["num"])),
+                ("Transformer", int(role_dict["Transformer"]["num"])),
+                ("Exit", -1),
+            ],
+        )
     ]
 
     answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))
@@ -55,11 +58,14 @@ def main():
         # getting user role to instantiate connection to the correct node
         role = answers['role']
         web3 = connection.connection(role)
+        if not web3.isConnected():
+            print("Could not connect to the blockchain, Try again")
+            exit(1)
         block_chain = base_controller.BlockChain(web3)
 
     else:
-        print("Goodbye have a nice day")
-        exit(0)
+        bye()
+
     while True:
         # Asks the user to declare his address
         questions = [
