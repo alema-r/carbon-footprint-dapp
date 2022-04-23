@@ -1,7 +1,7 @@
 from functools import singledispatch
 from eth_typing import ChecksumAddress
 from typing import List
-from web3 import Web3
+from web3 import Web3, exceptions
 
 from off_chain import contracts
 from off_chain import event_logs
@@ -60,10 +60,13 @@ class BlockChain:
         Returns:
             role: (int): role of current logged user
         """
-        if address is None:
-            return self.user_contract.functions.getRole().call()
-        else:
-            return self.user_contract.functions.getRole(address).call()
+        try:
+            if address is None:
+                return self.user_contract.functions.getRole().call()
+            else:
+                return self.user_contract.functions.getRole(address).call()
+        except exceptions.ContractLogicError as e:
+            print(e)
 
     def get_product(self, product_id: int) -> Product:
         """Gets the product from the blockchain with no information on raw materials and transformations.
