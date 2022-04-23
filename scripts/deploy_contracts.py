@@ -3,10 +3,10 @@ from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
 # getting the address of the contracts in the address JSON file
-with open("address.json", "r") as file:
+with open("../address.json", "r") as file:
     address = json.load(file)["address"]
 # getting the user contract interface in order to build user contract instance
-with open("solc_output/UserContract.json", "r") as user_compiled:
+with open("../solc_output/UserContract.json", "r") as user_compiled:
     user_interface = json.load(user_compiled)
 
 # creating web3 connection to deploy contracts on the blockchain
@@ -32,7 +32,7 @@ if address == "" or web3.eth.get_code(address) != b'':
     user_contract = web3.eth.contract(
         address=tx_receipt.contractAddress, abi=user_interface["abi"]
     )
-    with open("address.json", "w") as file:
+    with open("../address.json", "w") as file:
         json_address = dict(address=user_contract.address)
         json.dump(json_address, file)
 else:
