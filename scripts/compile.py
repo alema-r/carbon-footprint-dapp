@@ -50,7 +50,7 @@ def main():
         output = subprocess.check_output(cmd.split(" "))
         output = json.loads(output)
 
-        with open("../solc_output/errors.json", "w", encoding="utf8") as errors:
+        with open("../solc_output/errors.json", "w", encoding="utf-8") as errors:
             json.dump(obj=output["errors"], fp=errors, indent=4)
         print("Done! The output of SMTChekcker can be found in solc_output/errors.json")
     else:
@@ -61,12 +61,12 @@ def main():
         output = json.loads(output)
         print("Done!")
 
-    with open("../solc_output/CFContract.json", "w", encoding="utf8") as cf_contract:
+    with open("../solc_output/CFContract.json", "w", encoding="utf-8") as cf_contract:
         json.dump(
             obj=output["contracts"]["../contracts/CarbonFootprint.sol"]["CarbonFootprint"],
             fp=cf_contract,
         )
-    with open("../solc_output/UserContract.json", "w", encoding="utf8") as user_contract:
+    with open("../solc_output/UserContract.json", "w", encoding="utf-8") as user_contract:
         json.dump(
             obj=output["contracts"]["../contracts/User.sol"]["User"], fp=user_contract
         )
