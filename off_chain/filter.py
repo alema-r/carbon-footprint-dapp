@@ -2,9 +2,9 @@ import operator
 from tabulate import tabulate
 import inquirer
 from inquirer.themes import load_theme_from_dict
+from requests import exceptions as requests_exceptions
 from web3 import Web3
 
-from off_chain import base_controller
 from off_chain.base_controller import BlockChain
 from off_chain.theme_dict import theme
 from off_chain import validation
@@ -102,7 +102,8 @@ def detailed_print(block_chain: BlockChain, pid):
         pid: ID of the product
     """
     product = block_chain.get_product_details(pid)
-    print(product.__str__())
+    if product is not None:
+        print(product)
 
 
 def select_operator():
@@ -138,7 +139,12 @@ def filter_products(web3: Web3, results=None, filters=simple_filter):
         results (List): list of productId that are currently the result of the filtering process
         filters (Callable): filter function to call
     """
-    block_chain = base_controller.BlockChain(web3)
+    try:
+        block_chain = BlockChain(web3)
+    except requests_exceptions.ConnectionError:
+        print("Could not connect to the blockchain. Try again")
+        return
+    
     if results is None:
         results = []
     criteria = {}

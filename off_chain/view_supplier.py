@@ -1,5 +1,6 @@
 import inquirer
 from inquirer.themes import load_theme_from_dict
+from requests import exceptions as requests_exceptions
 from tabulate import tabulate
 from web3 import Web3
 
@@ -32,7 +33,11 @@ def insert_raw_material(web3: Web3):
     Args:
         web3 (Web3): instance of web3 connection to the blockchain
     """
-    supplier = controller_supplier.Supplier(web3)
+    try:
+        supplier = controller_supplier.Supplier(web3)
+    except requests_exceptions.ConnectionError:
+        print("Could not connect to the blockchain. Try again")
+        return
     raw_materials = []
     action = "start"
     # This while is used to manage the interaction with the supplier

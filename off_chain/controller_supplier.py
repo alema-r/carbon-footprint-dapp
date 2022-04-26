@@ -1,4 +1,6 @@
-from web3 import exceptions, Web3
+from requests import exceptions as requests_exceptions
+from web3 import Web3
+from web3 import exceptions as solidity_exceptions
 
 from off_chain.base_controller import BlockChain
 
@@ -32,8 +34,12 @@ class Supplier(BlockChain):
             ).transact()
             self.web3.eth.wait_for_transaction_receipt(tx_hash)
             return True
-            
-        except exceptions.ContractLogicError as e:
+        
+        except requests_exceptions.ConnectionError:
+            print("Could not connect to the blockchain. Try again")
+            return
+
+        except solidity_exceptions.ContractLogicError as e:
             print(e)
             return False
 

@@ -1,5 +1,6 @@
 import inquirer
 from web3 import Web3
+from web3.constants import ADDRESS_ZERO
 import re
 
 
@@ -14,7 +15,9 @@ def address_validation(answers, current):
         Bool: Returns True if address is valid else returns false
     """
     try:
-        Web3.toChecksumAddress(current.strip(' '))
+        address = Web3.toChecksumAddress(current.strip(' '))
+        if address == ADDRESS_ZERO:
+            raise Exception
     except Exception:
         raise inquirer.errors.ValidationError('', reason="Invalid address format. Please try again")
     return True
