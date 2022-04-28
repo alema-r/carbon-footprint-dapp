@@ -93,15 +93,15 @@ def id_input_validation(answers, current):
 
 
 def name_input_validation(answers, current):
-    """Functions that validates raw material's name inserted by user
+    """Functions that validates the raw material's or product's name inserted by user
 
     Args:
         answers (Dictionary): Dictionary of inserted answers
         current (Dictionary): Current given answer
 
     Raises:
-        inquirer.errors.ValidationError: Raised if raw material's name contains specials characters
-        inquirer.errors.ValidationError: Raised if raw material's name is an empty string
+        inquirer.errors.ValidationError: Raised if the raw material's/product's name contains specials characters
+        inquirer.errors.ValidationError: Raised if the raw material's/product's name is an empty string
 
     Returns:
         Boolean: True if the input is valid
