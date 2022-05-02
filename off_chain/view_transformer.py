@@ -28,7 +28,7 @@ def add_transformation(web3: Web3):
     
     print("Follow the instructions to add a transformation to a product. You can cancel operation in any moment "
           "by pressing Ctrl+C")
-    
+
     questions = [
         inquirer.List(
             "product_id",
@@ -55,12 +55,12 @@ def add_transformation(web3: Web3):
                 "BE CAREFUL, after this operation the product will be no longer modifiable")
         confirm_question = [inquirer.Confirm(
             "confirm",
-            message=f"Do you want to add this transformation, with a carbon footprint of {answers['CF']}, to the selected product?"
+            message=f"Add transformation, with carbon footprint of {answers['CF']}, to the product?"
         )]
         confirm = inquirer.prompt(
             confirm_question, theme=load_theme_from_dict(theme))
         # if the user confirms the transaction is started.
-        if confirm['confirm'] and confirm is not None:
+        if confirm is not None and confirm['confirm']:
             success = transformer.add_transformation_on_blockchain(
                 int(answers['CF']), answers['product_id'], answers['final'])
             if success:
@@ -97,7 +97,7 @@ def transfer_product(web3: Web3):
     transformer_choice = [
         inquirer.Text(
             "transformer",
-            message="Insert the address of the transformer to who you want to transfer the product",
+            message="Insert recipient's address",
             validate=validation.address_validation,
         )]
     answers_product = inquirer.prompt(product_choice, theme=load_theme_from_dict(theme))
@@ -110,17 +110,17 @@ def transfer_product(web3: Web3):
         if answers_transformer is not None:
             confirm_question = [inquirer.Confirm(
                 "confirm",
-                message=f"Do you want to transfer the selected product to the address {answers_transformer['transformer']}?"
+                message=f"Transfer the selected product to the address {answers_transformer['transformer']}?"
             )]
             confirm_answer = inquirer.prompt(
                 confirm_question, theme=load_theme_from_dict(theme))
 
             # if the user confirms the transaction is started.
-            if confirm_answer["confirm"]:
+            if confirm_answer is not None and confirm_answer["confirm"]:
                 success = transformer.transfer_product_on_blockchain(
                     Web3.toChecksumAddress(answers_transformer['transformer']), answers_product["product_id"])
                 if success:
-                    print("Operation completed succesfully")
+                    print("Operation completed successfully")
 
 
 def create_new_product(web3: Web3):
@@ -155,12 +155,12 @@ def create_new_product(web3: Web3):
         # asks the user for confirmation
         confirm_question = [inquirer.Confirm(
             "confirm",
-            message=f"Do you want to create the product \"{answers['name']}\" with the selected materials?"
+            message=f"Create the product \"{answers['name']}\" with selected materials?"
         )]
         confirm_answer = inquirer.prompt(
             confirm_question, theme=load_theme_from_dict(theme))
         # if the user confirms the transaction is started.
-        if confirm_answer['confirm'] and confirm_answer is not None:
+        if confirm_answer is not None and confirm_answer['confirm']:
             success = transformer.create_new_product_on_blockchain(
                 answers['name'], answers['raw_materials'])
             if success:

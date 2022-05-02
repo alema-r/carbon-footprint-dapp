@@ -42,7 +42,7 @@ def carbon_fp_input_validation(answers, current):
         int_cf = int(current_to_test)
     except Exception:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
-    if int_cf <= 0:
+    if int_cf <= 0 or int_cf > 1000000:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
     return True
 
@@ -66,7 +66,7 @@ def lot_input_validation(answers, current):
         int_lot = int(current_to_test)
     except Exception:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
-    if int_lot < 0:
+    if int_lot < 0 or int_lot > 1000000:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
     return True
 
@@ -93,15 +93,15 @@ def id_input_validation(answers, current):
 
 
 def name_input_validation(answers, current):
-    """Functions that validates raw material's name inserted by user
+    """Functions that validates the raw material's or product's name inserted by user
 
     Args:
         answers (Dictionary): Dictionary of inserted answers
         current (Dictionary): Current given answer
 
     Raises:
-        inquirer.errors.ValidationError: Raised if raw material's name contains specials characters
-        inquirer.errors.ValidationError: Raised if raw material's name is an empty string
+        inquirer.errors.ValidationError: Raised if the raw material's/product's name contains specials characters
+        inquirer.errors.ValidationError: Raised if the raw material's/product's name is an empty string
 
     Returns:
         Boolean: True if the input is valid
@@ -110,5 +110,5 @@ def name_input_validation(answers, current):
     if bool(re.match(pattern, current.strip(' '))):
         return True
     else:
-        raise inquirer.errors.ValidationError('', reason=f'Invalid input: Inserted name is invalid. Please \
-        insert names with only letters and numbers or type almost one character')
+        raise inquirer.errors.ValidationError('',
+                                              reason=f'Invalid input: Inserted name is invalid. Please insert names with only letters and numbers with at least one and at most fifty characters')
