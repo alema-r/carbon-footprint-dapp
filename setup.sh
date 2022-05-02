@@ -5,8 +5,9 @@ usage()
     echo "  -d, --deploy            deploy a new blockchain"
     echo "  -m, --model-checker     compile with SMTCHECKER"
     echo "  -s, --seeding           creates a demo scenario in the blockchain, only use with -d option"
-    echo "  -t, --run-test          run all python tests"
+    echo "  -t, --run-test          run all python tests (do not use with -s)"
     echo "  -r, --req               install python requirements"
+    echo "  -v, --venv              initialize a python virtual environment"
     echo "  -h, --help              shows this message and exit"
 }
 deploy=0
@@ -14,6 +15,8 @@ smt=0
 seeding=0
 run_test=0
 req=0
+venv=0
+
 while [ "$1" != "" ]; do
     case $1 in
         -d | --deploy)              deploy=1
@@ -29,6 +32,8 @@ while [ "$1" != "" ]; do
                                     ;;
         -t | --run-test)            run_test=1
                                     ;;
+        -v | --venv                 venv=1
+                                    ;;
         * )                         usage
                                     exit 1
     esac
@@ -41,7 +46,11 @@ if [[ $seeding == 1 && $run_test == 1 ]]; then
     exit 1
 fi
 
-echo '{"address":""}' > address.json
+if [[ $venv == 1 ]]; then
+    echo 'Creating a virtual environment'
+    python3 -m venv env
+fi
+
 if [[ $req == 1 ]]; then
     echo 'Installing python requirements...'
     pip install -r requirements.txt
@@ -66,7 +75,10 @@ else
     python3 compile.py
 fi
 
-python3 deploy_contracts.py
+if [[ $deploy == 1 ]]; then
+    echo '{"address":""}' > address.json
+    python3 deploy_contracts.py
+fi
 
 if [[ $seeding == 1 ]]; then
     echo 'Starting seeding...'

@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Script used to create a demo scenario on the blockchain.
+"""
 import json
 
 from web3 import Web3
@@ -6,7 +9,7 @@ from web3 import exceptions
 
 BASE_URL = "http://127.0.0.1:2200"
 
-class bcolors:
+class Bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKCYAN = '\033[96m'
@@ -17,13 +20,14 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 def create_users(role: int):
     web3 = Web3(Web3.HTTPProvider(BASE_URL + str(role)))
     web3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-    with open("../address.json", "r") as file:
+    with open("../address.json", "r", encoding="utf-8") as file:
         address = json.load(file)["address"]
-    with open("../solc_output/UserContract.json", "r") as user_compiled:
+    with open("../solc_output/UserContract.json", "r", encoding="utf-8") as user_compiled:
         user_interface = json.load(user_compiled)
     contract_address = Web3.toChecksumAddress(address)
     user_contract = web3.eth.contract(
@@ -37,11 +41,10 @@ def create_users(role: int):
             web3.eth.default_account = address
             # creating new user in the contract state, in the mapping associating address to role
             tx_hash = user_contract.functions.createUser(role).transact()
-            # we wait for transaction receipt in order to do all transactions because python execution is faster
-            # than transaction mining
+            # we wait for transaction receipt in order to do all transactions
+            # because python execution is faster than transaction mining
             web3.eth.wait_for_transaction_receipt(tx_hash)
     return web3, user_contract
-
 
 
 def get_addresses(role: int):
@@ -53,31 +56,32 @@ def get_addresses(role: int):
 
 def create_rm(web3, user_contract, nome, lotto, cf, tr):
     try:
-        tx_hash = user_contract.functions.createRawMaterials(nome, lotto, cf, tr).transact()
-        web3.eth.wait_for_transaction_receipt(tx_hash)
-        print(f"{bcolors.OKGREEN}[RAW MATERIAL CREATED]{bcolors.ENDC} {bcolors.BOLD}{nome[0]}{bcolors.ENDC}, lot: {lotto[0]}, cf: {cf[0]}")
+        #tx_hash = user_contract.functions.createRawMaterials(nome, lotto, cf, tr).transact()
+        #web3.eth.wait_for_transaction_receipt(tx_hash)
+        print(f"{Bcolors.OKGREEN}[RAW MATERIAL CREATED]{Bcolors.ENDC} {Bcolors.BOLD}{nome[0]}{Bcolors.ENDC}, lot: {lotto[0]}, cf: {cf[0]}")
     except exceptions.ContractLogicError as e:
-        print(f"{bcolors.FAIL}[ERROR]{bcolors.ENDC} {e}")
+        print(f"{Bcolors.FAIL}[ERROR]{Bcolors.ENDC} {e}")
 
 
 def mint_product(web3, user_contract, nome, rms):
     try:
         tx_hash = user_contract.functions.createProduct(nome, rms).transact()
         web3.eth.wait_for_transaction_receipt(tx_hash)
-        print(f"{bcolors.OKBLUE}[PRODUCT MINTED]{bcolors.ENDC} {bcolors.BOLD}{nome}{bcolors.ENDC}")
+        print(f"{Bcolors.OKBLUE}[PRODUCT MINTED]{Bcolors.ENDC} {Bcolors.BOLD}{nome}{Bcolors.ENDC}")
     except exceptions.ContractLogicError as e:
-        print(f"{bcolors.FAIL}[ERROR]{bcolors.ENDC} {e}")
-    
+        print(f"{Bcolors.FAIL}[ERROR]{Bcolors.ENDC} {e}")
+ 
 
 def add_cf(web3, user_contract, cf, p_id, ended):
     try:
         tx_hash = user_contract.functions.addTransformation(cf, p_id, ended).transact()
         web3.eth.wait_for_transaction_receipt(tx_hash)
-        print(f"{bcolors.OKCYAN}[TRANSFORMATION PERFORMED]{bcolors.ENDC} added {cf} cf to Prodotto{p_id}")
+        print(f"{Bcolors.OKCYAN}[TRANSFORMATION PERFORMED]{Bcolors.ENDC} added {cf} cf to Prodotto{p_id}")
         if ended:
-            print(f"{bcolors.WARNING}[PRODUCT ENDED]{bcolors.ENDC} Prodotto{p_id}")
+            print(f"{Bcolors.WARNING}[PRODUCT ENDED]{Bcolors.ENDC} Prodotto{p_id}")
     except exceptions.ContractLogicError as e:
-        print(f"{bcolors.FAIL}[ERROR]{bcolors.ENDC} {e}")
+        print(f"{Bcolors.FAIL}[ERROR]{Bcolors.ENDC} {e}")
+
 
 def seeding(role, web3, user_contract):
     """
@@ -90,7 +94,7 @@ def seeding(role, web3, user_contract):
     addresses = get_addresses(role)
     if role == 1:
         transformer_addresses = get_addresses(2)
-        print(f'{bcolors.HEADER}CREATING RAW MATERIALS{bcolors.ENDC}')
+        print(f'{Bcolors.HEADER}CREATING RAW MATERIALS{Bcolors.ENDC}')
         for address in addresses:
             # creating twelve raw materials per supplier with standard name, lot and cf
             web3.eth.default_account = address
@@ -103,22 +107,22 @@ def seeding(role, web3, user_contract):
                 create_rm(web3, user_contract, nome, lotto, cf, tr)
 
     elif role == 2:
-        print(f'{bcolors.HEADER}MINTING PRODUCTS{bcolors.ENDC}')
+        print(f'{Bcolors.HEADER}MINTING PRODUCTS{Bcolors.ENDC}')
         # setting as default account the first transformer
         web3.eth.default_account = addresses[0]
         mint_product(web3, user_contract, "Prodotto1", [0, 20, 8])
         mint_product(web3, user_contract, "Prodotto2", [2, 22, 10])
         mint_product(web3, user_contract, "Prodotto3", [6, 12, 18])
-        
+
         # setting as default account the second transformer
         web3.eth.default_account = addresses[1]
         mint_product(web3, user_contract, "Prodotto4", [15, 3, 5])
         mint_product(web3, user_contract, "Prodotto5", [11, 21, 17])
         mint_product(web3, user_contract, "Prodotto6", [9, 1, 19])
-        
+
         # setting as default account the first transformer again
         web3.eth.default_account = addresses[0]
-        print(f'{bcolors.HEADER}STARTING TRANSFORMATIONS{bcolors.ENDC}')
+        print(f'{Bcolors.HEADER}STARTING TRANSFORMATIONS{Bcolors.ENDC}')
         # starting a cycle in which for every product are done five transformations.
         # product 3 and product 6 are marked as finished
         for i in range(1, 7):
@@ -126,7 +130,7 @@ def seeding(role, web3, user_contract):
                 # setting as default account the second transformer in order to perform transactions
                 web3.eth.default_account = addresses[1]
             for j in range(1, 6):
-                if (i == 3 or i == 6) and j == 5:
+                if i in (3, 6) and j == 5:
                     add_cf(web3, user_contract, j*5, i, True)
                 else:
                     add_cf(web3, user_contract, j*5, i, False)
