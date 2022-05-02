@@ -49,6 +49,7 @@ fi
 if [[ $venv == 1 ]]; then
     echo 'Creating a virtual environment'
     python3 -m venv env
+    source env/bin/activate
 fi
 
 if [[ $req == 1 ]]; then

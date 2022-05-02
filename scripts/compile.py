@@ -8,7 +8,6 @@ import json
 import shutil
 import subprocess
 import sys
-from telnetlib import OUTMRK
 
 NODE_MOD_PATH = "../node_modules/"
 
