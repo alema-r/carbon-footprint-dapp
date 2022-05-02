@@ -32,7 +32,7 @@ while [ "$1" != "" ]; do
                                     ;;
         -t | --run-test)            run_test=1
                                     ;;
-        -v | --venv                 venv=1
+		-v | --venv)                 venv=1
                                     ;;
         * )                         usage
                                     exit 1
@@ -57,6 +57,7 @@ if [[ $req == 1 ]]; then
 fi
 
 if [[ $deploy == 1 ]]; then
+    echo '{"address":""}' > address.json
     echo 'Creating test blockchain...'
     npx quorum-wizard -q
     echo 'Starting blockchain...'
@@ -75,8 +76,7 @@ else
     python3 compile.py
 fi
 
-if [[ $deploy == 1 ]]; then
-    echo '{"address":""}' > address.json
+if [[ $deploy == 1 || $seeding = 1 || $run_test == 1 ]]; then
     python3 deploy_contracts.py
 fi
 
