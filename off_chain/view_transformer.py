@@ -170,8 +170,8 @@ def create_new_product(web3: Web3):
         return
 
     print(
-        "Follow the instructions to create new product. You can cancel operation in any moment "
-        "by pressing Ctrl+C"
+        "Follow the instructions to create new product."
+        "You can cancel operation in any moment by pressing Ctrl+C"
     )
     questions = [
         inquirer.Text(
@@ -181,13 +181,14 @@ def create_new_product(web3: Web3):
         ),
         inquirer.Checkbox(
             "raw_materials",  # The user selects the raw materials to use.
-            message="Select a raw material to use",
+            message="Select a raw material to use (use backspace to select)",
             choices=[
                 (material.__str__(), material.material_id)
                 for material in transformer.get_usable_raw_materials(
                     web3.eth.default_account
                 )
             ],
+            validate=validation.raw_materials_selected,
         ),
     ]
     answers = inquirer.prompt(questions, theme=load_theme_from_dict(theme))

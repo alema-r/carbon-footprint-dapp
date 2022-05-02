@@ -133,3 +133,12 @@ def name_input_validation(answers, current):
             "",
             reason=f"Invalid input: Inserted name is invalid. Please insert names with only letters and numbers with at least one and at most fifty characters",
         )
+
+
+def raw_materials_selected(answers, current):
+    if len(current) > 0:
+        return True
+    else:
+        raise inquirer.errors.ValidationError(
+            "", reason="You must select at least one raw material"
+        )
