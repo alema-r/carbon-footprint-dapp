@@ -17,11 +17,13 @@ class ValidationTest(unittest.TestCase):
         cls.invalid_cf1 = "-10"
         cls.invalid_cf2 = "prova"
         cls.invalid_cf3 = 0
+        cls.invalid_cf4 = 1000001
         cls.valid_lot = 1
         cls.invalid_lot = 10-20
         cls.invalid_lot1 = "-10"
         cls.invalid_lot2 = "prova"
         cls.invalid_lot3 = "   "
+        cls.invalid_lot4 = 1000001
         cls.valid_id = 1
         cls.invalid_id = 10-20
         cls.invalid_id1 = "-10"

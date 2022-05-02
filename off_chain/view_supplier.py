@@ -76,7 +76,7 @@ def insert_raw_material(web3: Web3):
                 transformer_choice = [
                     inquirer.Text(
                         "transformer",
-                        message="Insert the address of the transformer that will receive the raw material",
+                        message="Insert recipient's address of raw material",
                         validate=validation.address_validation,
                     )]
                 # This line show all the questions coded above and the put the user's answers inside "answers" variable
@@ -134,7 +134,7 @@ def insert_raw_material(web3: Web3):
                     # Asking the user for a confirmation
                     question = [
                         inquirer.Confirm("confirm",
-                                         message="Do you want to insert listed raw materials? Press Y to confirm")
+                                         message="Insert listed raw materials? Press Y to confirm")
                     ]
 
                     answer = inquirer.prompt(question, theme=load_theme_from_dict(theme))
