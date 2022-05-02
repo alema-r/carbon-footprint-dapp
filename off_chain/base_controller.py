@@ -1,7 +1,10 @@
+"""Module that implements a base controller class
+"""
 from functools import singledispatch
-from eth_typing import ChecksumAddress
-from requests import exceptions as requests_exceptions
 from typing import List
+from requests import exceptions as requests_exceptions
+
+from eth_typing import ChecksumAddress
 from web3 import Web3
 from web3 import exceptions as solidity_exceptions
 
@@ -11,6 +14,8 @@ from off_chain.models import Product, RawMaterial, Transformation
 
 
 class BlockChain:
+    """Base controller class"""
+
     def __init__(self, web3: Web3):
         self.web3 = web3
         self.user_contract = contracts.build_user_contract(web3)
@@ -20,8 +25,8 @@ class BlockChain:
 
     def set_account_as_default(self, user_role: int, address: str) -> None:
         """
-        Function used to check if user address corresponds to the given role and set current user address as
-        default web3 account in order to accomplish transactions
+        Function used to check if user address corresponds to the given role and set current
+        user address as default web3 account in order to accomplish transactions
         Args:
             user_role: (int): the integer identifier of the role chose by the current user
             address: (Address): address of current logged user
@@ -42,7 +47,9 @@ class BlockChain:
                 if real_role == 0 and user_role != 0:
                     # The user is created with the given role inside the
                     self.web3.eth.default_account = account
-                    tx_hash = self.user_contract.functions.createUser(user_role).transact()
+                    tx_hash = self.user_contract.functions.createUser(
+                        user_role
+                    ).transact()
                     self.web3.eth.wait_for_transaction_receipt(tx_hash)
                 else:
                     # The account is set as the default account
@@ -53,21 +60,22 @@ class BlockChain:
                 raise Exception
         except requests_exceptions.ConnectionError:
             print("Could not connect to the blockchain. Try again")
-        except solidity_exceptions.ContractLogicError as e:
-            print(e)
+        except solidity_exceptions.ContractLogicError as error:
+            print(error)
         except Exception:
             raise Exception(
                 "Error: it's impossible to verify your role and address, please try again"
             )
 
     def get_user_role(self, address: ChecksumAddress = None) -> int:
-        """
-        Function used to validate user address and check if it corresponds to the given role. After
-        validation function set the current user address as default web3 account in order to accomplish transactions
+        """Retrieves the user role of the address (if specified) otherwise it returns
+        the role of the caller.
+
         Args:
-            address: (Address): address of current logged user
+            address (ChecksumAddress, optional): address of a user. Defaults to None.
+
         Returns:
-            role: (int): role of current logged user
+            int: the role of the user (0 = not registered, 1 = supplier, 2 = transformer)
         """
         try:
             if address is None:
@@ -76,15 +84,16 @@ class BlockChain:
                 role = self.user_contract.functions.getRole(address).call()
         except requests_exceptions.ConnectionError:
             print("Could not connect to the blockchain. Try again")
-        except solidity_exceptions.ContractLogicError as e:
-            print(e)
-        except solidity_exceptions.ContractLogicError as e:
-            print(e)
+            return None
+        except solidity_exceptions.ContractLogicError as error:
+            print(error)
+            return None
         else:
             return role
 
     def get_product(self, product_id: int) -> Product:
-        """Gets the product from the blockchain with no information on raw materials and transformations.
+        """Gets the product from the blockchain with no information on raw materials
+        and transformations.
 
         Args:
             product_id (`int`): the id of the product to get
@@ -96,13 +105,10 @@ class BlockChain:
             prod = self.user_contract.functions.getProductById(product_id).call()
         except requests_exceptions.ConnectionError:
             print("Could not connect to the blockchain. Try again")
-            return
-        except solidity_exceptions.ContractLogicError as e:
-            print(e)
-            return
-        except Exception:
-            print("An error occured while processing your request. Try again")
-            return
+            return None
+        except solidity_exceptions.ContractLogicError as error:
+            print(error)
+            return None
         else:
             return Product.from_blockchain(prod)
 
@@ -111,7 +117,8 @@ class BlockChain:
     # doc: https://docs.python.org/3/library/functools.html#functools.singledispatch
     @singledispatch
     def get_product_details(self, product: int) -> Product:
-        """Gets information about raw material used and transformations performed on the specified product
+        """Gets information about raw material used and transformations
+        performed on the specified product
 
         Args_
             product (`int`): the product id
@@ -126,12 +133,8 @@ class BlockChain:
             transformation_events = self.event_logs.get_transformations_events(product)
         except requests_exceptions.ConnectionError:
             print("Could not connect to the blockchain. Try again")
-            return
-        except Exception:
-            print("An error occured while processing your request. Try again")
-            return
+            return None
         else:
-            # The Product object is taken form the blockchain and the materials and transformation info is added
             product = self.get_product(product)
             product.rawMaterials = [
                 RawMaterial.from_event(event=ev) for ev in rm_events
@@ -143,8 +146,8 @@ class BlockChain:
 
     @get_product_details.register
     def _(self, product: Product) -> Product:
-        """Overload of the `get_product_details` function.
-        Gets information about raw material used and transformations performed on the specified product.
+        """Overload of the `get_product_details` function. Gets information about
+        raw material used and transformations performed on the specified product.
 
         Args:
             product (`Product`): the product object with the requested info
@@ -163,10 +166,7 @@ class BlockChain:
             )
         except requests_exceptions.ConnectionError:
             print("Could not connect to the blockchain. Try again")
-            return
-        except Exception:
-            print("An error occured while processing your request. Try again")
-            return
+            return None
         else:
             # materials and transformation info is added to the product
             product.rawMaterials = [
@@ -178,7 +178,8 @@ class BlockChain:
             return product
 
     def get_all_raw_materials(self) -> List[RawMaterial]:
-        """This function fetches and returns the list of all the raw materials saved on the blockchain
+        """This function fetches and returns the list of all the raw materials
+        saved on the blockchain
 
         Returns:
             `list[RawMaterial]`: a list of all the raw materials
@@ -188,17 +189,15 @@ class BlockChain:
         except requests_exceptions.ConnectionError:
             print("Could not connect to the blockchain. Try again")
             return []
-        except solidity_exceptions.ContractLogicError as e:
-            print(e)
-            return []
-        except Exception:
-            print("An error occured while processing your request. Try again")
+        except solidity_exceptions.ContractLogicError as error:
+            print(error)
             return []
         else:
             return [RawMaterial.from_blockchain(rm) for rm in rms]
 
     def get_usable_raw_materials(self, transformer_address) -> List[RawMaterial]:
-        """This function fetches and returns a list of non-used raw materials that belong to the current user from the blockchain
+        """This function fetches and returns a list of non-used raw materials that belong
+        to the current user from the blockchain
         Args:
             transformer_address(`ChecksumAddress`): the address of the current user
         Returns:
@@ -206,8 +205,8 @@ class BlockChain:
         """
         rms = list(
             filter(
-                lambda e: not e.is_used
-                and e.transformer_address == transformer_address,
+                lambda raw_mat: not raw_mat.is_used
+                and raw_mat.transformer_address == transformer_address,
                 self.get_all_raw_materials(),
             )
         )
@@ -231,9 +230,6 @@ class BlockChain:
             products = self.user_contract.functions.getProducts().call()
         except requests_exceptions.ConnectionError:
             print("Could not connect to the blockchain. Try again")
-            return []
-        except Exception:
-            print("An error occured while processing your request. Try again")
             return []
         else:
             return [Product.from_blockchain(product) for product in products]

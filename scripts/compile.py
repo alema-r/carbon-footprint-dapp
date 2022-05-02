@@ -63,10 +63,14 @@ def main():
 
     with open("../solc_output/CFContract.json", "w", encoding="utf-8") as cf_contract:
         json.dump(
-            obj=output["contracts"]["../contracts/CarbonFootprint.sol"]["CarbonFootprint"],
+            obj=output["contracts"]["../contracts/CarbonFootprint.sol"][
+                "CarbonFootprint"
+            ],
             fp=cf_contract,
         )
-    with open("../solc_output/UserContract.json", "w", encoding="utf-8") as user_contract:
+    with open(
+        "../solc_output/UserContract.json", "w", encoding="utf-8"
+    ) as user_contract:
         json.dump(
             obj=output["contracts"]["../contracts/User.sol"]["User"], fp=user_contract
         )

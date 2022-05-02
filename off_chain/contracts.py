@@ -1,23 +1,30 @@
 """
-Module used to interact with contracts deployed on the blockchain.
-First, import this module, then access the contract by doing:
-`contracts.user_contract` or `contracts.cf_contract`.
+Module used to create contracts
 
-Since every subsequent `import` after the first uses the cached module
-instead of re-evaluating it, it is guaranteed that every module that import
-contracts, refer to the same instance.
 """
 import json
+import sys
 
 from web3 import Web3
 
 
 def build_user_contract(web3: Web3):
+    """Creates the User smart contract.
+
+    Args:
+        web3 (Web3): a Web3 object
+
+    Returns:
+        web3.eth.contract: the user contract
+    """
     # getting the address in which the contract is deployed
-    with open("address.json", "r") as file:
+    with open("address.json", "r", encoding="utf-8") as file:
         contract_address_string = json.load(file)["address"]
+    if contract_address_string == "":
+        print("Contracts are not deployed correctly. Check the address.json file.")
+        sys.exit(1)
     # getting the user contract interface in order to build user contract instance
-    with open("solc_output/UserContract.json", "r") as user_compiled:
+    with open("solc_output/UserContract.json", "r", encoding="utf-8") as user_compiled:
         user_interface = json.load(user_compiled)
     # converting the address in checksum address in order to be compatible
     contract_address = web3.toChecksumAddress(contract_address_string)
@@ -29,8 +36,17 @@ def build_user_contract(web3: Web3):
 
 
 def build_cf_contract(user_contract, web3: Web3):
+    """Creates the CarbonFootprint smart contract.
+
+    Args:
+        user_contract (web3.eth.contract): the user contract
+        web3 (Web3): a Web3 istance
+
+    Returns:
+        web3.eth.contract: the CarbonFootprint contract.
+    """
     # getting the user contract interface in order to build Carboon FootPrint contract instance
-    with open("solc_output/CFContract.json", "r") as cf_compiled:
+    with open("solc_output/CFContract.json", "r", encoding="utf-8") as cf_compiled:
         cf_interface = json.load(cf_compiled)
     # creating carboon footprint contract instance in order to interact with it
     cf_contract = web3.eth.contract(

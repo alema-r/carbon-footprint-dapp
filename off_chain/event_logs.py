@@ -9,6 +9,7 @@ from web3.datastructures import AttributeDict
 
 
 class EventLogs:
+    """Class to retrieve events on the blockchain."""
 
     def __init__(self, cf_contract):
         self.transformation_events = partial(
@@ -41,7 +42,9 @@ class EventLogs:
         Returns:
             List[AttributeDict]: a list of events
         """
-        return self.transfer_events(argument_filters={"from": ADDRESS_ZERO}).get_all_entries()
+        return self.transfer_events(
+            argument_filters={"from": ADDRESS_ZERO}
+        ).get_all_entries()
 
     def get_transferred_products_events(self) -> List[AttributeDict]:
         """Retrieves all events about the transfer of any products from the blockchain
@@ -56,7 +59,9 @@ class EventLogs:
             )
         )
 
-    def get_raw_materials_used_events(self, product_id: int = None) -> List[AttributeDict]:
+    def get_raw_materials_used_events(
+        self, product_id: int = None
+    ) -> List[AttributeDict]:
         """Retrieves all events related to the use of any raw material from the blockchain.
 
         Args:

@@ -20,7 +20,7 @@ web3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 # controlling if address.json file is empty or if at the address saved in json file there are no
 # deployed contracts
-if address == "" or web3.eth.get_code(address) != b'':
+if address == "" or web3.eth.get_code(address) != b"":
     # Initializing default supplier and default Transformer instances with
     node2_wallet = web3.toChecksumAddress("0xca843569e3427144cead5e4d5999a3d0ccf92b8e")
     node3_wallet = web3.toChecksumAddress("0x0fbdc686b912d7722dc86510934589e0aaf3b55a")
