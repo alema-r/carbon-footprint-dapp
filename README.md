@@ -1,4 +1,5 @@
 # Progetto software cyberscurity (gruppo 9)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## Table of contents
 1. [Prerequisites](#prerequisites)
@@ -26,7 +27,7 @@ In order to compile contracts you have to
 
 You can download @openzeppelin contracts by executing the command:
 
-`npm install @openzeppelin/contracts`
+`npm install`
 
 To install the compiler, follow the instructions for your OS.
 
