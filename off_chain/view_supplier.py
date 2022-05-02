@@ -82,7 +82,8 @@ def _new_raw_material_prompt(supplier: Supplier):
             )
         if answers_transformer is not None:
             return answers, answers_transformer["transformer"]
-    return None
+        return answers, None
+    return None, None
 
 
 def insert_raw_material(web3: Web3):
@@ -129,26 +130,26 @@ def insert_raw_material(web3: Web3):
             # List of inputs that the user should insert if they choose to add a new raw material
             if action["action"] == "Add raw material":
                 answers, transformer_address = _new_raw_material_prompt(supplier)
-                # New raw material instance generated using user's inputs values
-                raw_material_to_check = RawMaterial(
-                    answers["raw material"],
-                    int(answers["lot"]),
-                    web3.eth.default_account,
-                    int(answers["carbon footprint"]),
-                    transformer_address=Web3.toChecksumAddress(transformer_address),
-                )
-
-                # The new raw material is validated.
-                valid, error_message = input_validation(
-                    raw_material_to_check, raw_materials
-                )
-                # If the new raw material is valid it is appended in the raw materials list
-                if valid:
-                    raw_materials.append(raw_material_to_check)
-                    print("New raw material is valid and ready to be inserted")
-                # If the added raw material is not valid an error message is shown to the user
-                else:
-                    print(f"Invalid input: {error_message}")
+                if answers is not None and transformer_address is not None:
+                    # New raw material instance generated using user's inputs values
+                    raw_material_to_check = RawMaterial(
+                        answers["raw material"],
+                        int(answers["lot"]),
+                        web3.eth.default_account,
+                        int(answers["carbon footprint"]),
+                        transformer_address=Web3.toChecksumAddress(transformer_address),
+                    )
+                    # The new raw material is validated.
+                    valid, error_message = input_validation(
+                        raw_material_to_check, raw_materials
+                    )
+                    # If the new raw material is valid it is appended in the raw materials list
+                    if valid:
+                        raw_materials.append(raw_material_to_check)
+                        print("New raw material is valid and ready to be inserted")
+                    # If the added raw material is not valid an error message is shown to the user
+                    else:
+                        print(f"Invalid input: {error_message}")
 
             # If the user chooses to Cancel the operation all inserted inputs
             # are destroyed and the functions ends
