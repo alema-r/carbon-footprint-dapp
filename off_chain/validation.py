@@ -43,7 +43,7 @@ def carbon_fp_input_validation(answers, current):
     except Exception:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
     if int_cf <= 0 or int_cf > 1000000:
-        raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer')
+        raise inquirer.errors.ValidationError('', reason='Invalid input: Carbon footprint must be a positive integer with a max value of 1000000')
     return True
 
 
@@ -67,7 +67,7 @@ def lot_input_validation(answers, current):
     except Exception:
         raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
     if int_lot < 0 or int_lot > 1000000:
-        raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0')
+        raise inquirer.errors.ValidationError('', reason='Invalid input: Lot must be positive integer or 0 with a max value of 1000000')
     return True
 
 

@@ -55,6 +55,7 @@ class ValidationTest(unittest.TestCase):
             validation.carbon_fp_input_validation(dict(), str(self.invalid_cf1))
             validation.carbon_fp_input_validation(dict(), str(self.invalid_cf2))
             validation.carbon_fp_input_validation(dict(), str(self.invalid_cf3))
+            validation.carbon_fp_input_validation(dict(), str(self.invalid_cf4))
 
     def test_lot_input_validation(self):
         with self.assertRaises(inquirer.errors.ValidationError):
@@ -63,6 +64,7 @@ class ValidationTest(unittest.TestCase):
             validation.carbon_fp_input_validation(dict(), str(self.invalid_lot1))
             validation.carbon_fp_input_validation(dict(), str(self.invalid_lot2))
             validation.carbon_fp_input_validation(dict(), str(self.invalid_lot3))
+            validation.carbon_fp_input_validation(dict(), str(self.invalid_lot4))
 
     def test_id_input_validation(self):
         self.assertTrue(validation.id_input_validation(dict(), str(self.valid_id)))
@@ -81,8 +83,6 @@ class ValidationTest(unittest.TestCase):
             validation.name_input_validation(dict(), str(self.invalid_name3))
             validation.name_input_validation(dict(), str(self.invalid_name4))
             validation.name_input_validation(dict(), str(self.invalid_name5))
-    
-
 
 
 if __name__ == '__main__':
