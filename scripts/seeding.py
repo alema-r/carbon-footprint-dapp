@@ -59,8 +59,8 @@ def get_addresses(role: int):
 
 def create_rm(web3, user_contract, nome, lotto, cf, tr):
     try:
-        # tx_hash = user_contract.functions.createRawMaterials(nome, lotto, cf, tr).transact()
-        # web3.eth.wait_for_transaction_receipt(tx_hash)
+        tx_hash = user_contract.functions.createRawMaterials(nome, lotto, cf, tr).transact()
+        web3.eth.wait_for_transaction_receipt(tx_hash)
         print(
             f"{Bcolors.OKGREEN}[RAW MATERIAL CREATED]{Bcolors.ENDC} {Bcolors.BOLD}{nome[0]}{Bcolors.ENDC}, lot: {lotto[0]}, cf: {cf[0]}"
         )
