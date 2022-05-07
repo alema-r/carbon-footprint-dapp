@@ -1,7 +1,6 @@
 off_chain/__pycache__/*
 off_chain/address.json
 node_modules/*
-package.json
 solc_output/CFContract.json
 solc_output/errors.json
 .deps/
