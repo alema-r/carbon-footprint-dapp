@@ -42,7 +42,7 @@ To install the compiler, follow the instructions for your OS.
 
 Then you can execute the `setup.sh` script and specify flags.
 ```
-usage: setup.sh [-dmr] [-s|-t]
+usage: setup.sh [-dmrv] [-s|-t]
   -d, --deploy            deploy a new blockchain
   -m, --model-checker     compile with SMTCHECKER
   -s, --seeding           creates a demo scenario in the blockchain, 
@@ -79,3 +79,8 @@ python3 seeding.py
 To start the application execute the `main.py` script.
 
 `python3 main.py`
+
+The application is a CLI application, so you will perform actions using only your keyboard.
+- You can navigate a list by pressing up and down arrows and you can select the option by pressing enter.
+- Some input are list of checkbox: you can select/unselect an option by pressing space and press enter to confirm the selection.
+- Finally in a text input, you simply have to answer the question and press enter when you're done.
