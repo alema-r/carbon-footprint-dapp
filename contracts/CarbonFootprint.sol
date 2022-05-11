@@ -261,7 +261,6 @@ contract CarbonFootprint is ERC721 {
                 allRawMaterials[_index[i]].transformer == tx.origin,
                 "A selected raw material is not property of the current user. Creation failed."
             );
-            //assert(RmToProduct[_index[i]] == 0);
             RmToProduct[_index[i]] = productId;
             allRawMaterials[_index[i]].isUsed = true;
             cf += allRawMaterials[_index[i]].CF;
@@ -307,7 +306,6 @@ contract CarbonFootprint is ERC721 {
             productToUpdate.currentOwner == tx.origin,
             "To add a carbon footprint to a product you must be its owner. Operation failed."
         );
-        //assert(productToUpdate.productId < productId);
         productToUpdate.CF += partialCF;
         emit newCFAdded(tx.origin, partialCF, pId);
         if (isEnded) {
