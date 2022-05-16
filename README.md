@@ -84,3 +84,8 @@ The application is a CLI application, so you will perform actions using only you
 - You can navigate a list by pressing up and down arrows and you can select the option by pressing enter.
 - Some input are list of checkbox: you can select/unselect an option by pressing space and press enter to confirm the selection.
 - Finally in a text input, you simply have to answer the question and press enter when you're done.
+
+Here you can see a demo of the application, with key presses on screen:
+
+https://user-images.githubusercontent.com/79423643/168593985-c4e11072-ee0d-4f0a-acac-10614c8257b7.mp4
+
