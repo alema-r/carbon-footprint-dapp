@@ -181,7 +181,7 @@ def create_new_product(web3: Web3):
         ),
         inquirer.Checkbox(
             "raw_materials",  # The user selects the raw materials to use.
-            message="Select a raw material to use (use backspace to select)",
+            message="Select a raw material to use (use space to select)",
             choices=[
                 (material.__str__(), material.material_id)
                 for material in transformer.get_usable_raw_materials(
