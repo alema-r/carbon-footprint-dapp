@@ -107,6 +107,7 @@ If you want to seed the blockchain, run:
 `python3 seeding.py`
 
 Otherwise, if you want to run tests, you can execute:
+
 **Linux**
 
 `./test.sh`
